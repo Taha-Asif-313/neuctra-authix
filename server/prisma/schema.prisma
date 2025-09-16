@@ -1,0 +1,74 @@
+// ---------- Datasource ----------
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Generator ----------
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ---------- Models ----------
+model AdminUser {
+  id        String   @id           // 👈 crypto-generated ID
+  name      String
+  email     String   @unique
+  password  String
+  apiKey    String?   @unique        // 👈 crypto-generated API key
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
+  
+  // Extra user data
+  phone     String?
+  address   String?
+  avatarUrl String?
+  isActive  Boolean  @default(true)
+
+  // Relations
+  apps      App[]
+  users     User[]
+}
+
+model App {
+  id              String   @id      // 👈 crypto-generated ID
+  applicationName String
+  category        String
+  description     String
+  platform        String
+  isActive        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now())
+
+  // Relation: each App belongs to one Admin
+  adminId   String
+  admin     AdminUser @relation(fields: [adminId], references: [id])
+
+  // Relation: one App can have many Users
+  users     User[]
+}
+
+model User {
+  id        String   @id      // 👈 crypto-generated ID
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
+
+
+  // Extra user data
+  phone     String?
+  address   String?
+  avatarUrl String?
+  isActive  Boolean  @default(true)
+  role      String   @default("user")
+
+  // Relation: each User belongs to one App
+  appId     String
+  app       App @relation(fields: [appId], references: [id])
+
+  // Relation: each User also belongs to one Admin
+  adminId   String
+  admin     AdminUser @relation(fields: [adminId], references: [id])
+}

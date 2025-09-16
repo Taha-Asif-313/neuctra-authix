@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+:root{
+  --primary-color : #00c420
+}
+
+@theme {
+  --color-primary: var(--primary-color);
+}
+
+body{
+    font-family: "Poppins", sans-serif;
+}
+
+/* ===== Custom Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 6px;              /* Thin vertical scrollbar */
+  height: 6px;             /* Thin horizontal scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Track background (optional) */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--primary-color, #3b82f6); /* Primary color (default: Tailwind blue-500) */
+  border-radius: 9999px;   /* Rounded edges */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--primary-hover, #2563eb); /* Darker on hover */
+}
+
+/* ===== Firefox ===== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color, #3b82f6) transparent;
+}
+
