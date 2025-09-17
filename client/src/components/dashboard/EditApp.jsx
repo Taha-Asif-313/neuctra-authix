@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Globe, Smartphone, Server, Code, Save } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -7,13 +7,14 @@ import { useAuth } from "../../contexts/AuthContext";
 
 const EditApp = ({ appData, appId, onClose, onSave }) => {
   const { apps, setApps } = useApp();
- const { admin } = useAuth();
+  const { admin } = useAuth();
+
   const [formData, setFormData] = useState({
     name: appData?.applicationName || "",
     description: appData?.description || "",
     category: appData?.category || "",
     platform: appData?.platform || "web",
-    techStack: appData?.techStack || [],
+    techStack: Array.isArray(appData?.techStack) ? appData.techStack : [],
     newTech: "",
   });
 
@@ -38,12 +39,21 @@ const EditApp = ({ appData, appId, onClose, onSave }) => {
     { value: "api", label: "API/Backend", icon: Code },
   ];
 
+  // Keep formData in sync if appData changes
+  useEffect(() => {
+    setFormData({
+      name: appData?.applicationName || "",
+      description: appData?.description || "",
+      category: appData?.category || "",
+      platform: appData?.platform || "web",
+      techStack: Array.isArray(appData?.techStack) ? appData.techStack : [],
+      newTech: "",
+    });
+  }, [appData]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -51,8 +61,21 @@ const EditApp = ({ appData, appId, onClose, onSave }) => {
     setIsSubmitting(true);
 
     try {
+      const idToUpdate = appData?.id || appId;
+
+      if (!idToUpdate) {
+        toast.error("App ID is missing!");
+        return;
+      }
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("User token missing, please login again");
+        return;
+      }
+
       const res = await axios.put(
-        `${import.meta.env.VITE_SERVER_URL}/api/apps/edit/${appData.id}`,
+        `${import.meta.env.VITE_SERVER_URL}/api/apps/edit/${idToUpdate}`,
         {
           applicationName: formData.name,
           category: formData.category,
@@ -61,28 +84,29 @@ const EditApp = ({ appData, appId, onClose, onSave }) => {
           techStack: formData.techStack,
         },
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      if (res.data.success) {
-        const updated = res.data.data;
+      const updated = res?.data?.updatedApp;
 
+      
+      if (res?.data?.success && updated?.id) {
         setApps((prev) =>
-          prev.map((app) => (app.id === updated.id ? updated : app))
+          Array.isArray(prev)
+            ? prev.map((app) => (app?.id === updated.id ? updated : app))
+            : []
         );
 
         toast.success(res.data.message || "App updated successfully!");
-        onSave(updated);
-        onClose();
+        onSave?.(updated);
+        onClose?.();
       } else {
-        toast.error(res.data.message || "Failed to update app");
+        toast.error(res?.data?.message || "Failed to update app");
       }
     } catch (err) {
       console.error("Update App Error:", err);
-      toast.error(err.response?.data?.message || "Something went wrong");
+      toast.error(err?.response?.data?.message || "Something went wrong");
     } finally {
       setIsSubmitting(false);
     }

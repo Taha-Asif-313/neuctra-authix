@@ -58,8 +58,20 @@ const AdminReportPage = () => {
       );
 
       if (format === "json") {
-        console.log(response.data);
-        toast.success("Report fetched (check console)");
+        // Convert JSON to Blob and trigger download
+        const dataStr = JSON.stringify(response.data, null, 2); // pretty print
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `admin-report-${Date.now()}.json`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+
+        toast.success("Report downloaded as JSON!");
         return;
       }
 
@@ -191,7 +203,7 @@ const AdminReportPage = () => {
           <div className="bg-zinc-900 rounded-xl p-5 shadow-lg border border-zinc-800">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-primary/20 mr-4">
-                <User className="h-6 w-6 text-blue-400" />
+                <User className="h-6 w-6" />
               </div>
               <div>
                 <p className="text-zinc-400 text-sm">Total Users</p>
@@ -205,7 +217,7 @@ const AdminReportPage = () => {
           <div className="bg-zinc-900 rounded-xl p-5 shadow-lg border border-zinc-800">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-green-500/20 mr-4">
-                <Grid className="h-6 w-6 text-green-400" />
+                <Grid className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <p className="text-zinc-400 text-sm">Total Apps</p>

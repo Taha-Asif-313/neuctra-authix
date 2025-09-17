@@ -15,7 +15,7 @@ import EditApp from "./EditApp";
 import DeleteAppModal from "./DeleteAppModal";
 
 const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
-  const { admin, token } = useAuth(); // ✅ bring token also
+  const { admin, token } = useAuth();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -23,9 +23,9 @@ const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [appState, setAppState] = useState(app || {});
 
-  // Keep local state in sync with parent prop changes
+  // Sync local state when prop changes
   useEffect(() => {
-    setAppState(app);
+    setAppState(app || {});
   }, [app]);
 
   // Close dropdown when clicking outside
@@ -39,8 +39,9 @@ const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  /** 🔹 Toggle Active Status */
+  /** Toggle Active Status */
   const handleToggleStatus = async () => {
+    if (!appState?.id) return toast.error("App ID is missing!");
     try {
       const { data } = await axios.patch(
         `${import.meta.env.VITE_SERVER_URL}/api/apps/status/${appState.id}`,
@@ -48,15 +49,15 @@ const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "x-api-key": admin.apiKey,
+            "x-api-key": admin?.apiKey || "",
           },
         }
       );
 
       if (data.success) {
-        toast.success(data.message);
-        setAppState(data.updatedApp); // ✅ update local card
-        onActiveToggle(data.updatedApp); // ✅ notify parent
+        setAppState(data.updatedApp || appState);
+        onActiveToggle?.(data.updatedApp || appState);
+        toast.success(data.message || "Status updated!");
       } else {
         toast.error(data.message || "Failed to update status");
       }
@@ -66,8 +67,9 @@ const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
     }
   };
 
-  /** 🔹 View App (fetch single app) */
+  /** View App */
   const handleView = async () => {
+    if (!appState?.id) return toast.error("App ID is missing!");
     try {
       const { data } = await axios.get(
         `${import.meta.env.VITE_SERVER_URL}/api/apps/${appState.id}`,
@@ -75,9 +77,10 @@ const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+
       if (data.success) {
+        navigate(`/dashboard/app/${appState.id}`, { state: data.data || {} });
         toast.success("App loaded successfully");
-        navigate(`/dashboard/app/${appState.id}`, { state: data.data });
       } else {
         toast.error(data.message || "Failed to fetch app");
       }
@@ -88,27 +91,29 @@ const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
       setDropdownOpen(false);
     }
   };
-  console.log(app);
+
+  // Safe nested data
+  const userCount = appState?._count?.users || 0;
 
   return (
     <>
       <div className="bg-zinc-950 border-gray-800 rounded-2xl p-5 flex flex-col justify-between">
-        {/* App Header */}
+        {/* Header */}
         <div className="flex items-start justify-between mb-4 relative">
           <div className="flex items-center gap-3">
             <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-lg">
-              {appState.applicationName?.charAt(0)}
+              {appState?.applicationName?.charAt(0) || "?"}
             </div>
             <div>
               <p className="text-base font-semibold text-white">
-                {appState.applicationName}
+                {appState?.applicationName || "Untitled"}
               </p>
               <span
-                className={`px-2 py-0.5 text-[10px] rounded-full ${getCategoryColor(
-                  appState.category
-                )}`}
+                className={`px-2 py-0.5 text-[10px] rounded-full ${
+                  getCategoryColor?.(appState?.category) || "bg-gray-700"
+                }`}
               >
-                {appState.category}
+                {appState?.category || "Unknown"}
               </span>
             </div>
           </div>
@@ -148,56 +153,57 @@ const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
         </div>
 
         {/* Description */}
-        <p className="text-gray-400 text-sm mb-4">{appState.description}</p>
+        <p className="text-gray-400 text-sm mb-4">
+          {appState?.description || "No description available."}
+        </p>
 
         {/* Stats */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
             <Users size={14} className="text-gray-400 mr-1" />
-            <span className="text-sm text-white">
-              {appState._count.users || 0}
-            </span>
+            <span className="text-sm text-white">{userCount}</span>
             <span
               className={`text-xs ml-2 ${
-                appState._count.users >= 0 ? "text-green-400" : "text-red-400"
+                userCount >= 0 ? "text-green-400" : "text-red-400"
               }`}
             >
-              {appState._count.users >= 0 ? "↑" : "↓"}{" "}
-              {Math.abs(appState._count.users || 0)}%
+              {userCount >= 0 ? "↑" : "↓"} {Math.abs(userCount)}
             </span>
           </div>
           <span
             className={`px-2 py-1 text-xs font-medium rounded-full ${
-              appState.isActive
+              appState?.isActive
                 ? "bg-green-600/20 text-green-400"
                 : "bg-gray-700 text-gray-400"
             }`}
           >
-            {appState.isActive ? "Active" : "Inactive"}
+            {appState?.isActive ? "Active" : "Inactive"}
           </span>
         </div>
 
         {/* Footer Actions */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-700">
-          {/* Toggle */}
           <div className="flex items-center">
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
-                checked={Boolean(!!appState?.isActive)}
+                checked={Boolean(appState?.isActive)}
                 onChange={handleToggleStatus}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
             </label>
             <span className="ml-2 text-sm text-gray-400">
-              {appState.isActive ? "Enabled" : "Disabled"}
+              {appState?.isActive ? "Enabled" : "Disabled"}
             </span>
           </div>
 
-          {/* Open */}
           <button
-            onClick={() => navigate(`/dashboard/app/${appState.id}`)}
+            onClick={() =>
+              appState?.id
+                ? navigate(`/dashboard/app/${appState.id}`)
+                : toast.error("App ID is missing!")
+            }
             className="flex items-center gap-1 px-3 py-2 text-sm bg-primary hover:bg-primary/30 text-white rounded-lg transition"
           >
             <span>View Details</span>
@@ -206,13 +212,13 @@ const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
         </div>
       </div>
 
-      {/* Delete Confirm */}
+      {/* Delete Modal */}
       {deleteModalOpen && (
         <DeleteAppModal
           app={appState}
           onCancel={() => setDeleteModalOpen(false)}
           onConfirm={() => {
-            onDelete && onDelete(appState.id);
+            if (appState?.id) onDelete?.(appState.id);
             setDeleteModalOpen(false);
           }}
         />
@@ -222,10 +228,11 @@ const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
       {editModalOpen && (
         <EditApp
           appData={appState}
+          appId={appState?.id}
           onClose={() => setEditModalOpen(false)}
           onSave={(updatedApp) => {
-            setAppState(updatedApp); // ✅ update immediately
-            onActiveToggle(updatedApp); // ✅ sync with parent
+            setAppState(updatedApp || appState);
+            onActiveToggle?.(updatedApp || appState);
             setEditModalOpen(false);
           }}
         />

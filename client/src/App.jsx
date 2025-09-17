@@ -20,8 +20,8 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import ProfilePage from "./pages/dashboard/ProfilePage";
 import { AppProvider } from "./contexts/AppContext";
 import ApiKeysPage from "./pages/dashboard/ApiKeysPage";
-import AccountReport from "./pages/dashboard/AccountReport";
 import AdminReportPage from "./pages/dashboard/AdminReportPage";
+import ApplicationsPage from "./pages/dashboard/ApplicationsPage";
 
 // ✅ Protected wrapper inside same file
 const ProtectedRoute = ({ Component }) => {
@@ -88,9 +88,9 @@ function AppContent() {
           <Route index element={<DashboardPage />} />
           <Route path="app/:id" element={<AppDetail />} />
           <Route path="profile" element={<ProfilePage />} />
-            <Route path="apikeys" element={<ApiKeysPage />} />
-              <Route path="accountreport" element={<AccountReport />} />
-             <Route path="admin-report" element={<AdminReportPage />} />
+          <Route path="apikeys" element={<ApiKeysPage />} />
+          <Route path="admin-report" element={<AdminReportPage />} />
+          <Route path="apps" element={<ApplicationsPage />} />
         </Route>
 
         {/* Catch-all */}

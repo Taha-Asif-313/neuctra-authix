@@ -201,7 +201,8 @@ export const deleteApp = async (req, res) => {
     const { id } = req.params;
 
     const app = await prisma.app.findFirst({
-      where: { id: id, adminId: req.admin.id },
+      where: { id, adminId: req.admin.id },
+      include: { users: true }, // get related users
     });
 
     if (!app) {
@@ -211,11 +212,19 @@ export const deleteApp = async (req, res) => {
       });
     }
 
+    // Delete related users first
+    if (app.users?.length > 0) {
+      await prisma.user.deleteMany({
+        where: { appId: app.id },
+      });
+    }
+
+    // Delete the app
     await prisma.app.delete({ where: { id: app.id } });
 
     return res.status(200).json({
       success: true,
-      message: "App deleted successfully",
+      message: "App and related users deleted successfully",
     });
   } catch (err) {
     console.error("DeleteApp Error:", err);
@@ -226,6 +235,7 @@ export const deleteApp = async (req, res) => {
     });
   }
 };
+
 
 /**
  * @desc    Toggle App status (active/inactive)

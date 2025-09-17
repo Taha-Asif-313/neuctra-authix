@@ -4,7 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import toast from "react-hot-toast";
 import axios from "axios";
 
-const DeleteAppModal = ({ app, onCancel, onConfirm }) => {
+const DeleteAppModal = ({ app,appId, onCancel, onConfirm }) => {
   const [loading, setloading] = useState(false);
   const { admin } = useAuth();
 
