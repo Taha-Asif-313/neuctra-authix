@@ -2,7 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { Loader2, UserPlus, Trash2, Edit, X, MoreVertical } from "lucide-react";
+import {
+  Loader2,
+  UserPlus,
+  Trash2,
+  Edit,
+  X,
+  MoreVertical,
+  Copy,
+} from "lucide-react";
 import AddNewUser from "../../components/dashboard/AddNewUser";
 import EditApp from "../../components/dashboard/EditApp";
 import UserRow from "../../components/dashboard/UserRow";
@@ -18,6 +26,7 @@ const AppDetail = () => {
   const [editAppModalOpen, setEditAppModalOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [app, setApp] = useState(null);
+  const [copied, setCopied] = useState(false);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -74,6 +83,30 @@ const AppDetail = () => {
     setUsers((prev) => prev.filter((u) => u.id !== deletedUserId));
   };
 
+// ✅ Single Copy Function
+const handleCopy = (text) => {
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "absolute";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+
+    setCopied(true);
+    toast.success("App ID copied!");
+    setTimeout(() => setCopied(false), 2000); // reset copied state
+  } catch (err) {
+    console.error("Copy failed:", err);
+    toast.error("Failed to copy App ID");
+  }
+};
+
+
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -101,9 +134,25 @@ const AppDetail = () => {
               <span className="h-10 w-10 sm:h-12 sm:w-12 flex items-center justify-center rounded-xl bg-primary text-white font-bold text-lg">
                 {app.applicationName?.charAt(0)}
               </span>
-              {app.applicationName}
+              <div>
+                {app.applicationName}
+                {/* App ID */}
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-gray-400">App ID:</p>
+                  <span className="text-xs text-gray-200 truncate max-w-[200px]">
+                    {app.id}
+                  </span>
+                  <button
+                    onClick={() => handleCopy(app.id)}
+                    className="p-1 rounded-md hover:bg-zinc-700 text-gray-300"
+                  >
+                    <Copy size={14} />
+                  </button>
+                </div>
+              </div>
             </h1>
             <p className="text-sm text-gray-300 mb-3">{app.description}</p>
+
             <div className="flex gap-3 flex-wrap text-xs sm:text-sm text-gray-300">
               <span className="px-3 py-1 bg-black rounded-full">
                 {app.category}
@@ -114,7 +163,7 @@ const AppDetail = () => {
               <span
                 className={`px-3 py-1 rounded-full ${
                   app.isActive
-                    ? "bg-green-600/10 text-green-400"
+                    ? "bg-primary/10 text-primary"
                     : "bg-red-600/20 text-red-400"
                 }`}
               >
@@ -210,11 +259,12 @@ const AppDetail = () => {
       {deleteAppModalOpen && (
         <DeleteAppModal
           app={app}
-appId = {app.id}
+          appId={app.id}
           onCancel={() => setDeleteAppModalOpen(false)}
           onConfirm={() => {
-                   setDeleteAppModalOpen(false);
-            navigate("/dashboard")}}
+            setDeleteAppModalOpen(false);
+            navigate("/dashboard");
+          }}
         />
       )}
 
