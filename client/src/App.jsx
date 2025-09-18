@@ -22,6 +22,8 @@ import { AppProvider } from "./contexts/AppContext";
 import ApiKeysPage from "./pages/dashboard/ApiKeysPage";
 import AdminReportPage from "./pages/dashboard/AdminReportPage";
 import ApplicationsPage from "./pages/dashboard/ApplicationsPage";
+import SupportPage from "./pages/dashboard/SupportPage";
+import DocsPage from "./pages/dashboard/DocsPage";
 
 // ✅ Protected wrapper inside same file
 const ProtectedRoute = ({ Component }) => {
@@ -91,6 +93,8 @@ function AppContent() {
           <Route path="apikeys" element={<ApiKeysPage />} />
           <Route path="admin-report" element={<AdminReportPage />} />
           <Route path="apps" element={<ApplicationsPage />} />
+          <Route path="support" element={<SupportPage />} />
+          <Route path="docs" element={<DocsPage />} />
         </Route>
 
         {/* Catch-all */}

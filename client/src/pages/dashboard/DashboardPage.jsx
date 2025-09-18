@@ -73,7 +73,7 @@ const DashboardPage = () => {
       Analytics: "bg-green-500/20 text-green-400",
       Education: "bg-indigo-500/20 text-indigo-400",
     };
-    return colors[category] || "bg-gray-500/20 text-gray-400";
+    return colors[category] || "bg-primary/10 text-primary";
   };
 
   return (

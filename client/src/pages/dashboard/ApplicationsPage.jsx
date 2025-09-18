@@ -88,7 +88,7 @@ console.log(apps);
     return <p className="text-center text-sm mt-10">No apps found.</p>;
 
   return (
-    <div className="p-5">
+    <div>
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-2xl font-bold text-white">Applications</h2>
         {/* Search Field */}

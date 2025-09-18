@@ -11,6 +11,7 @@ import {
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuth } from "../../contexts/AuthContext";
+import CustomDropdown from "../CustomDropdown";
 
 const AddNewApp = ({ onClose, onSave }) => {
   const { admin } = useAuth();
@@ -112,36 +113,21 @@ const AddNewApp = ({ onClose, onSave }) => {
     }
   };
 
-  const prevStep = () => setCurrentStep((prev) => prev - 1);
-
   return (
     <div className="fixed inset-0 h-screen bg-black/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
       <div className="bg-black rounded-2xl w-full max-w-2xl max-h-[95vh] overflow-y-auto border border-zinc-800 shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-zinc-800">
+        <div className="flex items-center justify-between px-4 pt-6 sm:px-6">
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
               className="p-2 rounded-lg hover:bg-zinc-900 transition"
             >
-              <X size={20} className="text-gray-400" />
+              <X size={20} className="" />
             </button>
             <h2 className="text-lg sm:text-xl font-bold text-white">
               Create New Application
             </h2>
-          </div>
-          <div className="flex items-center gap-2">
-            {currentStep > 1 && (
-              <button
-                onClick={prevStep}
-                className="px-2 sm:px-3 py-2 text-gray-300 hover:text-white transition"
-              >
-                <ArrowLeft size={18} />
-              </button>
-            )}
-            <span className="text-xs text-gray-400">
-              Step {currentStep} of 2
-            </span>
           </div>
         </div>
 
@@ -166,23 +152,15 @@ const AddNewApp = ({ onClose, onSave }) => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-300 mb-2">
-                    Category *
-                  </label>
-                  <select
-                    name="category"
+                  <CustomDropdown
+                    label="Category"
+                    options={categories}
                     value={formData.category}
-                    onChange={handleInputChange}
+                    onChange={(val) =>
+                      setFormData((prev) => ({ ...prev, category: val }))
+                    }
                     required
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm bg-zinc-950 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                  >
-                    <option value="">Select a category</option>
-                    {categories.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
               </div>
 
@@ -219,9 +197,7 @@ const AddNewApp = ({ onClose, onSave }) => {
                       }
                     >
                       <Icon size={20} className="text-gray-300 mb-1 sm:mb-2" />
-                      <p className="text-xs sm:text-sm text-gray-300">
-                        {label}
-                      </p>
+                      <p className="text-xs text-gray-300">{label}</p>
                     </div>
                   ))}
                 </div>
@@ -280,7 +256,7 @@ const AddNewApp = ({ onClose, onSave }) => {
           )}
 
           {/* Footer */}
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-3 px-4 sm:px-6 py-3 border-t border-zinc-800">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3 px-4 sm:px-6 pb-6">
             <button
               type="button"
               onClick={onClose}

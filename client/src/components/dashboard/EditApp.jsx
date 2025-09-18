@@ -4,6 +4,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useApp } from "../../contexts/AppContext";
 import { useAuth } from "../../contexts/AuthContext";
+import CustomDropdown from "../CustomDropdown";
 
 const EditApp = ({ appData, appId, onClose, onSave }) => {
   const { apps, setApps } = useApp();
@@ -150,23 +151,16 @@ const EditApp = ({ appData, appId, onClose, onSave }) => {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-300 mb-2">
-                  Category *
-                </label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm bg-zinc-950 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                >
-                  <option value="">Select a category</option>
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
+                <CustomDropdown
+                    label="Category"
+                    options={categories}
+                    value={formData.category}
+                    onChange={(val) =>
+                      setFormData((prev) => ({ ...prev, category: val }))
+                    }
+                    required
+                  />  
+              
               </div>
             </div>
 
