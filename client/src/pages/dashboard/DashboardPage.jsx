@@ -17,7 +17,8 @@ import {
   EyeOff,
   Smartphone,
   Globe,
-  Server
+  Server,
+  Box,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
@@ -26,13 +27,13 @@ import AppCard from "../../components/dashboard/AppCard";
 import toast from "react-hot-toast";
 import axios from "axios";
 
-const CustomDropdown = ({ 
-  options, 
-  value, 
-  onChange, 
-  icon: Icon, 
-  placeholder, 
-  className = "" 
+const CustomDropdown = ({
+  options,
+  value,
+  onChange,
+  icon: Icon,
+  placeholder,
+  className = "",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = React.useRef(null);
@@ -48,7 +49,9 @@ const CustomDropdown = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const selectedOption = options.find(opt => opt.value === value) || { label: placeholder };
+  const selectedOption = options.find((opt) => opt.value === value) || {
+    label: placeholder,
+  };
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
@@ -60,12 +63,14 @@ const CustomDropdown = ({
           {Icon && <Icon size={16} className="text-primary mr-2" />}
           <span className="text-sm">{selectedOption.label}</span>
         </div>
-        <ChevronDown 
-          size={16} 
-          className={`text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+        <ChevronDown
+          size={16}
+          className={`text-gray-400 transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
         />
       </button>
-      
+
       {isOpen && (
         <div className="absolute z-10 w-full mt-1 py-2 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg">
           {options.map((option) => (
@@ -128,7 +133,7 @@ const DashboardPage = () => {
 
         if (res.data.success) {
           setApps(res.data.data);
-          
+
           // Extract unique categories
           const uniqueCategories = [
             ...new Set(res.data.data.map((app) => app.category)),
@@ -149,18 +154,21 @@ const DashboardPage = () => {
   }, [token]);
 
   // Filter apps based on search and category
-  const filteredApps = apps.filter(app => {
-    const matchesSearch = searchQuery === "" || 
+  const filteredApps = apps.filter((app) => {
+    const matchesSearch =
+      searchQuery === "" ||
       app.applicationName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (app.description && app.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (app.description &&
+        app.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
       app.category.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesCategory = categoryFilter === "all" || app.category === categoryFilter;
-    
+
+    const matchesCategory =
+      categoryFilter === "all" || app.category === categoryFilter;
+
     return matchesSearch && matchesCategory;
   });
 
-  const activeApps = apps.filter(app => app.isActive).length;
+  const activeApps = apps.filter((app) => app.isActive).length;
   const totalUsers = apps.reduce((acc, app) => acc + (app.users || 0), 0);
 
   // 🔹 Handle deletion (remove from state instantly)
@@ -189,9 +197,10 @@ const DashboardPage = () => {
   };
 
   const getPlatformIcon = (platform) => {
-    if (platform?.toLowerCase().includes('web')) return <Globe size={16} />;
-    if (platform?.toLowerCase().includes('mobile')) return <Smartphone size={16} />;
-    if (platform?.toLowerCase().includes('server')) return <Server size={16} />;
+    if (platform?.toLowerCase().includes("web")) return <Globe size={16} />;
+    if (platform?.toLowerCase().includes("mobile"))
+      return <Smartphone size={16} />;
+    if (platform?.toLowerCase().includes("server")) return <Server size={16} />;
     return <Globe size={16} />;
   };
 
@@ -203,7 +212,7 @@ const DashboardPage = () => {
   // Prepare dropdown options
   const categoryOptions = [
     { value: "all", label: "All Categories" },
-    ...categories.map(cat => ({ value: cat, label: cat }))
+    ...categories.map((cat) => ({ value: cat, label: cat })),
   ];
 
   if (loading) {
@@ -290,8 +299,8 @@ const DashboardPage = () => {
             </div>
           </div>
           <p className="text-green-400 text-sm mt-3 flex items-center">
-            <TrendingUp size={14} className="mr-1" />
-            +{Math.floor(apps.length * 0.12)} from last month
+            <TrendingUp size={14} className="mr-1" />+
+            {Math.floor(apps.length * 0.12)} from last month
           </p>
         </div>
 
@@ -308,8 +317,8 @@ const DashboardPage = () => {
             </div>
           </div>
           <p className="text-green-400 text-sm mt-3 flex items-center">
-            <TrendingUp size={14} className="mr-1" />
-            +{Math.floor(totalUsers * 0.082)} from last month
+            <TrendingUp size={14} className="mr-1" />+
+            {Math.floor(totalUsers * 0.082)} from last month
           </p>
         </div>
 
@@ -317,9 +326,7 @@ const DashboardPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-400 text-sm">Active Apps</p>
-              <p className="text-2xl font-bold text-white mt-1">
-                {activeApps}
-              </p>
+              <p className="text-2xl font-bold text-white mt-1">{activeApps}</p>
             </div>
             <div className="p-3 bg-amber-500/20 rounded-xl">
               <Activity size={20} className="text-amber-400" />
@@ -357,14 +364,10 @@ const DashboardPage = () => {
         </div>
       </div>
 
-    
-
       {/* Results Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-xl font-semibold text-white">
-          Your Applications
-        </h2>
-        
+        <h2 className="text-xl font-semibold text-white">Your Applications</h2>
+
         {activeFiltersCount > 0 && (
           <button
             onClick={clearFilters}
@@ -378,18 +381,19 @@ const DashboardPage = () => {
 
       {/* Apps Grid/List View */}
       {filteredApps.length === 0 ? (
-        <div className="flex flex-col items-center justify-center min-h-[300px] bg-zinc-900/30 rounded-2xl p-8 text-center">
-          <div className="p-4 bg-primary/5 rounded-full mb-4">
-            <Search size={40} className="text-primary" />
+        <div className="flex flex-col items-center justify-center min-h-[300px] bg-zinc-900/30 rounded-2xl border-2 border-dashed border-zinc-700/50 p-8 text-center">
+          <div className="p-4 bg-primary/10 rounded-full mb-4">
+            <Box size={40} className="text-primary" />
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">No applications found</h3>
-          <p className="text-gray-400 mb-6 max-w-md">
-            {searchQuery || categoryFilter !== "all" 
+          <h3 className="text-lg font-medium text-white mb-2">
+            No applications found
+          </h3>
+          <p className="text-gray-400 text-sm mb-6 max-w-md">
+            {searchQuery || categoryFilter !== "all"
               ? "No applications match your current filters. Try adjusting your search criteria."
-              : "You haven't created any applications yet. Get started by adding your first app."
-            }
+              : "You haven't created any applications yet. Get started by adding your first app."}
           </p>
-          {(searchQuery || categoryFilter !== "all") ? (
+          {searchQuery || categoryFilter !== "all" ? (
             <button
               onClick={clearFilters}
               className="flex items-center px-4 py-2.5 bg-primary hover:bg-primary/90 rounded-lg font-medium transition-colors"
@@ -408,11 +412,13 @@ const DashboardPage = () => {
           )}
         </div>
       ) : (
-        <div className={
-          viewMode === "grid" 
-            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" 
-            : "space-y-4"
-        }>
+        <div
+          className={
+            viewMode === "grid"
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+              : "space-y-4"
+          }
+        >
           {filteredApps.map((app) => (
             <AppCard
               key={app.id}

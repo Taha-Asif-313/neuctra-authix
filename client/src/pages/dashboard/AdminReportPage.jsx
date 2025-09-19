@@ -153,21 +153,21 @@ const AdminReportPage = () => {
 
   if (!report)
     return (
-      <div className="min-h-screen bg-gradient-to-br from-zinc-900 to-zinc-950 flex items-center justify-center p-4">
-        <div className="text-center p-8 bg-zinc-900/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-zinc-800 max-w-md w-full">
-          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="h-8 w-8 text-red-400" />
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="text-center backdrop-blur-sm max-w-md w-full">
+          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="h-8 w-8 text-red-500" />
           </div>
           <h2 className="text-2xl font-bold text-zinc-100 mb-2">
             Failed to Load Report
           </h2>
-          <p className="text-zinc-400 mb-6">
+          <p className="text-zinc-400 text-sm mb-6">
             Unable to fetch report data. Please check your connection and try
             again.
           </p>
           <button
             onClick={fetchReport}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-zinc-100 font-medium transition-colors flex items-center justify-center mx-auto"
+            className="px-6 py-2 text-sm bg-primary hover:bg-primary/80 rounded text-zinc-100 font-medium transition-colors flex items-center justify-center mx-auto"
           >
             <RefreshCw size={18} className="mr-2" />
             Retry

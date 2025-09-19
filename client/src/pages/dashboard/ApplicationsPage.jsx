@@ -57,9 +57,8 @@ const CustomDropdown = ({
         </div>
         <ChevronDown
           size={16}
-          className={`text-gray-400 transition-transform ${
-            isOpen ? "rotate-180" : ""
-          }`}
+          className={`text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""
+            }`}
         />
       </button>
 
@@ -272,22 +271,20 @@ const ApplicationsPage = () => {
           <div className="flex bg-zinc-800 rounded-lg p-1">
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-2 rounded-md transition-colors ${
-                viewMode === "grid"
+              className={`p-2 rounded-md transition-colors ${viewMode === "grid"
                   ? "bg-primary text-white shadow-md"
                   : "text-gray-400 hover:text-gray-200"
-              }`}
+                }`}
               aria-label="Grid view"
             >
               <Grid size={18} />
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`p-2 rounded-md transition-colors ${
-                viewMode === "list"
+              className={`p-2 rounded-md transition-colors ${viewMode === "list"
                   ? "bg-primary text-white shadow-md"
                   : "text-gray-400 hover:text-gray-200"
-              }`}
+                }`}
               aria-label="List view"
             >
               <List size={18} />
@@ -357,9 +354,8 @@ const ApplicationsPage = () => {
 
         {/* Advanced Filters */}
         <div
-          className={`${
-            showFilters ? "flex" : "hidden"
-          } md:flex flex-col md:flex-row gap-4 mt-4 md:mt-3`}
+          className={`${showFilters ? "flex" : "hidden"
+            } md:flex flex-col md:flex-row gap-4 mt-4 md:mt-3`}
         >
           {/* Category Filter */}
           <CustomDropdown
@@ -402,13 +398,13 @@ const ApplicationsPage = () => {
           <h3 className="text-lg font-medium text-white mb-2">
             No applications yet
           </h3>
-          <p className="text-gray-400 text-center mb-6 max-w-md">
+          <p className="text-gray-400 text-sm text-center mb-6 max-w-md">
             Get started by adding your first application to the dashboard.
           </p>
           {admin && (
             <button
               onClick={() => setShowNewAppForm(true)}
-              className="flex items-center px-5 py-2.5 bg-primary hover:bg-primary/90 rounded-lg font-medium transition-colors shadow-lg shadow-primary/20"
+              className="flex items-center px-5 py-2.5 text-sm bg-primary hover:bg-primary/90 rounded-lg font-medium transition-colors shadow-lg shadow-primary/20"
             >
               <Plus size={18} className="mr-1.5" />
               Create Your First App
@@ -423,7 +419,7 @@ const ApplicationsPage = () => {
           <h3 className="text-lg font-medium text-white mb-2">
             No results found
           </h3>
-          <p className="text-gray-400 text-center mb-6">
+          <p className="text-gray-400 text-sm text-center mb-6">
             No applications match your current filters.
           </p>
           <button
@@ -455,7 +451,7 @@ const ApplicationsPage = () => {
             ))}
           </div>
 
-         
+
         </>
       )}
 

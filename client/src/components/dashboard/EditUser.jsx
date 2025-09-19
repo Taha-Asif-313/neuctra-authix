@@ -20,6 +20,7 @@ const EditUser = ({ user, appId, onClose, onSave }) => {
     password: "",
     isActive: true,
   });
+console.log(formData);
 
   // preload existing user data
   useEffect(() => {

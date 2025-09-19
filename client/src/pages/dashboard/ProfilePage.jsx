@@ -380,20 +380,21 @@ const ProfilePage = () => {
   if (!formData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] p-6">
-        <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mb-4">
-          <XCircle className="h-8 w-8 text-red-400" />
+        <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-4">
+          <XCircle className="h-8 w-8 text-red-500" />
         </div>
         <h2 className="text-xl font-semibold text-white mb-2">
           Profile Not Found
         </h2>
-        <p className="text-gray-400 text-center mb-4">
+        <p className="text-gray-400 text-sm text-center mb-4">
           Unable to load your profile information. Please try refreshing the
           page.
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-primary hover:bg-primary/90 rounded-lg text-white"
+          className="px-4 py-2 bg-primary hover:bg-primary/90 rounded text-sm flex items-center cursor-pointer text-white"
         >
+          <RefreshCw size={18} className="mr-2" />
           Refresh Page
         </button>
       </div>
@@ -441,7 +442,7 @@ const ProfilePage = () => {
             <span
               className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
                 formData.isActive
-                  ? "bg-green-500/20 text-green-300"
+                  ? "bg-primary/10 text-primary"
                   : "bg-red-500/20 text-red-300"
               }`}
             >
@@ -490,8 +491,8 @@ const ProfilePage = () => {
                 {formData?._count?.users ?? 0}
               </p>
             </div>
-            <div className="p-3 bg-green-500/20 rounded-lg">
-              <Users size={20} className="text-green-400" />
+            <div className="p-3 bg-primary/10 rounded-lg">
+              <Users size={20} className="text-primary" />
             </div>
           </div>
         </div>
@@ -664,9 +665,7 @@ const ProfileField = ({
   };
 
   return (
-    <div
-      className={`flex flex-col gap-1 ${fullWidth ? "md:col-span-2" : ""}`}
-    >
+    <div className={`flex flex-col gap-1 ${fullWidth ? "md:col-span-2" : ""}`}>
       {/* Label */}
       <div className="flex items-center gap-2 text-xs font-medium text-gray-400">
         {icon}
@@ -692,10 +691,7 @@ const ProfileField = ({
           </span>
         ) : (
           // Normal preview
-          <span
-            className="flex-1 text-white text-sm truncate"
-            title={value}
-          >
+          <span className="flex-1 text-white text-sm truncate" title={value}>
             {value || "—"}
           </span>
         )}
@@ -743,6 +739,5 @@ const ProfileField = ({
     </div>
   );
 };
-
 
 export default ProfilePage;

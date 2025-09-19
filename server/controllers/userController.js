@@ -114,7 +114,7 @@ export const getUsers = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const id = req.params.id;
-    const { name, email, appId } = req.body;
+    const { name, email, appId, isActive } = req.body;
 
     if (!appId) {
       return res.status(400).json({
@@ -165,6 +165,7 @@ export const updateUser = async (req, res) => {
     if (typeof email === "string" && email.trim() !== "") {
       updateData.email = email.trim().toLowerCase();
     }
+    updateData.isActive = isActive;
 
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
@@ -174,6 +175,7 @@ export const updateUser = async (req, res) => {
         name: true,
         email: true,
         appId: true,
+        isActive:true,
         updatedAt: true,
       },
     });
@@ -194,11 +196,6 @@ export const updateUser = async (req, res) => {
 };
 
 
-/**
- * @desc    Delete user (only if belongs to logged-in admin)
- * @route   DELETE /api/users/delete/:id
- * @access  Private (Admin only)
- */
 /**
  * @desc    Delete user (only if belongs to logged-in admin & app)
  * @route   DELETE /api/users/delete/:id
