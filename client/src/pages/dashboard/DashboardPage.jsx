@@ -267,7 +267,7 @@ const DashboardPage = () => {
           {/* Add New App Button */}
           <button
             onClick={() => setShowNewAppForm(true)}
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2.5 rounded-lg transition shadow-lg shadow-primary/20"
+            className="flex items-center text-sm gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2.5 rounded-lg transition shadow-lg shadow-primary/20"
           >
             <Plus size={18} />
             <span className="inline">New App</span>
@@ -379,8 +379,8 @@ const DashboardPage = () => {
       {/* Apps Grid/List View */}
       {filteredApps.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[300px] bg-zinc-900/30 rounded-2xl p-8 text-center">
-          <div className="p-4 bg-zinc-800 rounded-full mb-4">
-            <Search size={40} className="text-gray-400" />
+          <div className="p-4 bg-primary/5 rounded-full mb-4">
+            <Search size={40} className="text-primary" />
           </div>
           <h3 className="text-lg font-medium text-white mb-2">No applications found</h3>
           <p className="text-gray-400 mb-6 max-w-md">
@@ -400,7 +400,7 @@ const DashboardPage = () => {
           ) : (
             <button
               onClick={() => setShowNewAppForm(true)}
-              className="flex items-center px-5 py-2.5 bg-primary hover:bg-primary/90 rounded-lg font-medium transition-colors"
+              className="flex items-center text-sm px-5 py-2.5 bg-primary hover:bg-primary/90 rounded-lg font-medium transition-colors"
             >
               <Plus size={18} className="mr-1.5" />
               Create Your First App

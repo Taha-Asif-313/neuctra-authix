@@ -116,7 +116,7 @@ const AdminReportPage = () => {
 
   const getPlatformIcon = (platform) => {
     if (platform?.toLowerCase().includes("web"))
-      return <Globe size={16} className="text-blue-400" />;
+      return <Globe size={16} className="text-primary" />;
     if (platform?.toLowerCase().includes("mobile"))
       return <Smartphone size={16} className="text-green-400" />;
     if (platform?.toLowerCase().includes("server"))
@@ -177,7 +177,7 @@ const AdminReportPage = () => {
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-900 to-zinc-950 text-zinc-100 p-4 sm:p-6">
+    <div className="min-h-screen bg-zinc-950 rounded-lg text-zinc-100 p-4 sm:p-6">
       <header className="mb-8 flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
         <div className="flex-1">
           <h1 className="text-2xl sm:text-3xl font-bold text-zinc-100">
@@ -191,7 +191,7 @@ const AdminReportPage = () => {
         {/* Download Reports Section */}
         <div className="bg-zinc-900/50 backdrop-blur-sm rounded-xl p-4 border border-zinc-800 max-w-md w-full">
           <div className="flex items-center gap-2 mb-3">
-            <Download size={20} className="text-blue-400" />
+            <Download size={20} className="text-primary" />
             <h3 className="font-medium text-zinc-100">Export Reports</h3>
           </div>
           <p className="text-zinc-400 text-sm mb-3">
@@ -243,7 +243,7 @@ const AdminReportPage = () => {
               key={tab.id}
               className={`flex items-center gap-2 px-4 py-3 font-medium capitalize whitespace-nowrap min-w-max ${
                 activeTab === tab.id
-                  ? "text-blue-400 border-b-2 border-blue-400"
+                  ? "text-primary border-b-2 border-primary"
                   : "text-zinc-400 hover:text-zinc-300"
               }`}
               onClick={() => setActiveTab(tab.id)}
@@ -415,7 +415,7 @@ const AdminReportPage = () => {
                       <div className="text-xs text-zinc-400">ID: {app.id}</div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="inline-block px-2 py-1 text-xs bg-blue-500/10 text-blue-400 rounded-full">
+                      <span className="inline-block px-2 py-1 text-xs bg-primary/10 text-primary rounded-full">
                         {app.category}
                       </span>
                     </td>
@@ -451,8 +451,8 @@ const AdminReportPage = () => {
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           app.isActive
-                            ? "bg-green-500/20 text-green-300"
-                            : "bg-red-500/20 text-red-300"
+                            ? "bg-primary/10 text-primary"
+                            : "bg-red-500/10 text-red-500"
                         }`}
                       >
                         {app.isActive ? "Active" : "Inactive"}
@@ -556,7 +556,7 @@ const AdminReportPage = () => {
                     <td className="py-3 px-4">
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2 text-sm">
-                          <Mail size={14} className="text-blue-400" />
+                          <Mail size={14} className="text-primary" />
                           <span className="text-zinc-100">{user.email}</span>
                         </div>
                         {user.phone && (
@@ -570,7 +570,7 @@ const AdminReportPage = () => {
                     <td className="py-3 px-4">
                       <div className="text-sm text-zinc-300">
                         {user.appId ? (
-                          <span className="bg-blue-500/10 text-blue-400 px-2 py-1 rounded text-xs">
+                          <span className="bg-primary/5 text-primary px-2 py-1 rounded text-xs">
                             {user.appId}
                           </span>
                         ) : (
@@ -582,8 +582,8 @@ const AdminReportPage = () => {
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           user.isActive
-                            ? "bg-green-500/20 text-green-300"
-                            : "bg-red-500/20 text-red-300"
+                            ? "bg-primary/10 text-primary"
+                            : "bg-red-500/10 text-red-500"
                         }`}
                       >
                         {user.isActive ? "Active" : "Inactive"}

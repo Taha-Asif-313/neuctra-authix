@@ -501,10 +501,10 @@ const ProfilePage = () => {
       <div className="backdrop-blur-sm overflow-hidden">
         <div className="mb-5">
           <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-            <User size={20} />
+            <User className="text-primary" size={24} />
             Profile Information
           </h2>
-          <p className="text-xs mt-1">
+          <p className="text-xs max-sm:hidden mt-1">
             Manage your personal information and account settings
           </p>
         </div>
