@@ -28,7 +28,7 @@ import {
   X,
   Link,
   Image,
-  Loader
+  Loader,
 } from "lucide-react";
 
 // Avatar Update Modal Component
@@ -82,7 +82,7 @@ const AvatarUpdateModal = ({ isOpen, onClose, currentAvatar, onSave }) => {
   const handleUrlChange = (e) => {
     const url = e.target.value;
     setAvatarUrl(url);
-    
+
     // Basic URL validation for preview
     try {
       new URL(url);
@@ -126,7 +126,7 @@ const AvatarUpdateModal = ({ isOpen, onClose, currentAvatar, onSave }) => {
                     alt="Preview"
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.target.style.display = 'none';
+                      e.target.style.display = "none";
                     }}
                   />
                 ) : (
@@ -136,7 +136,9 @@ const AvatarUpdateModal = ({ isOpen, onClose, currentAvatar, onSave }) => {
                 )}
               </div>
               <p className="text-xs text-zinc-400 text-center">
-                {previewUrl ? "Preview" : "Enter a valid image URL to see preview"}
+                {previewUrl
+                  ? "Preview"
+                  : "Enter a valid image URL to see preview"}
               </p>
             </div>
 
@@ -146,7 +148,10 @@ const AvatarUpdateModal = ({ isOpen, onClose, currentAvatar, onSave }) => {
                 Image URL
               </label>
               <div className="relative">
-                <Link className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400" size={16} />
+                <Link
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400"
+                  size={16}
+                />
                 <input
                   type="url"
                   value={avatarUrl}
@@ -161,8 +166,9 @@ const AvatarUpdateModal = ({ isOpen, onClose, currentAvatar, onSave }) => {
             {/* Tips */}
             <div>
               <p className="text-xs text-zinc-400">
-                <strong>Tips:</strong> Use services like Imgur, Cloudinary, or upload to a CDN. 
-                Make sure the URL points directly to an image file (.jpg, .png, etc.).
+                <strong>Tips:</strong> Use services like Imgur, Cloudinary, or
+                upload to a CDN. Make sure the URL points directly to an image
+                file (.jpg, .png, etc.).
               </p>
             </div>
           </div>
@@ -282,7 +288,7 @@ const ProfilePage = () => {
         updateData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
+
       if (data.success) {
         setFormData(updateData);
         toast.success("Avatar updated successfully!");
@@ -635,80 +641,108 @@ const ProfileField = ({
   regenerating = false,
   fullWidth = false,
 }) => {
+  // ✅ Universal copy handler (with fallback)
   const handleCopy = () => {
-    navigator.clipboard.writeText(value);
-    toast.success(`${label} copied to clipboard`);
+    try {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(value);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = value;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "absolute";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+      toast.success(`${label} copied to clipboard`);
+    } catch (err) {
+      toast.error("Failed to copy");
+    }
   };
 
   return (
-    <div className={`flex flex-col gap-2 ${fullWidth ? "md:col-span-2" : ""}`}>
-      <label className="text-xs font-medium text-gray-400 flex items-center gap-2">
+    <div
+      className={`flex flex-col gap-1 ${fullWidth ? "md:col-span-2" : ""}`}
+    >
+      {/* Label */}
+      <div className="flex items-center gap-2 text-xs font-medium text-gray-400">
         {icon}
-        {label}
-        {isCopyable && value && (
-          <button
-            onClick={handleCopy}
-            className="text-gray-500 hover:text-white transition-colors"
-            title="Copy to clipboard"
-          >
-            <Copy size={14} />
-          </button>
-        )}
-      </label>
+        <span>{label}</span>
+      </div>
 
-      {editable && name ? (
-        <input
-          type={type}
-          name={name}
-          value={value || ""}
-          onChange={onChange}
-          placeholder={placeholder}
-          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder-zinc-500"
-        />
-      ) : (
-        <div className="flex items-center gap-2">
-          {isSecret ? (
-            <>
-              <input
-                type="password"
-                value={value || ""}
-                readOnly
-                className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white font-mono text-sm"
-              />
-              <button
-                onClick={onToggleSecret}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
-                title={isSecret ? "Show API key" : "Hide API key"}
-              >
-                {isSecret ? <Eye size={16} /> : <EyeOff size={16} />}
-              </button>
-            </>
-          ) : (
-            <input
-              type="text"
-              value={value || "—"}
-              readOnly
-              className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white truncate"
-            />
+      {/* Field container */}
+      <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2">
+        {editable && name ? (
+          // Editable input
+          <input
+            type={type}
+            name={name}
+            value={value || ""}
+            onChange={onChange}
+            placeholder={placeholder}
+            className="flex-1 bg-transparent outline-none text-white placeholder-zinc-500 px-1"
+          />
+        ) : isSecret ? (
+          // Secret preview
+          <span className="flex-1 text-white font-mono text-sm select-none">
+            ••••••••••
+          </span>
+        ) : (
+          // Normal preview
+          <span
+            className="flex-1 text-white text-sm truncate"
+            title={value}
+          >
+            {value || "—"}
+          </span>
+        )}
+
+        {/* Actions */}
+        <div className="flex items-center gap-1 ml-2">
+          {/* Copy */}
+          {isCopyable && value && !editable && (
+            <button
+              onClick={handleCopy}
+              className="p-1 text-gray-400 hover:text-white transition-colors rounded-md hover:bg-zinc-800"
+              title="Copy to clipboard"
+            >
+              <Copy size={14} />
+            </button>
           )}
 
+          {/* Toggle Secret */}
+          {isSecret && (
+            <button
+              onClick={onToggleSecret}
+              className="p-1 text-gray-400 hover:text-white transition-colors rounded-md hover:bg-zinc-800"
+              title={isSecret ? "Show value" : "Hide value"}
+            >
+              {isSecret ? <Eye size={14} /> : <EyeOff size={14} />}
+            </button>
+          )}
+
+          {/* Regenerate */}
           {onRegenerate && (
             <button
               onClick={onRegenerate}
               disabled={regenerating}
-              className="p-2 text-blue-400 hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              title="Regenerate API key"
+              className="p-1 text-blue-400 hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-md hover:bg-zinc-800 transition-colors"
+              title="Regenerate"
             >
               <RefreshCw
-                size={16}
+                size={14}
                 className={regenerating ? "animate-spin" : ""}
               />
             </button>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
+
 
 export default ProfilePage;
