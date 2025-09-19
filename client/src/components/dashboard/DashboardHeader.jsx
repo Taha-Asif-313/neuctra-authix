@@ -32,18 +32,18 @@ const DashboardHeader = ({sidebarOpen, setSidebarOpen}) => {
         </div>
 
         <div className="flex items-center space-x-4">
-          <button className="p-2 rounded-full hover:bg-gray-800 relative">
+          <Link to={"/dashboard/support"} className="p-2 rounded-full hover:bg-gray-800 relative">
             <HelpCircle size={20} />
-          </button>
-          <button className="p-2 rounded-full hover:bg-gray-800 relative">
+          </Link>
+          <Link to={"/dashboard/support"} className="p-2 rounded-full hover:bg-gray-800 relative">
             <Settings size={20} />
-          </button>
+          </Link>
           <Link to={"/dashboard/profile"}>
             {admin.avatarUrl ? (
               <img
                 src={admin.avatarUrl}
                 alt="logo"
-                className="w-8 h-8 rounded-full object-top"
+                className="w-8 h-8 rounded-full object-cover object-top"
               />
             ) : (
               <span className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-medium">

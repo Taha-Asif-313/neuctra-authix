@@ -72,7 +72,9 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
         className={`
           fixed md:relative h-screen w-64 bg-zinc-950 border-r border-black flex flex-col z-30
           transform transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+          ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          }
         `}
       >
         <div className="p-5 text-xl font-bold text-white flex items-center justify-between">
@@ -81,10 +83,14 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
               <img src="/logo.png" size={20} />
             </div>
             <span className="text-sm">
-              Neuctra <span className="text-primary italic font-black">Authix</span>
+              Neuctra{" "}
+              <span className="text-primary italic font-black">Authix</span>
             </span>
           </Link>
-          <button onClick={toggleSidebar} className="md:hidden text-gray-400 hover:text-white">
+          <button
+            onClick={toggleSidebar}
+            className="md:hidden text-gray-400 hover:text-white"
+          >
             <X size={24} />
           </button>
         </div>
@@ -100,9 +106,17 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
                 <div
                   className={`
                     flex items-center justify-between px-4 py-3 rounded-lg cursor-pointer
-                    ${isActive ? "bg-primary text-white" : "hover:bg-primary/15 text-gray-300"}
+                    ${
+                      isActive
+                        ? "bg-primary text-white"
+                        : "hover:bg-gray-800 text-gray-300"
+                    }
                   `}
-                  onClick={() => (item.subItems ? toggleSubMenu(item.name) : setSidebarOpen(false))}
+                  onClick={() =>
+                    item.subItems
+                      ? toggleSubMenu(item.name)
+                      : setSidebarOpen(false)
+                  }
                 >
                   <Link
                     to={item.path || "#"}
@@ -125,7 +139,13 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
                       </span>
                     )}
                     {item.subItems && (
-                      <button>{isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</button>
+                      <button>
+                        {isExpanded ? (
+                          <ChevronDown size={16} />
+                        ) : (
+                          <ChevronRight size={16} />
+                        )}
+                      </button>
                     )}
                   </div>
                 </div>
@@ -157,18 +177,25 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
         <div className="p-4 border-t border-gray-800">
           <Link
             to={"/dashboard/profile"}
-            className="flex items-center space-x-3 p-3 text-gray-300"
+            className="flex items-center space-x-3 p-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
           >
             <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex items-center justify-center">
-              {admin.avatarUrl ? (
-                <img className="object-top" src={admin.avatarUrl} alt="avatar" />
-              ) : (
-                <User size={20} />
+              {admin?.avatarUrl ? (
+                <img
+                  className="w-full h-full object-cover"
+                  src={admin.avatarUrl}
+                  alt="avatar"
+                />
+              ) : null}
+              {!admin?.avatarUrl && (
+                <User size={20} className="text-gray-400" />
               )}
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">{admin.name}</p>
-              <p className="text-xs text-gray-400">Administrator</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">
+                {admin?.name || "Admin"}
+              </p>
+              <p className="text-xs text-gray-400 truncate">Administrator</p>
             </div>
           </Link>
 
@@ -186,8 +213,12 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
       {showLogoutModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-50">
           <div className="bg-zinc-950 border border-zinc-900 p-6 rounded-lg w-lg">
-            <h2 className="text-lg font-bold text-white mb-4">Confirm Logout</h2>
-            <p className="text-gray-400 mb-6">Are you sure you want to logout?</p>
+            <h2 className="text-lg font-bold text-white mb-4">
+              Confirm Logout
+            </h2>
+            <p className="text-gray-400 mb-6">
+              Are you sure you want to logout?
+            </p>
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setShowLogoutModal(false)}

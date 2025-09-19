@@ -548,6 +548,7 @@ export const getAdminReport = async (req, res) => {
         name: app.applicationName,
         category: app.category,
         platform: app.platform,
+        isActive: app.isActive,
         usersCount: app.users.length,
       })),
       users: admin.users.map((user) => ({
@@ -556,7 +557,7 @@ export const getAdminReport = async (req, res) => {
         email: user.email,
         phone: user.phone,
         isActive: user.isActive,
-        appId : user.appId
+        appId: user.appId,
       })),
     };
 
