@@ -7,7 +7,6 @@ import {
   UserPlus,
   Trash2,
   Edit,
-  X,
   MoreVertical,
   Copy,
 } from "lucide-react";
@@ -16,6 +15,8 @@ import EditApp from "../../components/dashboard/EditApp";
 import UserRow from "../../components/dashboard/UserRow";
 import { useAuth } from "../../contexts/AuthContext";
 import DeleteAppModal from "../../components/dashboard/DeleteAppModal";
+import EditUser from "../../components/dashboard/EditUser";
+import DeleteUserModal from "../../components/dashboard/DeleteUserModal";
 
 const AppDetail = () => {
   const { id } = useParams();
@@ -29,8 +30,11 @@ const AppDetail = () => {
   const [copied, setCopied] = useState(false);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editUser, setEditUser] = useState(null);
+  const [deleteUser, setDeleteUser] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const navigate = useNavigate();
+
   // fetch app + users
   useEffect(() => {
     const fetchApp = async () => {
@@ -39,19 +43,13 @@ const AppDetail = () => {
           `${import.meta.env.VITE_SERVER_URL}/api/apps/${id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        console.log(data);
 
         if (data.success) {
           setApp(data.data);
           setUsers(data.data.users || []);
-        } else {
-          setApp(staticApp);
-          setUsers(staticUsers);
         }
       } catch (err) {
         console.error("Fetch App Error:", err);
-        setApp(staticApp);
-        setUsers(staticUsers);
       } finally {
         setLoading(false);
       }
@@ -71,41 +69,27 @@ const AppDetail = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Handle Update User
   const handleUpdateUser = (updatedUser) => {
     setUsers((prev) =>
       prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
     );
   };
 
-  // Handle Delete User
   const handleDeleteUser = async (deletedUserId) => {
     setUsers((prev) => prev.filter((u) => u.id !== deletedUserId));
   };
 
-// ✅ Single Copy Function
-const handleCopy = (text) => {
-  try {
-    const textarea = document.createElement("textarea");
-    textarea.value = text;
-    textarea.setAttribute("readonly", "");
-    textarea.style.position = "absolute";
-    textarea.style.left = "-9999px";
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand("copy");
-    document.body.removeChild(textarea);
-
-    setCopied(true);
-    toast.success("App ID copied!");
-    setTimeout(() => setCopied(false), 2000); // reset copied state
-  } catch (err) {
-    console.error("Copy failed:", err);
-    toast.error("Failed to copy App ID");
-  }
-};
-
-
+  const handleCopy = (text) => {
+    try {
+      navigator.clipboard.writeText(text);
+      setCopied(true);
+      toast.success("App ID copied!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Copy failed:", err);
+      toast.error("Failed to copy App ID");
+    }
+  };
 
   if (loading) {
     return (
@@ -124,46 +108,51 @@ const handleCopy = (text) => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-3">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* App Info */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 sm:p-6 shadow-xl">
-        <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
+      <div className="bg-gradient-to-br  from-zinc-900 to-zinc-950 border border-zinc-800 rounded-2xl p-6 shadow-2xl">
+        <div className="relative flex flex-col-reverse sm:flex-row sm:justify-between sm:items-start gap-6">
           {/* Left: App Details */}
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3 flex items-center gap-3">
-              <span className="h-10 w-10 sm:h-12 sm:w-12 flex items-center justify-center rounded-xl bg-primary text-white font-bold text-lg">
+          <div className="space-y-4">
+            <div className="flex max-sm:flex-col max-sm:items-start items-center gap-4">
+              <span className="h-14 w-14 flex items-center justify-center rounded-2xl bg-primary text-white font-bold text-lg shadow-md">
                 {app.applicationName?.charAt(0)}
               </span>
               <div>
-                {app.applicationName}
+                <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                  {app.applicationName}
+                </h1>
                 {/* App ID */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 mt-1">
                   <p className="text-xs text-gray-400">App ID:</p>
                   <span className="text-xs text-gray-200 truncate max-w-[200px]">
                     {app.id}
                   </span>
                   <button
                     onClick={() => handleCopy(app.id)}
-                    className="p-1 rounded-md hover:bg-zinc-700 text-gray-300"
+                    className="p-1 rounded-md hover:bg-zinc-800 text-gray-300"
                   >
                     <Copy size={14} />
                   </button>
                 </div>
               </div>
-            </h1>
-            <p className="text-sm text-gray-300 mb-3">{app.description}</p>
+            </div>
+
+            <p className="text-sm text-gray-300 leading-relaxed">
+              {app.description}
+            </p>
 
             <div className="flex gap-3 flex-wrap text-xs sm:text-sm text-gray-300">
-              <span className="px-3 py-1 bg-black rounded-full">
+              <span className="px-3 py-1 bg-zinc-800/80 rounded-full">
                 {app.category}
               </span>
-              <span className="px-3 py-1 bg-black rounded-full">
+              <span className="px-3 py-1 bg-zinc-800/80 rounded-full">
                 {app.platform}
               </span>
               <span
-                className={`px-3 py-1 rounded-full ${
+                className={`px-3 py-1 rounded-full font-medium ${
                   app.isActive
-                    ? "bg-primary/10 text-primary"
+                    ? "bg-green-500/10 text-green-400"
                     : "bg-red-600/20 text-red-400"
                 }`}
               >
@@ -173,25 +162,37 @@ const handleCopy = (text) => {
           </div>
 
           {/* Right: Actions */}
-          <div className="relative" ref={dropdownRef}>
+          <div
+            className="relative max-sm:absolute top-0 right-0 self-start sm:self-auto"
+            ref={dropdownRef}
+          >
             <button
               onClick={() => setDropdownOpen((prev) => !prev)}
-              className="p-2 rounded-lg hover:bg-black"
+              className="p-2 rounded-xl hover:bg-zinc-800 text-gray-300"
             >
               <MoreVertical className="w-5 h-5" />
             </button>
 
             {dropdownOpen && (
-              <div className="absolute right-0 overflow-hidden mt-2 w-40 bg-zinc-950 border border-zinc-800 rounded-lg shadow-lg z-50">
+              <div
+                className="
+        absolute right-0 mt-2 
+        w-44 
+        bg-zinc-900 border border-zinc-800 
+        rounded-xl shadow-xl 
+        overflow-hidden z-50 
+        animate-fadeIn
+      "
+              >
                 <button
                   onClick={() => setEditAppModalOpen(true)}
-                  className="w-full flex items-center gap-2 px-4 py-3 text-sm text-blue-400 hover:bg-zinc-800"
+                  className="w-full flex items-center gap-2 px-4 py-3 text-sm text-blue-400 hover:bg-zinc-800 transition"
                 >
                   <Edit className="w-4 h-4" /> Edit
                 </button>
                 <button
                   onClick={() => setDeleteAppModalOpen(true)}
-                  className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-zinc-800"
+                  className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-zinc-800 transition"
                 >
                   <Trash2 className="w-4 h-4" /> Delete
                 </button>
@@ -202,25 +203,27 @@ const handleCopy = (text) => {
       </div>
 
       {/* Users */}
-      <div className="bg-zinc-950 rounded-xl p-5 sm:p-6 shadow-lg">
-        <div className="flex items-center justify-between mb-4">
+      <div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
           <h2 className="text-xl sm:text-2xl font-semibold text-white">
             Manage Users
           </h2>
           <button
             onClick={() => setAddModalOpen(true)}
-            className="flex items-center gap-2 bg-primary hover:bg-primary/80 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-sm transition"
+            className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md text-sm transition font-medium shadow-md"
           >
             <UserPlus className="w-4 h-4" /> Add User
           </button>
         </div>
 
         {users.length === 0 ? (
-          <p className="py-20 text-center text-sm">No users added yet.</p>
+          <p className="py-16 text-center text-sm text-gray-400">
+            No users added yet.
+          </p>
         ) : (
           <div className="overflow-x-auto rounded-xl border border-zinc-800">
             <table className="w-full text-sm text-left text-gray-300 min-w-[500px]">
-              <thead className="bg-zinc-900/90 text-gray-400 uppercase text-xs">
+              <thead className="bg-zinc-900/90 text-gray-400 uppercase text-xs tracking-wider">
                 <tr>
                   <th className="px-4 sm:px-6 py-3">Name</th>
                   <th className="px-4 sm:px-6 py-3">Email</th>
@@ -231,10 +234,9 @@ const handleCopy = (text) => {
                 {users.map((user) => (
                   <UserRow
                     key={user.id}
-                    appId={app.id}
                     user={user}
-                    onDelete={handleDeleteUser}
-                    onUpdate={handleUpdateUser}
+                    onEdit={(u) => setEditUser(u)}
+                    onDelete={(u) => setDeleteUser(u)}
                   />
                 ))}
               </tbody>
@@ -248,10 +250,7 @@ const handleCopy = (text) => {
         <AddNewUser
           appId={app.id}
           onClose={() => setAddModalOpen(false)}
-          onSave={(newUser) => {
-            // Save user locally or call API
-            setUsers((prev) => [...prev, newUser]);
-          }}
+          onSave={(newUser) => setUsers((prev) => [...prev, newUser])}
         />
       )}
 
@@ -275,6 +274,36 @@ const handleCopy = (text) => {
           appId={app.id}
           onClose={() => setEditAppModalOpen(false)}
           onSave={(updatedData) => setApp(updatedData)}
+        />
+      )}
+
+      {/* Edit User Modal */}
+      {editUser && (
+        <EditUser
+          userData={editUser}
+          userId={editUser.id}
+          appId={app.id}
+          onClose={() => setEditUser(null)}
+          onSave={(updatedUser) => {
+            // update local state (users list)
+            setUsers((prev) =>
+              prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
+            );
+            setEditUser(null);
+          }}
+        />
+      )}
+
+      {/* Delete User Modal */}
+      {deleteUser && (
+        <DeleteUserModal
+          user={deleteUser}
+          appId={app.id}
+          onClose={() => setDeleteUser(null)}
+          onConfirm={(deletedId) => {
+            setUsers((prev) => prev.filter((u) => u.id !== deletedId));
+            setDeleteUser(null);
+          }}
         />
       )}
     </div>

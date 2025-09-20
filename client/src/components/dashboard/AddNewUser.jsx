@@ -84,7 +84,7 @@ const AddNewUser = ({ onClose, onSave, appId }) => {
     setLoading(true);
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_SERVER_URL}/api/users`,
+        `${import.meta.env.VITE_SERVER_URL}/api/users/create`,
         { ...formData, appId },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -172,6 +172,8 @@ const AddNewUser = ({ onClose, onSave, appId }) => {
 
           {/* Form */}
           <form
+          name="addUserForm"
+          id="addUserForm"
             onSubmit={handleSubmit}
             className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm"
           >
@@ -402,7 +404,7 @@ const AddNewUser = ({ onClose, onSave, appId }) => {
         ${
           !appStatus.isActive
             ? "bg-gray-700 cursor-not-allowed"
-            : "bg-gradient-to-r from-green-600 to-primary hover:from-primary hover:to-green-400 shadow shadow-primary"
+            : "bg-gradient-to-r from-green-600 to-primary hover:from-primary hover:to-green-400 shadow-lg shadow-primary/20"
         }`}
           >
             {loading ? (

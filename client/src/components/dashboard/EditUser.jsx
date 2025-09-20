@@ -106,7 +106,7 @@ const EditUser = ({ userData, userId, appId, onClose, onSave }) => {
       }
 
       const res = await axios.put(
-        `${import.meta.env.VITE_SERVER_URL}/api/users/${idToUpdate}`,
+        `${import.meta.env.VITE_SERVER_URL}/api/users/edit/${idToUpdate}`,
         { ...formData, appId },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -375,7 +375,7 @@ const EditUser = ({ userData, userId, appId, onClose, onSave }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-medium bg-zinc-900 text-gray-300 rounded-lg hover:bg-zinc-700 transition-colors"
+              className="px-4 py-2.5 text-xs font-medium flex items-center gap-2 bg-zinc-900 text-gray-300 rounded-md hover:bg-zinc-700 transition-colors"
             >
               <X size={16} />
               Cancel
@@ -383,7 +383,7 @@ const EditUser = ({ userData, userId, appId, onClose, onSave }) => {
             <button
               type="submit"
               disabled={!appStatus.isActive || loading}
-              className={`px-4 py-2 text-xs font-medium text-white rounded-lg transition-all flex items-center gap-2 ${
+              className={`px-4 py-2.5 text-xs font-medium text-white rounded-md transition-all flex items-center gap-2 ${
                 !appStatus.isActive
                   ? "bg-gray-700 cursor-not-allowed"
                   : "bg-gradient-to-r from-primary to-green-500 hover:from-green-500 hover:to-primary"
