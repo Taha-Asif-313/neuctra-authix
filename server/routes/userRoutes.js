@@ -9,12 +9,19 @@ import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// all routes protected by JWT
+// ✅ All routes protected by JWT
 router.use(authMiddleware);
 
+// Create new user
 router.post("/create", createUser);
-router.get("/", getUsers);
+
+// Fetch users (requires appId in body)
+router.post("/list/:appId", getUsers);
+
+// Update user (requires appId in body)
 router.put("/edit/:id", updateUser);
-router.delete("/:appid/delete/:id", deleteUser);
+
+// Delete user (requires appId in body)
+router.delete("/delete/:id", deleteUser);
 
 export default router;

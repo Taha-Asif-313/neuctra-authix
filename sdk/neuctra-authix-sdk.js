@@ -1,66 +1,67 @@
-class UserSdk {
-  constructor({ appId, apiKey, token, baseUrl = "http://localhost:5000/api" }) {
-    if (!appId) throw new Error("App ID is required");
-    if (!apiKey) throw new Error("API Key is required");
-    if (!token) throw new Error("JWT Token is required");
-
-    this.appId = appId;
-    this.apiKey = apiKey;
-    this.token = token;
-    this.baseUrl = `${baseUrl}/users`;
+// sdk/neuctra-authix-client.js
+class NeuctraAuthixClient {
+  constructor(config) {
+    this.baseUrl = config.baseUrl.replace(/\/$/, ""); // strip trailing slash
+    this.apiKey = config.apiKey || null;             // 🔹 use API key
+    this.appId = config.appId || null;
   }
 
-  // 🔹 internal request handler
+  // 🔹 Universal request handler
   async request(path, options = {}) {
-    const url = `${this.baseUrl}${path}`;
     const headers = {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${this.token}`,
-      "x-api-key": this.apiKey,
-      ...options.headers,
+      ...(this.apiKey ? { "x-api-key": this.apiKey } : {}), // use API key
     };
 
-    const res = await fetch(url, { ...options, headers });
-    let body;
-    try {
-      body = await res.json();
-    } catch {
-      body = {};
-    }
+    const res = await fetch(`${this.baseUrl}${path}`, {
+      ...options,
+      headers,
+    });
+
+    const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      throw new Error(body.message || `Request failed: ${res.status}`);
+      throw new Error(data.message || "API request failed");
     }
-    return body;
+    return data;
   }
 
-  // 👤 Create User
-  createUser({ name, email, password }) {
-    return this.request("/create", {
+  // ========== USERS ==========
+  async createUser({ name, email, password }) {
+    return this.request(`/users`, {
       method: "POST",
       body: JSON.stringify({ name, email, password, appId: this.appId }),
     });
   }
 
-  // 👥 Get All Users
-  getUsers() {
-    return this.request("/", { method: "GET" });
+  async getUsers() {
+    return this.request(`/users`, { method: "GET" });
   }
 
-  // ✏️ Update User
-  updateUser(userId, updates) {
-    return this.request(`/edit/${userId}`, {
+  async updateUser(userId, updates) {
+    return this.request(`/users/${userId}`, {
       method: "PUT",
       body: JSON.stringify({ ...updates, appId: this.appId }),
     });
   }
 
-  // ❌ Delete User
-  deleteUser(userId) {
-    return this.request(`/${this.appId}/delete/${userId}`, {
+  async deleteUser(userId) {
+    return this.request(`/users/delete/${userId}?appid=${this.appId}`, {
       method: "DELETE",
     });
   }
+
+  // ========== AUTH (optional) ==========
+  async login({ email, password }) {
+    return this.request(`/auth/login`, {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+  }
+
+  async me() {
+    return this.request(`/auth/me`, { method: "GET" });
+  }
 }
 
-export default UserSdk;
+export default NeuctraAuthixClient;
