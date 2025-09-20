@@ -6,6 +6,7 @@ import {
   updateApp,
   deleteApp,
   toggleAppStatus,
+  getAppStatus,
 } from "../controllers/appController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 
@@ -19,6 +20,7 @@ router.get("/allapps", getApps); // Get all Apps
 router.get("/:id", getAppById); // Get one App
 router.put("/edit/:id", updateApp); // Update App
 router.delete("/delete/:id", deleteApp); // Delete App
+router.get("/:id/status", getAppStatus); 
 router.patch("/status/:id", toggleAppStatus);
 
 

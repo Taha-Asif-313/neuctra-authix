@@ -19,7 +19,7 @@ export const createUser = async (req, res) => {
       });
     }
 
-    // Ensure app belongs to this admin
+    // Ensure app belongs to this admin and check if it's active
     const app = await prisma.app.findFirst({
       where: { id: appId, adminId: req.admin.id },
     });
@@ -28,6 +28,14 @@ export const createUser = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "App not found or does not belong to you",
+      });
+    }
+
+    // Check if app is active
+    if (!app.isActive) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot create user for an inactive app",
       });
     }
 
@@ -175,7 +183,7 @@ export const updateUser = async (req, res) => {
         name: true,
         email: true,
         appId: true,
-        isActive:true,
+        isActive: true,
         updatedAt: true,
       },
     });
@@ -194,7 +202,6 @@ export const updateUser = async (req, res) => {
     });
   }
 };
-
 
 /**
  * @desc    Delete user (only if belongs to logged-in admin & app)
@@ -216,7 +223,7 @@ export const deleteUser = async (req, res) => {
     // Find user under same admin and app
     const user = await prisma.user.findFirst({
       where: {
-        id: id,       // ensure ID is numeric
+        id: id, // ensure ID is numeric
         adminId: req.admin.id,
         appId: appid,
       },
@@ -247,4 +254,3 @@ export const deleteUser = async (req, res) => {
     });
   }
 };
-

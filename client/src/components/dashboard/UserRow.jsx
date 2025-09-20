@@ -36,7 +36,8 @@ const UserRow = ({ user, appId, onDelete, onUpdate }) => {
       {/* Edit User Modal */}
       {editModalOpen && (
         <EditUser
-          user={user}
+          userData={user}
+          userId={user.id}
           appId={appId}
           onClose={() => setEditModalOpen(false)}
           onSave={(updatedUser) => {

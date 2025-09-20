@@ -292,3 +292,48 @@ export const toggleAppStatus = async (req, res) => {
     });
   }
 };
+
+
+
+/**
+ * @desc    Get App status (isActive + name)
+ * @route   GET /api/apps/:id/status
+ * @access  Private (Admin only)
+ */
+export const getAppStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const app = await prisma.app.findFirst({
+      where: { id, adminId: req.admin.id },
+      select: {
+        id: true,
+        applicationName: true,
+        isActive: true,
+      },
+    });
+
+    if (!app) {
+      return res.status(404).json({
+        success: false,
+        message: "App not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "App status fetched successfully",
+      data: {
+        name: app.applicationName,
+        isActive: app.isActive,
+      },
+    });
+  } catch (err) {
+    console.error("GetAppStatus Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+};
