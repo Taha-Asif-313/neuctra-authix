@@ -31,16 +31,14 @@ export const signupUser = async (req, res) => {
     // 1. Find app (validate by admin if needed)
     const app = await prisma.app.findFirst({
       where: req.admin
-        ? { id: appId, adminId: req.admin.id }
+        ? { id: appId, adminId: req.admin.id, isActive: true }
         : { id: appId, isActive: true },
     });
 
     if (!app) {
       return res.status(404).json({
         success: false,
-        message: req.admin
-          ? "App not found or does not belong to you"
-          : "Invalid or inactive app",
+        message: "Invalid or inactive app",
       });
     }
 
@@ -61,9 +59,7 @@ export const signupUser = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: req.admin
-          ? "User with this email already exists under your account"
-          : "User with this email already exists for this app",
+        message: "User with this email already exists for this app",
       });
     }
 
@@ -104,8 +100,7 @@ export const signupUser = async (req, res) => {
 
     const token = jwt.sign(
       { id: user.id, email: user.email, appId, role: user.role },
-      app.appSecret,
-      { expiresIn: "7d" }
+      app.appSecret
     );
 
     // update user with token
@@ -129,7 +124,7 @@ export const signupUser = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: req.admin ? "User created successfully" : "Signup successful",
+      message: "Signup successful",
       user,
     });
   } catch (err) {
@@ -493,7 +488,7 @@ export const getProfile = async (req, res) => {
     try {
       decodedApp = jwt.decode(token);
       console.log(decodedApp);
-      
+
       if (!decodedApp?.appId) {
         return res.status(400).json({
           success: false,
@@ -511,7 +506,7 @@ export const getProfile = async (req, res) => {
       where: { id: decodedApp.appId },
       select: { id: true, appSecret: true },
     });
-console.log(app);
+    console.log(app);
 
     if (!app) {
       return res.status(404).json({
@@ -572,5 +567,3 @@ console.log(app);
     });
   }
 };
-
-
