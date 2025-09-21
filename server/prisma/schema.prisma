@@ -31,14 +31,15 @@ model AdminUser {
 }
 
 model App {
-  id              String   @id      // 👈 crypto-generated ID
+  id              String   @id @default(cuid()) // crypto-generated ID
   applicationName String
   category        String
   description     String
   platform        String
+  appSecret       String   @default(cuid())     // 👈 unique secret for each app
   isActive        Boolean  @default(false)
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   // Relation: each App belongs to one Admin
   adminId   String
@@ -49,13 +50,13 @@ model App {
 }
 
 model User {
-  id        String   @id      // 👈 crypto-generated ID
+  id        String   @id @default(cuid())       // crypto-generated ID
   name      String
-  email     String   @unique
+  email     String
   password  String
+  token     String                            // 👈 store JWT token
   createdAt DateTime @default(now())
-  updatedAt DateTime? @updatedAt
-
+  updatedAt DateTime @updatedAt
 
   // Extra user data
   phone     String?
@@ -71,4 +72,7 @@ model User {
   // Relation: each User also belongs to one Admin
   adminId   String
   admin     AdminUser @relation(fields: [adminId], references: [id])
+
+  @@unique([email, appId]) // 👈 allow same email across apps, but unique per app
 }
+

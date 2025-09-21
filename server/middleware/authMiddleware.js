@@ -4,9 +4,9 @@ import prisma from "../prisma.js";
 export const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    const apiKey = req.headers["x-api-key"]; // 👈 support API key in header
+    const apiKey = req.headers["x-api-key"]?.toLowerCase?.(); // normalize
 
-    // 1. If JWT is provided (Bearer <token>)
+    // 1️⃣ JWT Authentication
     if (authHeader?.startsWith("Bearer ")) {
       const token = authHeader.split(" ")[1];
 
@@ -14,6 +14,7 @@ export const authMiddleware = async (req, res, next) => {
       try {
         decoded = jwt.verify(token, process.env.JWT_SECRET);
       } catch (err) {
+        console.error("JWT verification error:", err);
         return res.status(401).json({
           success: false,
           message: "Token is invalid or expired",
@@ -22,7 +23,7 @@ export const authMiddleware = async (req, res, next) => {
 
       const admin = await prisma.adminUser.findUnique({
         where: { id: decoded.id },
-        select: { id: true, email: true, name: true },
+        select: { id: true, email: true, name: true, apiKey: true },
       });
 
       if (!admin) {
@@ -36,25 +37,25 @@ export const authMiddleware = async (req, res, next) => {
       return next();
     }
 
-    // 2. If API key is provided
+    // 2️⃣ API Key Authentication
     if (apiKey) {
-      const admin = await prisma.adminUser.findUnique({
-        where: { apiKey }, // ✅ make sure apiKey field exists in `User` model
-        select: { id: true, name: true, email: true },
+      const admin = await prisma.adminUser.findFirst({
+        where: { apiKey }, // ensure apiKey column exists in your model
+        select: { id: true, email: true, name: true },
       });
 
-      if (!user) {
+      if (!admin) {
         return res.status(401).json({
           success: false,
           message: "Invalid API key",
         });
       }
 
-      req.admin = admin; // attach user from API key
+      req.admin = admin;
       return next();
     }
 
-    // 3. If neither JWT nor API key is present
+    // 3️⃣ No JWT or API key provided
     return res.status(401).json({
       success: false,
       message: "Unauthorized: No token or API key provided",
@@ -63,7 +64,7 @@ export const authMiddleware = async (req, res, next) => {
     console.error("AuthMiddleware Error:", err);
     return res.status(500).json({
       success: false,
-      message: "Server error in authentication",
+      message: "Server error during authentication",
     });
   }
 };

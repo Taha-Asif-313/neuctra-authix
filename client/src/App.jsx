@@ -25,10 +25,8 @@ import ApplicationsPage from "./pages/dashboard/ApplicationsPage";
 import SupportPage from "./pages/dashboard/SupportPage";
 import DocsPage from "./pages/dashboard/DocsPage";
 
-
 // ✅ Protected wrapper inside same file
 const ProtectedRoute = ({ Component }) => {
-
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {

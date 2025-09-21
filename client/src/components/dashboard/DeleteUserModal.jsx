@@ -13,10 +13,9 @@ const DeleteUserModal = ({ user, appId, onClose, onConfirm }) => {
     try {
       setLoading(true);
       const res = await axios.delete(
-        `${import.meta.env.VITE_SERVER_URL}/api/users/${appId}/delete/${
-          user.id
-        }`,
+        `${import.meta.env.VITE_SERVER_URL}/api/users/delete/${user.id}`,
         {
+          data: { appId }, // 👈 send appId in request body
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
             "x-api-key": admin.apiKey,

@@ -17,6 +17,9 @@ export const createApp = async (req, res) => {
       });
     }
 
+    // generate a unique secret for the app (override Prisma default if needed)
+    const appSecret = generateId(); // or use `uuidv4()`
+
     const app = await prisma.app.create({
       data: {
         id: generateId(),
@@ -25,6 +28,7 @@ export const createApp = async (req, res) => {
         description,
         platform,
         adminId: req.admin.id,
+        appSecret, // 👈 explicitly set app secret
       },
       select: {
         id: true,
@@ -32,10 +36,11 @@ export const createApp = async (req, res) => {
         category: true,
         description: true,
         platform: true,
+        appSecret: true, // 👈 return secret so admin can use it
         createdAt: true,
         _count: {
-          select: { users: true }
-        }
+          select: { users: true },
+        },
       },
     });
 
@@ -236,7 +241,6 @@ export const deleteApp = async (req, res) => {
   }
 };
 
-
 /**
  * @desc    Toggle App status (active/inactive)
  * @route   PATCH /api/apps/status/:id
@@ -292,8 +296,6 @@ export const toggleAppStatus = async (req, res) => {
     });
   }
 };
-
-
 
 /**
  * @desc    Get App status (isActive + name)

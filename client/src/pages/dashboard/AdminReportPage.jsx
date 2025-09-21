@@ -241,7 +241,7 @@ const AdminReportPage = () => {
           return (
             <button
               key={tab.id}
-              className={`flex items-center gap-2 px-4 py-3 font-medium capitalize whitespace-nowrap min-w-max ${
+              className={`flex items-center text-sm gap-2 px-4 py-3 font-medium capitalize whitespace-nowrap min-w-max ${
                 activeTab === tab.id
                   ? "text-primary border-b-2 border-primary"
                   : "text-zinc-400 hover:text-zinc-300"
@@ -498,7 +498,7 @@ const AdminReportPage = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search users..."
-                    className="w-full sm:w-64 pl-10 pr-4 py-2.5 rounded-lg bg-zinc-800 text-white border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/30"
+                    className="w-full sm:w-64 pl-10 pr-4 py-2.5 text-xs rounded-lg bg-zinc-800 text-white border border-zinc-700"
                   />
                   {searchQuery && (
                     <button
@@ -513,7 +513,7 @@ const AdminReportPage = () => {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  className="px-4 py-2.5 text-xs rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300"
                 >
                   <option value="all">All Status</option>
                   <option value="active">Active</option>
@@ -561,7 +561,7 @@ const AdminReportPage = () => {
                         </div>
                         {user.phone && (
                           <div className="flex items-center gap-2 text-xs">
-                            <Phone size={12} className="text-green-400" />
+                            <Phone size={12} className="text-primary" />
                             <span className="text-zinc-400">{user.phone}</span>
                           </div>
                         )}

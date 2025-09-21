@@ -84,7 +84,7 @@ const AddNewUser = ({ onClose, onSave, appId }) => {
     setLoading(true);
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_SERVER_URL}/api/users/create`,
+        `${import.meta.env.VITE_SERVER_URL}/api/users/signup`,
         { ...formData, appId },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -92,7 +92,7 @@ const AddNewUser = ({ onClose, onSave, appId }) => {
       );
 
       if (res.data.success) {
-        onSave(res.data.data);
+        onSave(res.data.user);
         onClose();
       }
     } catch (err) {
@@ -172,8 +172,8 @@ const AddNewUser = ({ onClose, onSave, appId }) => {
 
           {/* Form */}
           <form
-          name="addUserForm"
-          id="addUserForm"
+            name="addUserForm"
+            id="addUserForm"
             onSubmit={handleSubmit}
             className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm"
           >

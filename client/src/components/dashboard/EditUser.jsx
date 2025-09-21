@@ -106,7 +106,7 @@ const EditUser = ({ userData, userId, appId, onClose, onSave }) => {
       }
 
       const res = await axios.put(
-        `${import.meta.env.VITE_SERVER_URL}/api/users/edit/${idToUpdate}`,
+        `${import.meta.env.VITE_SERVER_URL}/api/users/update/${idToUpdate}`,
         { ...formData, appId },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

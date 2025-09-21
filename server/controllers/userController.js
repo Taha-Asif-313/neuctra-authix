@@ -1,13 +1,13 @@
 import prisma from "../prisma.js";
 import bcrypt from "bcrypt";
-import { generateId } from "../utils/crypto.js";
+import jwt from "jsonwebtoken";
 
 /**
- * @desc    Create new user under logged-in admin
- * @route   POST /api/users
- * @access  Private (Admin only)
+ * @desc    User signup for a specific app
+ * @route   POST /api/users/signup
+ * @access  Private (App-level, Admin-level)
  */
-export const createUser = async (req, res) => {
+export const signupUser = async (req, res) => {
   try {
     const {
       name,
@@ -28,41 +28,56 @@ export const createUser = async (req, res) => {
       });
     }
 
+    // 1. Find app (validate by admin if needed)
     const app = await prisma.app.findFirst({
-      where: { id: appId, adminId: req.admin.id },
+      where: req.admin
+        ? { id: appId, adminId: req.admin.id }
+        : { id: appId, isActive: true },
     });
+
     if (!app) {
       return res.status(404).json({
         success: false,
-        message: "App not found or does not belong to you",
-      });
-    }
-    if (!app.isActive) {
-      return res.status(400).json({
-        success: false,
-        message: "Cannot create user for an inactive app",
+        message: req.admin
+          ? "App not found or does not belong to you"
+          : "Invalid or inactive app",
       });
     }
 
+    if (!req.admin && !app.isActive) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot signup under an inactive app",
+      });
+    }
+
+    // 2. Check duplicate user
     const existingUser = await prisma.user.findFirst({
-      where: { email, adminId: req.admin.id },
+      where: req.admin
+        ? { email: email.toLowerCase(), adminId: req.admin.id, appId }
+        : { email: email.toLowerCase(), appId },
     });
+
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "User with this email already exists under your account",
+        message: req.admin
+          ? "User with this email already exists under your account"
+          : "User with this email already exists for this app",
       });
     }
 
+    // 3. Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await prisma.user.create({
+    // 4. Create user first (without token)
+    let user = await prisma.user.create({
       data: {
-        id: generateId(),
         name: name.trim(),
         email: email.toLowerCase(),
         password: hashedPassword,
-        adminId: req.admin.id,
+        token: "", // temp empty, will update after token generation
+        adminId: req.admin ? req.admin.id : app.adminId,
         appId,
         phone: phone || null,
         address: address || null,
@@ -80,17 +95,45 @@ export const createUser = async (req, res) => {
         isActive: true,
         role: true,
         appId: true,
+        token: true,
+        createdAt: true,
+      },
+    });
+
+    // 5. Generate JWT with user.id (only for public signup)
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, appId, role: user.role },
+      app.appSecret,
+      { expiresIn: "7d" }
+    );
+
+    // update user with token
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: { token },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        address: true,
+        avatarUrl: true,
+        isActive: true,
+        role: true,
+        appId: true,
+        token: true,
         createdAt: true,
       },
     });
 
     return res.status(201).json({
       success: true,
-      message: "User created successfully",
-      data: user,
+      message: req.admin ? "User created successfully" : "Signup successful",
+      user,
     });
   } catch (err) {
-    console.error("CreateUser Error:", err);
+    console.error("SignUpUser Error:", err);
     if (err.code === "P2002" && err.meta?.target?.includes("email")) {
       return res.status(400).json({
         success: false,
@@ -106,55 +149,93 @@ export const createUser = async (req, res) => {
 };
 
 /**
- * @desc    Get all users under a specific app (must belong to logged-in admin)
- * @route   POST /api/users/list
- * @access  Private (Admin only)
+ * @desc    User login for a specific app
+ * @route   POST /api/users/login
+ * @access  Private (App-level, Admin-level)
  */
-export const getUsers = async (req, res) => {
+export const loginUser = async (req, res) => {
   try {
-    const { appId } = req.params;
+    const { email, password, appId } = req.body;
+    const adminId = req.admin?.id || null;
 
-    if (!appId) {
+    if (!email || !password || !appId) {
       return res.status(400).json({
         success: false,
-        message: "App ID is required",
+        message: "Email, password, and appId are required",
       });
     }
 
+    // 1. Verify app
     const app = await prisma.app.findFirst({
-      where: { id: appId, adminId: req.admin.id },
+      where: { id: appId, isActive: true },
     });
     if (!app) {
       return res.status(404).json({
         success: false,
-        message: "App not found or does not belong to you",
+        message: "Invalid or inactive app",
       });
     }
 
-    const users = await prisma.user.findMany({
-      where: { adminId: req.admin.id, appId },
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        address: true,
-        avatarUrl: true,
+    // 2. Find user in this app (and admin if provided)
+    const user = await prisma.user.findFirst({
+      where: {
+        email: email.toLowerCase(),
+        appId,
         isActive: true,
-        role: true,
-        appId: true,
-        createdAt: true,
+        ...(adminId ? { adminId } : {}), // only restrict to admin if req.admin exists
       },
     });
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
 
+    // 3. Compare password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+
+    // 4. Always issue a fresh token
+    const newToken = jwt.sign(
+      { id: user.id, email: user.email, appId: user.appId, role: user.role },
+      app.appSecret,
+      { expiresIn: "7d" }
+    );
+
+    // 5. Save token to user record
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { token: newToken },
+    });
+
+    // 6. Return user with token
     return res.status(200).json({
       success: true,
-      message: "Users fetched successfully",
-      data: users,
+      message: "Login successful",
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+        avatarUrl: user.avatarUrl,
+        isActive: user.isActive,
+        role: user.role,
+        appId: user.appId,
+        adminId: user.adminId,
+        token: newToken,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
     });
   } catch (err) {
-    console.error("GetUsers Error:", err);
+    console.error("UserLogin Error:", err);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -170,7 +251,7 @@ export const getUsers = async (req, res) => {
  */
 export const updateUser = async (req, res) => {
   try {
-    const id = req.params.id;
+    const userId = req.params.id;
     const {
       name,
       email,
@@ -207,7 +288,7 @@ export const updateUser = async (req, res) => {
     }
 
     const user = await prisma.user.findFirst({
-      where: { id, adminId: req.admin.id, appId },
+      where: { id: userId, adminId: req.admin.id, appId },
     });
     if (!user) {
       return res.status(404).json({
@@ -293,7 +374,7 @@ export const updateUser = async (req, res) => {
  */
 export const deleteUser = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { userId } = req.params;
     const { appId } = req.body;
 
     if (!appId) {
@@ -304,7 +385,7 @@ export const deleteUser = async (req, res) => {
     }
 
     const user = await prisma.user.findFirst({
-      where: { id, adminId: req.admin.id, appId },
+      where: { id: userId, adminId: req.admin.id, appId },
     });
     if (!user) {
       return res.status(404).json({
@@ -323,6 +404,64 @@ export const deleteUser = async (req, res) => {
     });
   } catch (err) {
     console.error("DeleteUser Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? err.message : undefined,
+    });
+  }
+};
+
+/**
+ * @desc    Get all users under a specific app (must belong to logged-in admin)
+ * @route   POST /api/users/list
+ * @access  Private (Admin only)
+ */
+export const getUsers = async (req, res) => {
+  try {
+    const { appId } = req.params;
+
+    if (!appId) {
+      return res.status(400).json({
+        success: false,
+        message: "App ID is required",
+      });
+    }
+
+    const app = await prisma.app.findFirst({
+      where: { id: appId, adminId: req.admin.id },
+    });
+    if (!app) {
+      return res.status(404).json({
+        success: false,
+        message: "App not found or does not belong to you",
+      });
+    }
+
+    const users = await prisma.user.findMany({
+      where: { adminId: req.admin.id, appId },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        address: true,
+        avatarUrl: true,
+        isActive: true,
+        role: true,
+        appId: true,
+        createdAt: true,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Users fetched successfully",
+      data: users,
+    });
+  } catch (err) {
+    console.error("GetUsers Error:", err);
     return res.status(500).json({
       success: false,
       message: "Internal server error",

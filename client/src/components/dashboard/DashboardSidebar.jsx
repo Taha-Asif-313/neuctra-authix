@@ -177,7 +177,7 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
         <div className="p-4 border-t border-gray-800">
           <Link
             to={"/dashboard/profile"}
-            className="flex items-center space-x-3 p-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
+            className="flex items-center space-x-3 p-3 text-gray-300 rounded-lg transition-colors"
           >
             <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex items-center justify-center">
               {admin?.avatarUrl ? (
