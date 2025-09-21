@@ -6,8 +6,10 @@ import {
   Navigate,
   Outlet,
 } from "react-router-dom";
-
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { Toaster } from "react-hot-toast";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { AppProvider } from "./contexts/AppContext";
 import AuthLayout from "./layouts/AuthLayout";
 import DashboardLayout from "./layouts/DashboardLayout";
 import Home from "./pages/auth/Home";
@@ -15,10 +17,7 @@ import LoginPage from "./pages/auth/LoginPage";
 import SignupPage from "./pages/auth/SignupPage";
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import AppDetail from "./pages/dashboard/AppDetail";
-import { Toaster } from "react-hot-toast";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import ProfilePage from "./pages/dashboard/ProfilePage";
-import { AppProvider } from "./contexts/AppContext";
 import ApiKeysPage from "./pages/dashboard/ApiKeysPage";
 import AdminReportPage from "./pages/dashboard/AdminReportPage";
 import ApplicationsPage from "./pages/dashboard/ApplicationsPage";
@@ -96,7 +95,7 @@ function AppContent() {
           <Route path="support" element={<SupportPage />} />
           <Route path="docs" element={<DocsPage />} />
         </Route>
-
+          <Route path="/docs" element={<DocsPage />} />
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
