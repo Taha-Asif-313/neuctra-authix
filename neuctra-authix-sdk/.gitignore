@@ -1,0 +1,20 @@
+# Ignore tests
+**/*.test.js
+**/__tests__/**
+
+# Ignore local environment files
+.env
+.env.local
+.env.*.local
+
+# Ignore editor configs
+.vscode/
+.idea/
+*.log
+
+# Node modules and lock files
+node_modules/
+package-lock.json
+yarn.lock
+
+# Ignore anything else you don't want to publish

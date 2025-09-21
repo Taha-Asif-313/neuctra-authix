@@ -469,3 +469,108 @@ export const getUsers = async (req, res) => {
     });
   }
 };
+
+/**
+ * @desc    Get logged-in user profile
+ * @route   GET /api/users/profile
+ * @access  Private (App-level, Admin-level)
+ */
+export const getProfile = async (req, res) => {
+  try {
+    // 1. Extract token from headers
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "Authorization token missing",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    // 2. Decode token without verification to get appId
+    let decodedApp;
+    try {
+      decodedApp = jwt.decode(token);
+      console.log(decodedApp);
+      
+      if (!decodedApp?.appId) {
+        return res.status(400).json({
+          success: false,
+          message: "Token is missing appId",
+        });
+      }
+    } catch {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid token format",
+      });
+    }
+
+    const app = await prisma.app.findUnique({
+      where: { id: decodedApp.appId },
+      select: { id: true, appSecret: true },
+    });
+console.log(app);
+
+    if (!app) {
+      return res.status(404).json({
+        success: false,
+        message: "App not found",
+      });
+    }
+
+    // 3. Verify JWT with appSecret
+    let decodedUser;
+    try {
+      decodedUser = jwt.verify(token, app.appSecret);
+    } catch (err) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or expired token",
+      });
+    }
+
+    // 4. Fetch user by ID
+    const user = await prisma.user.findUnique({
+      where: { id: decodedUser.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        address: true,
+        avatarUrl: true,
+        isActive: true,
+        role: true,
+        appId: true,
+        adminId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // 5. Return profile
+    return res.status(200).json({
+      success: true,
+      message: "Profile fetched successfully",
+      user,
+    });
+  } catch (err) {
+    console.error("GetProfile Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? err.message : undefined,
+    });
+  }
+};
+
+

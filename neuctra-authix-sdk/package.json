@@ -1,0 +1,35 @@
+{
+  "name": "neuctra-authix-client",
+  "version": "1.0.6",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "description": "Neuctra Authix Client SDK: A lightweight JavaScript SDK for user authentication, management, and profile handling using API keys or JWT tokens.",
+  "keywords": [
+    "neuctra",
+    "authix",
+    "sdk",
+    "javascript-sdk",
+    "authentication",
+    "user-management",
+    "axios",
+    "api-client",
+    "jwt",
+    "api-key",
+    "frontend",
+    "backend"
+  ],
+  "author": "Your Name <your-email@example.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/neuctra-authix-client/issues"
+  },
+  "dependencies": {
+    "axios": "^1.12.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -5,27 +5,28 @@ import {
   deleteUser,
   loginUser,
   signupUser,
+  getProfile,
 } from "../controllers/userController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// ✅ All routes protected by JWT
-router.use(authMiddleware);
-
 // Create new user
-router.post("/signup", signupUser);
+router.post("/signup", authMiddleware, signupUser);
 
 // Login existing user
-router.post("/login", loginUser);
+router.post("/login", authMiddleware, loginUser);
+
+// Profile of the existing user
+router.get("/profile", getProfile);
 
 // Fetch users (requires appId in body)
-router.post("/list/:appId", getUsers);
+router.post("/list/:appId", authMiddleware, getUsers);
 
 // Update user (requires appId in body)
-router.put("/update/:id", updateUser);
+router.put("/update/:id", authMiddleware, updateUser);
 
 // Delete user (requires appId in body)
-router.delete("/delete/:id", deleteUser);
+router.delete("/delete/:id", authMiddleware, deleteUser);
 
 export default router;
