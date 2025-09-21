@@ -22,7 +22,9 @@ import ApiKeysPage from "./pages/dashboard/ApiKeysPage";
 import AdminReportPage from "./pages/dashboard/AdminReportPage";
 import ApplicationsPage from "./pages/dashboard/ApplicationsPage";
 import SupportPage from "./pages/dashboard/SupportPage";
-import DocsPage from "./pages/dashboard/DocsPage";
+import DocsLayout from "./layouts/DocsLayout";
+import Introduction from "./pages/docs/Introduction";
+import NeuctraAuthixClientSdk from "./pages/docs/NeuctraAuthixClientSdk";
 
 // ✅ Protected wrapper inside same file
 const ProtectedRoute = ({ Component }) => {
@@ -93,9 +95,18 @@ function AppContent() {
           <Route path="admin-report" element={<AdminReportPage />} />
           <Route path="apps" element={<ApplicationsPage />} />
           <Route path="support" element={<SupportPage />} />
-          <Route path="docs" element={<DocsPage />} />
         </Route>
-          <Route path="/docs" element={<DocsPage />} />
+
+        {/* Public Docs */}
+        <Route path="/docs" element={<DocsLayout />}>
+          <Route
+            index
+            element={<Introduction/>}
+          />
+          <Route path="neuctra-authix-sdk" element={<NeuctraAuthixClientSdk />} />
+  
+        </Route>
+
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
