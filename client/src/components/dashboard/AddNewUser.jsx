@@ -142,13 +142,13 @@ const AddNewUser = ({ onClose, onSave, appId }) => {
         </div>
 
         {/* Body (scrollable) */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto  p-6 space-y-6">
           {/* App Status */}
           {!appStatus.isActive ? (
             <div className="p-4 rounded-xl bg-red-900/20 border border-red-800/50 flex items-start gap-3">
               <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-sm font-medium text-red-300">
+                <h3 className="text-xs font-medium text-red-300">
                   App Inactive
                 </h3>
                 <p className="text-xs text-red-400 mt-1">
@@ -160,7 +160,7 @@ const AddNewUser = ({ onClose, onSave, appId }) => {
             <div className="p-4 rounded-xl bg-green-900/20 border border-green-800/50 flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-sm font-medium text-green-300">
+                <h3 className="text-xs font-medium text-green-300">
                   App Active
                 </h3>
                 <p className="text-xs text-green-400 mt-1">

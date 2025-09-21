@@ -69,16 +69,6 @@ const AppDetail = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleUpdateUser = (updatedUser) => {
-    setUsers((prev) =>
-      prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
-    );
-  };
-
-  const handleDeleteUser = async (deletedUserId) => {
-    setUsers((prev) => prev.filter((u) => u.id !== deletedUserId));
-  };
-
   const handleCopy = (text) => {
     try {
       navigator.clipboard.writeText(text);
@@ -108,7 +98,7 @@ const AppDetail = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-4">
       {/* App Info */}
       <div className="bg-gradient-to-br  from-zinc-900 to-zinc-950 border border-zinc-800 rounded-2xl p-6 shadow-2xl">
         <div className="relative flex flex-col-reverse sm:flex-row sm:justify-between sm:items-start gap-6">
