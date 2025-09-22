@@ -43,5 +43,8 @@
     "react": ">=17",
     "react-dom": ">=17",
     "vue": ">=3"
+  },
+  "dependencies": {
+    "lucide-react": "^0.544.0"
   }
 }

@@ -8,7 +8,7 @@ import cors from "cors"
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: [process.env.CLIENT_URL],
+    origin: [process.env.CLIENT_URL,"http://localhost:5174"],
     credentials:true
 }))
 

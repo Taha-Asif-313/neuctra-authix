@@ -8,19 +8,32 @@ interface LoginParams {
 
 interface LoginOptions {
   baseUrl: string;
-  apiKey?: string;   // optional, if using API key
-  token?: string;    // optional, if using JWT token
+  apiKey: string; // required
+}
+
+interface UserInfo {
+  id: string;
+  name: string;
+  email: string;
+  token: string;
+  appId: string;
+  adminId?: string;
+  [key: string]: any; // allow extra fields
 }
 
 /**
- * User login API
+ * User login API (API Key required)
  */
 export const loginUser = async (
   params: LoginParams,
   options: LoginOptions
-) => {
+): Promise<UserInfo> => {
   const { email, password, appId } = params;
-  const { baseUrl, apiKey, token } = options;
+  const { baseUrl, apiKey } = options;
+
+  if (!apiKey) {
+    throw new Error("❌ API key is required for login");
+  }
 
   try {
     const res = await axios.post(
@@ -29,15 +42,35 @@ export const loginUser = async (
       {
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { "x-api-key": apiKey } : {}),
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          "x-api-key": apiKey,
         },
       }
     );
 
-    return res.data;
+    // ✅ Store user info in localStorage
+    if (res.data?.user) {
+      localStorage.setItem("userInfo", JSON.stringify(res.data.user));
+    }
+
+    return res.data.user;
   } catch (err: any) {
-    console.error("Login API Error:", err.response?.data || err.message);
-    throw err.response?.data || { success: false, message: "Login failed" };
+    const errorMsg =
+      err.response?.data?.message || err.message || "Login failed";
+
+    console.error("Login API Error:", errorMsg);
+
+    throw {
+      success: false,
+      message: errorMsg,
+      status: err.response?.status || 500,
+    };
   }
+};
+
+/**
+ * Helper to get stored user info
+ */
+export const getStoredUserInfo = (): UserInfo | null => {
+  const stored = localStorage.getItem("userInfo");
+  return stored ? JSON.parse(stored) : null;
 };
