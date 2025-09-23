@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { loginUser } from "../api/auth.js";
+import { loginUser } from "../api/login.js";
 import {
   Eye,
   EyeOff,

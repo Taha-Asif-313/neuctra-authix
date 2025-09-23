@@ -186,7 +186,7 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
     borderRadius: isMobile ? "12px" : "16px",
     boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
     width: "100%",
-    maxWidth: shouldShowTwoColumns ? "900px" : "440px",
+    maxWidth: shouldShowTwoColumns ? "900px" : "390px",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
@@ -198,8 +198,7 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
     flexDirection: "column",
     alignItems: "center",
     textAlign: "center",
-    padding: isMobile ? "32px 24px 24px 24px" : "40px 32px 32px 32px",
-    backgroundColor: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+    padding: isMobile ? "32px 24px 24px 24px" : "20px 32px",
   };
 
   const logoStyle: React.CSSProperties = {
@@ -266,7 +265,7 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
 
   const columnStyle: React.CSSProperties = {
     display: "flex",
-    justifyContent:"end",
+    justifyContent: "end",
     flexDirection: "column",
     gap: isMobile ? "16px" : "16px",
   };
@@ -341,7 +340,8 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: "16px",
+    gap: "12px",
+    margin:"10px 0px"
   };
 
   const avatarPreviewStyle: React.CSSProperties = {
@@ -355,16 +355,16 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
   };
 
   const avatarImageStyle: React.CSSProperties = {
-    width: "100px",
-    height: "100px",
+    width: "60px",
+    height: "60px",
     borderRadius: "50%",
     objectFit: "cover",
     border: `2px solid ${primaryColor}30`,
   };
 
   const avatarPlaceholderStyle: React.CSSProperties = {
-    width: "100px",
-    height: "100px",
+    width: "60px",
+    height: "60px",
     borderRadius: "50%",
     backgroundColor: `${primaryColor}10`,
     display: "flex",
@@ -388,7 +388,7 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
     display: "flex",
     alignItems: "center",
     gap: "12px",
-    fontSize:"12px"
+    fontSize: "12px",
   };
 
   const toggleSwitchStyle: React.CSSProperties = {
@@ -418,12 +418,11 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
     flexDirection: "column",
     alignItems: "center",
     gap: "16px",
-    padding: isMobile ? "20px 24px" : "26px 32px 26px 32px",
-    backgroundColor: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+    padding: isMobile ? "20px 24px" : "18px 32px",
   };
 
   const footerTextStyle: React.CSSProperties = {
-    fontSize: isMobile ? "13px" : "14px",
+    fontSize: isMobile ? "12px" : "13px",
     color: subTextColor,
     textAlign: "center",
     lineHeight: "1.5",
@@ -544,42 +543,40 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
 
         {/* Body */}
         <div style={bodyStyle}>
-           {/* Avatar Preview at the top */}
-              {showAvatar && (
-                <div style={avatarPreviewContainerStyle}>
-                  <div style={avatarPreviewStyle}>
-                    {formData.avatarUrl ? (
-                      <img
-                        src={formData.avatarUrl}
-                        alt="Avatar Preview"
-                        style={avatarImageStyle}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = "none";
-                        }}
-                      />
-                    ) : (
-                      <div style={avatarPlaceholderStyle}>
-                        <User size={40} />
-                      </div>
-                    )}
-                    <span
-                      style={{
-                        fontSize: "14px",
-                        color: subTextColor,
-                        fontWeight: 500,
-                      }}
-                    >
-                      Avatar Preview
-                    </span>
+          {/* Avatar Preview at the top */}
+          {showAvatar && (
+            <div style={avatarPreviewContainerStyle}>
+              <div style={avatarPreviewStyle}>
+                {formData.avatarUrl ? (
+                  <img
+                    src={formData.avatarUrl}
+                    alt="Avatar Preview"
+                    style={avatarImageStyle}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div style={avatarPlaceholderStyle}>
+                    <User size={40} />
                   </div>
-                </div>
-              )}
+                )}
+                <span
+                  style={{
+                    fontSize: "14px",
+                    color: subTextColor,
+                    fontWeight: 500,
+                  }}
+                >
+                  Avatar Preview
+                </span>
+              </div>
+            </div>
+          )}
           <form onSubmit={handleSignup} style={formStyle}>
-
             {/* Left Column - Required fields + Phone/Address */}
             <div style={columnStyle}>
-             
               {/* Name - Required */}
               <div style={fieldStyle}>
                 <label style={labelStyle}>Full Name</label>
