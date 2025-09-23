@@ -32,10 +32,29 @@ interface SignupFormProps {
   gradient?: string;
   darkMode?: boolean;
 
+  // Customizable fields - users can choose which fields to show
+  showPhone?: boolean;
+  showAddress?: boolean;
+  showAvatar?: boolean;
+  showRole?: boolean;
+  showStatus?: boolean;
+
   loginUrl?: string;
   onSuccess?: (user: any) => void;
   onError?: (error: any) => void;
   onClose?: () => void;
+}
+
+// Define the form data interface
+interface FormData {
+  name: string;
+  email: string;
+  password: string;
+  isActive: boolean;
+  role: string;
+  phone?: string;
+  address?: string;
+  avatarUrl?: string;
 }
 
 export const UserSignUp: React.FC<SignupFormProps> = ({
@@ -49,21 +68,32 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
   primaryColor = "#22c55e",
   gradient = "linear-gradient(135deg, #10b981, #22c55e)",
   darkMode = true,
+
+  // Field visibility props - all optional, default to false
+  showPhone = false,
+  showAddress = false,
+  showAvatar = false,
+  showRole = false,
+  showStatus = false,
+
   loginUrl,
   onSuccess,
   onError,
   onClose,
 }) => {
-  const [formData, setFormData] = useState({
+  // Initialize form data with only the fields that will be shown
+  const initialFormData: FormData = {
     name: "",
     email: "",
     password: "",
-    phone: "",
-    address: "",
-    avatarUrl: "",
     isActive: true,
     role: "user",
-  });
+    ...(showPhone && { phone: "" }),
+    ...(showAddress && { address: "" }),
+    ...(showAvatar && { avatarUrl: "" }),
+  };
+
+  const [formData, setFormData] = useState<FormData>(initialFormData);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{
@@ -80,23 +110,20 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
     typeof window !== "undefined" ? window.innerWidth < 768 : false;
 
   // Dynamic colors based on darkMode prop
-  const bgColor = darkMode ? "#000000" : "#ffffff";
-  const cardBg = darkMode ? "transparent" : "transparent";
   const textColor = darkMode ? "#ffffff" : "#111827";
   const subTextColor = darkMode ? "#a1a1aa" : "#6b7280";
   const inputBg = darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)";
   const inputBorder = darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
-  const cardBorder = darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev: FormData) => ({ ...prev, [name]: value }));
   };
 
   const handleToggle = () => {
-    setFormData((prev) => ({ ...prev, isActive: !prev.isActive }));
+    setFormData((prev: FormData) => ({ ...prev, isActive: !prev.isActive }));
   };
 
   const validateForm = () => {
@@ -141,14 +168,12 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
     }
   };
 
+  // Calculate if we should show two columns (only if we have enough fields and not on mobile)
+  const shouldShowTwoColumns =
+    !isMobile && (showPhone || showAddress || showRole || showStatus);
+
   // Responsive Styles
   const containerStyle: React.CSSProperties = {
-    position: "fixed",
-    inset: 0,
-    backgroundColor: darkMode ? "rgba(0, 0, 0, 0.7)" : "rgba(0, 0, 0, 0.5)",
-    backdropFilter: "blur(4px)",
-    padding: isMobile ? "8px" : "16px",
-    zIndex: 50,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -157,13 +182,11 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
   };
 
   const modalStyle: React.CSSProperties = {
-    backgroundColor: cardBg,
+    backgroundColor: darkMode ? "#000000" : "#ffffff",
     borderRadius: isMobile ? "12px" : "16px",
-    border: `1px solid ${cardBorder}`,
-    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
     width: "100%",
-    maxWidth: isMobile ? "100%" : "1024px",
-    maxHeight: isMobile ? "95vh" : "90vh",
+    maxWidth: shouldShowTwoColumns ? "900px" : "440px",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
@@ -175,31 +198,31 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
     flexDirection: "column",
     alignItems: "center",
     textAlign: "center",
-    padding: isMobile ? "24px 20px 20px 20px" : "32px 32px 24px 32px",
-    borderBottom: `1px solid ${cardBorder}`,
+    padding: isMobile ? "32px 24px 24px 24px" : "40px 32px 32px 32px",
+    backgroundColor: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
   };
 
   const logoStyle: React.CSSProperties = {
-    height: isMobile ? "48px" : "64px",
-    width: isMobile ? "48px" : "64px",
+    height: isMobile ? "48px" : "50px",
+    width: isMobile ? "48px" : "50px",
     objectFit: "contain",
     marginBottom: isMobile ? "16px" : "20px",
     borderRadius: "12px",
   };
 
   const iconWrapperStyle: React.CSSProperties = {
-    height: isMobile ? "48px" : "64px",
-    width: isMobile ? "48px" : "64px",
+    height: isMobile ? "60px" : "80px",
+    width: isMobile ? "60px" : "80px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: `${primaryColor}20`,
-    borderRadius: "12px",
+    borderRadius: "16px",
     marginBottom: isMobile ? "16px" : "20px",
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize: isMobile ? "20px" : "24px",
+    fontSize: isMobile ? "24px" : "24px",
     fontWeight: 700,
     color: textColor,
     margin: "0 0 8px 0",
@@ -208,53 +231,54 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
   };
 
   const subtitleStyle: React.CSSProperties = {
-    fontSize: isMobile ? "13px" : "14px",
+    fontSize: isMobile ? "14px" : "14px",
     color: subTextColor,
     margin: 0,
-    lineHeight: "1.4",
+    lineHeight: "1.5",
   };
 
   const closeButtonStyle: React.CSSProperties = {
     position: "absolute",
-    top: isMobile ? "12px" : "16px",
-    right: isMobile ? "12px" : "16px",
+    top: isMobile ? "16px" : "20px",
+    right: isMobile ? "16px" : "20px",
     color: subTextColor,
     backgroundColor: "transparent",
     border: "none",
     padding: "8px",
-    borderRadius: "6px",
+    borderRadius: "8px",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    transition: "all 0.2s ease",
   };
 
   const bodyStyle: React.CSSProperties = {
     flex: 1,
-    overflowY: "auto",
-    padding: isMobile ? "20px" : "24px",
+    padding: isMobile ? "24px" : "10px 32px",
   };
 
   const formStyle: React.CSSProperties = {
     display: "grid",
-    gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-    gap: isMobile ? "16px" : "24px",
+    gridTemplateColumns: shouldShowTwoColumns ? "1fr 1fr" : "1fr",
+    gap: isMobile ? "20px" : "24px",
   };
 
   const columnStyle: React.CSSProperties = {
     display: "flex",
+    justifyContent:"end",
     flexDirection: "column",
-    gap: isMobile ? "12px" : "16px",
+    gap: isMobile ? "16px" : "16px",
   };
 
   const fieldStyle: React.CSSProperties = {
     display: "flex",
     flexDirection: "column",
-    gap: "6px",
+    gap: "4px",
   };
 
   const labelStyle: React.CSSProperties = {
-    fontSize: isMobile ? "13px" : "14px",
+    fontSize: isMobile ? "14px" : "14px",
     fontWeight: 600,
     color: textColor,
   };
@@ -267,41 +291,39 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
 
   const inputIconStyle: React.CSSProperties = {
     position: "absolute",
-    left: "12px",
+    left: "16px",
     color: subTextColor,
-    width: isMobile ? "16px" : "18px",
-    height: isMobile ? "16px" : "18px",
+    width: "20px",
+    height: "20px",
   };
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
-    padding: isMobile ? "12px 12px 12px 40px" : "14px 14px 14px 46px",
+    padding: isMobile ? "14px 14px 14px 48px" : "16px 16px 16px 52px",
     backgroundColor: inputBg,
     border: `1px solid ${inputBorder}`,
-    borderRadius: "8px",
+    borderRadius: "12px",
     color: textColor,
-    fontSize: isMobile ? "14px" : "15px",
+    fontSize: isMobile ? "15px" : "15px",
     outline: "none",
     transition: "all 0.2s ease",
-    backdropFilter: "blur(10px)",
   };
 
   const selectStyle: React.CSSProperties = {
     width: "100%",
-    padding: isMobile ? "12px 40px 12px 12px" : "14px 40px 14px 12px",
+    padding: isMobile ? "14px 48px 14px 16px" : "16px 52px 16px 16px",
     backgroundColor: inputBg,
     border: `1px solid ${inputBorder}`,
-    borderRadius: "8px",
+    borderRadius: "12px",
     color: textColor,
-    fontSize: isMobile ? "14px" : "15px",
+    fontSize: isMobile ? "16px" : "16px",
     outline: "none",
     appearance: "none",
-    backdropFilter: "blur(10px)",
   };
 
   const toggleButtonStyle: React.CSSProperties = {
     position: "absolute",
-    right: "12px",
+    right: "16px",
     backgroundColor: "transparent",
     border: "none",
     color: subTextColor,
@@ -310,6 +332,16 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
     alignItems: "center",
     justifyContent: "center",
     padding: "4px",
+    borderRadius: "4px",
+    transition: "all 0.2s ease",
+  };
+
+  // Avatar Preview at the top
+  const avatarPreviewContainerStyle: React.CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "16px",
   };
 
   const avatarPreviewStyle: React.CSSProperties = {
@@ -317,55 +349,53 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
     flexDirection: "column",
     alignItems: "center",
     gap: "12px",
-    padding: "16px",
-    backgroundColor: inputBg,
-    border: `1px solid ${inputBorder}`,
-    borderRadius: "12px",
-    backdropFilter: "blur(10px)",
+    borderRadius: "16px",
+    width: "100%",
+    maxWidth: "200px",
   };
 
   const avatarImageStyle: React.CSSProperties = {
-    width: isMobile ? "80px" : "96px",
-    height: isMobile ? "80px" : "96px",
+    width: "100px",
+    height: "100px",
     borderRadius: "50%",
     objectFit: "cover",
-    border: `1px solid ${inputBorder}`,
+    border: `2px solid ${primaryColor}30`,
   };
 
   const avatarPlaceholderStyle: React.CSSProperties = {
-    width: isMobile ? "80px" : "96px",
-    height: isMobile ? "80px" : "96px",
+    width: "100px",
+    height: "100px",
     borderRadius: "50%",
-    backgroundColor: inputBg,
+    backgroundColor: `${primaryColor}10`,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: subTextColor,
-    border: `1px solid ${inputBorder}`,
+    color: primaryColor,
+    border: `2px solid ${primaryColor}20`,
   };
 
   const statusToggleStyle: React.CSSProperties = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "16px",
+    padding: "21px 20px",
     backgroundColor: inputBg,
     border: `1px solid ${inputBorder}`,
     borderRadius: "12px",
-    backdropFilter: "blur(10px)",
   };
 
   const statusContentStyle: React.CSSProperties = {
     display: "flex",
     alignItems: "center",
     gap: "12px",
+    fontSize:"12px"
   };
 
   const toggleSwitchStyle: React.CSSProperties = {
-    width: "44px",
-    height: "24px",
-    backgroundColor: formData.isActive ? primaryColor : "#6b7280",
-    borderRadius: "12px",
+    width: "52px",
+    height: "28px",
+    backgroundColor: formData.isActive ? primaryColor : "#9ca3af",
+    borderRadius: "14px",
     position: "relative",
     cursor: "pointer",
     transition: "background-color 0.2s",
@@ -374,42 +404,50 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
   const toggleKnobStyle: React.CSSProperties = {
     position: "absolute",
     top: "2px",
-    left: formData.isActive ? "22px" : "2px",
-    width: "20px",
-    height: "20px",
+    left: formData.isActive ? "26px" : "2px",
+    width: "24px",
+    height: "24px",
     backgroundColor: "#ffffff",
     borderRadius: "50%",
     transition: "left 0.2s",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
   };
 
   const footerStyle: React.CSSProperties = {
     display: "flex",
-    justifyContent: "space-between",
+    flexDirection: "column",
     alignItems: "center",
-    padding: isMobile ? "16px 20px" : "20px 24px",
-    borderTop: `1px solid ${cardBorder}`,
-    flexDirection: isMobile ? "column" : "row",
-    gap: isMobile ? "12px" : "0",
+    gap: "16px",
+    padding: isMobile ? "20px 24px" : "26px 32px 26px 32px",
+    backgroundColor: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+  };
+
+  const footerTextStyle: React.CSSProperties = {
+    fontSize: isMobile ? "13px" : "14px",
+    color: subTextColor,
+    textAlign: "center",
+    lineHeight: "1.5",
   };
 
   const loginLinkStyle: React.CSSProperties = {
-    color: primaryColor,
+    color: "#ffffff",
     textDecoration: "none",
-    fontSize: isMobile ? "13px" : "14px",
+    fontSize: isMobile ? "14px" : "15px",
     fontWeight: 500,
+    textAlign: "center",
   };
 
   const buttonContainerStyle: React.CSSProperties = {
     display: "flex",
     gap: "12px",
-    width: isMobile ? "100%" : "auto",
+    width: "100%",
   };
 
   const buttonStyle: React.CSSProperties = {
-    padding: isMobile ? "12px 20px" : "12px 24px",
-    borderRadius: "8px",
+    padding: isMobile ? "14px 20px" : "14px 24px",
+    borderRadius: "12px",
     border: "none",
-    fontSize: isMobile ? "14px" : "15px",
+    fontSize: isMobile ? "15px" : "14px",
     fontWeight: 600,
     cursor: "pointer",
     display: "flex",
@@ -417,7 +455,7 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
     justifyContent: "center",
     gap: "8px",
     transition: "all 0.3s ease",
-    width: isMobile ? "100%" : "auto",
+    flex: 1,
   };
 
   const cancelButtonStyle: React.CSSProperties = {
@@ -429,26 +467,27 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
 
   const submitButtonStyle: React.CSSProperties = {
     ...buttonStyle,
-    background: loading ? "#374151" : gradient,
+    background: loading ? "#9ca3af" : gradient,
     color: "#ffffff",
-    boxShadow: `0 4px 14px 0 ${primaryColor}40`,
+    boxShadow: loading ? "none" : `0 4px 14px 0 ${primaryColor}40`,
   };
 
   const disabledButtonStyle: React.CSSProperties = {
     ...buttonStyle,
-    backgroundColor: "#374151",
-    color: "#9ca3af",
+    backgroundColor: "#9ca3af",
+    color: "#ffffff",
     cursor: "not-allowed",
+    boxShadow: "none",
   };
 
   const messageStyle: React.CSSProperties = {
-    padding: isMobile ? "12px" : "16px",
-    borderRadius: "8px",
-    fontSize: isMobile ? "13px" : "14px",
+    padding: "16px",
+    borderRadius: "12px",
+    fontSize: "14px",
     display: "flex",
     alignItems: "flex-start",
-    gap: "8px",
-    marginTop: "16px",
+    gap: "12px",
+    marginTop: "20px",
   };
 
   const successMessageStyle: React.CSSProperties = {
@@ -475,7 +514,7 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
               <img src={logoUrl} alt="Logo" style={logoStyle} />
             ) : (
               <div style={iconWrapperStyle}>
-                <User size={isMobile ? 24 : 32} color={primaryColor} />
+                <User size={isMobile ? 32 : 40} color={primaryColor} />
               </div>
             )}
 
@@ -486,26 +525,70 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
           </div>
 
           {onClose && (
-            <button onClick={onClose} style={closeButtonStyle}>
-              <X size={20} />
+            <button
+              onClick={onClose}
+              style={closeButtonStyle}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = darkMode
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(0,0,0,0.05)";
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
+            >
+              <X size={24} />
             </button>
           )}
         </div>
 
         {/* Body */}
         <div style={bodyStyle}>
+           {/* Avatar Preview at the top */}
+              {showAvatar && (
+                <div style={avatarPreviewContainerStyle}>
+                  <div style={avatarPreviewStyle}>
+                    {formData.avatarUrl ? (
+                      <img
+                        src={formData.avatarUrl}
+                        alt="Avatar Preview"
+                        style={avatarImageStyle}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div style={avatarPlaceholderStyle}>
+                        <User size={40} />
+                      </div>
+                    )}
+                    <span
+                      style={{
+                        fontSize: "14px",
+                        color: subTextColor,
+                        fontWeight: 500,
+                      }}
+                    >
+                      Avatar Preview
+                    </span>
+                  </div>
+                </div>
+              )}
           <form onSubmit={handleSignup} style={formStyle}>
-            {/* Left Column */}
+
+            {/* Left Column - Required fields + Phone/Address */}
             <div style={columnStyle}>
-              {/* Name */}
+             
+              {/* Name - Required */}
               <div style={fieldStyle}>
-                <label style={labelStyle}>Full Name *</label>
+                <label style={labelStyle}>Full Name</label>
                 <div style={inputWrapperStyle}>
-                  <User size={isMobile ? 16 : 18} style={inputIconStyle} />
+                  <User size={20} style={inputIconStyle} />
                   <input
                     type="text"
                     name="name"
-                    placeholder="Enter full name"
+                    placeholder="Enter your full name"
                     value={formData.name}
                     onChange={handleChange}
                     style={inputStyle}
@@ -513,21 +596,27 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
                   />
                 </div>
                 {errors.name && (
-                  <span style={{ color: "#ef4444", fontSize: "12px" }}>
+                  <span
+                    style={{
+                      color: "#ef4444",
+                      fontSize: "14px",
+                      marginTop: "4px",
+                    }}
+                  >
                     {errors.name}
                   </span>
                 )}
               </div>
 
-              {/* Email */}
+              {/* Email - Required */}
               <div style={fieldStyle}>
-                <label style={labelStyle}>Email Address *</label>
+                <label style={labelStyle}>Email Address</label>
                 <div style={inputWrapperStyle}>
-                  <Mail size={isMobile ? 16 : 18} style={inputIconStyle} />
+                  <Mail size={20} style={inputIconStyle} />
                   <input
                     type="email"
                     name="email"
-                    placeholder="Enter email address"
+                    placeholder="Enter your email address"
                     value={formData.email}
                     onChange={handleChange}
                     style={inputStyle}
@@ -535,21 +624,27 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
                   />
                 </div>
                 {errors.email && (
-                  <span style={{ color: "#ef4444", fontSize: "12px" }}>
+                  <span
+                    style={{
+                      color: "#ef4444",
+                      fontSize: "14px",
+                      marginTop: "4px",
+                    }}
+                  >
                     {errors.email}
                   </span>
                 )}
               </div>
 
-              {/* Password */}
+              {/* Password - Required */}
               <div style={fieldStyle}>
-                <label style={labelStyle}>Password *</label>
+                <label style={labelStyle}>Password</label>
                 <div style={inputWrapperStyle}>
-                  <Lock size={isMobile ? 16 : 18} style={inputIconStyle} />
+                  <Lock size={20} style={inputIconStyle} />
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password"
-                    placeholder="Create a password"
+                    placeholder="Create a secure password"
                     value={formData.password}
                     onChange={handleChange}
                     style={inputStyle}
@@ -559,145 +654,203 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     style={toggleButtonStyle}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.backgroundColor = darkMode
+                        ? "rgba(255,255,255,0.1)"
+                        : "rgba(0,0,0,0.05)";
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                    }}
                   >
-                    {showPassword ? (
-                      <EyeOff size={isMobile ? 16 : 18} />
-                    ) : (
-                      <Eye size={isMobile ? 16 : 18} />
-                    )}
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
                 {errors.password && (
-                  <span style={{ color: "#ef4444", fontSize: "12px" }}>
+                  <span
+                    style={{
+                      color: "#ef4444",
+                      fontSize: "14px",
+                      marginTop: "4px",
+                    }}
+                  >
                     {errors.password}
                   </span>
                 )}
               </div>
 
-              {/* Only show additional fields on desktop or if not mobile */}
-              {!isMobile && (
-                <>
-                  {/* Phone */}
-                  <div style={fieldStyle}>
-                    <label style={labelStyle}>Phone Number</label>
-                    <div style={inputWrapperStyle}>
-                      <Phone size={18} style={inputIconStyle} />
-                      <input
-                        type="tel"
-                        name="phone"
-                        placeholder="Enter phone number"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        style={inputStyle}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Address */}
-                  <div style={fieldStyle}>
-                    <label style={labelStyle}>Address</label>
-                    <div style={inputWrapperStyle}>
-                      <MapPin size={18} style={inputIconStyle} />
-                      <input
-                        type="text"
-                        name="address"
-                        placeholder="Enter address"
-                        value={formData.address}
-                        onChange={handleChange}
-                        style={inputStyle}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Role */}
-                  <div style={fieldStyle}>
-                    <label style={labelStyle}>Role</label>
-                    <select
-                      name="role"
-                      value={formData.role}
-                      onChange={handleChange}
-                      style={selectStyle}
-                    >
-                      <option value="user">User</option>
-                      <option value="admin">Admin</option>
-                      <option value="moderator">Moderator</option>
-                    </select>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Right Column - Hidden on mobile */}
-            {!isMobile && (
-              <div style={{ ...columnStyle, alignItems: "center" }}>
-                {/* Avatar URL */}
-                <div style={{ ...fieldStyle, width: "100%" }}>
-                  <label style={labelStyle}>Avatar URL</label>
+              {/* Phone - Optional */}
+              {showPhone && (
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Phone Number</label>
                   <div style={inputWrapperStyle}>
-                    <Image size={18} style={inputIconStyle} />
+                    <Phone size={20} style={inputIconStyle} />
                     <input
-                      type="url"
-                      name="avatarUrl"
-                      placeholder="Enter avatar image URL"
-                      value={formData.avatarUrl}
+                      type="tel"
+                      name="phone"
+                      placeholder="Enter your phone number"
+                      value={formData.phone || ""}
                       onChange={handleChange}
                       style={inputStyle}
                     />
                   </div>
                 </div>
+              )}
+            </div>
 
-                {/* Avatar Preview */}
-                <div style={avatarPreviewStyle}>
-                  {formData.avatarUrl ? (
-                    <img
-                      src={formData.avatarUrl}
-                      alt="Avatar Preview"
-                      style={avatarImageStyle}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = "none";
-                      }}
-                    />
-                  ) : (
-                    <div style={avatarPlaceholderStyle}>
-                      <User size={32} />
+            {/* Right Column - Role and Status */}
+            {shouldShowTwoColumns && (
+              <div style={columnStyle}>
+                {/* Address - Optional */}
+                {showAddress && (
+                  <div style={fieldStyle}>
+                    <label style={labelStyle}>Address</label>
+                    <div style={inputWrapperStyle}>
+                      <MapPin size={20} style={inputIconStyle} />
+                      <input
+                        type="text"
+                        name="address"
+                        placeholder="Enter your address"
+                        value={formData.address || ""}
+                        onChange={handleChange}
+                        style={inputStyle}
+                      />
                     </div>
-                  )}
-                  <span style={{ fontSize: "12px", color: subTextColor }}>
-                    Avatar Preview
-                  </span>
-                </div>
+                  </div>
+                )}
 
-                {/* Account Status */}
-                <div style={statusToggleStyle}>
-                  <div style={statusContentStyle}>
-                    {formData.isActive ? (
-                      <UserCheck size={20} color={primaryColor} />
-                    ) : (
-                      <UserX size={20} color="#ef4444" />
-                    )}
-                    <div>
-                      <div
-                        style={{
-                          fontSize: "14px",
-                          fontWeight: 600,
-                          color: textColor,
-                        }}
+                {/* Avatar URL - At the bottom of first column */}
+                {showAvatar && (
+                  <div style={fieldStyle}>
+                    <label style={labelStyle}>Avatar URL</label>
+                    <div style={inputWrapperStyle}>
+                      <Image size={20} style={inputIconStyle} />
+                      <input
+                        type="url"
+                        name="avatarUrl"
+                        placeholder="Paste your avatar image URL"
+                        value={formData.avatarUrl || ""}
+                        onChange={handleChange}
+                        style={inputStyle}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Role - Optional */}
+                {showRole && (
+                  <div style={fieldStyle}>
+                    <label style={labelStyle}>Role</label>
+                    <div style={inputWrapperStyle}>
+                      <select
+                        name="role"
+                        value={formData.role}
+                        onChange={handleChange}
+                        style={selectStyle}
                       >
-                        Account Status
-                      </div>
-                      <div style={{ fontSize: "12px", color: subTextColor }}>
-                        {formData.isActive
-                          ? "User can access the system"
-                          : "User account is disabled"}
-                      </div>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                        <option value="moderator">Moderator</option>
+                      </select>
                     </div>
                   </div>
-                  <div style={toggleSwitchStyle} onClick={handleToggle}>
-                    <div style={toggleKnobStyle} />
+                )}
+
+                {/* Status - Optional */}
+                {showStatus && (
+                  <div style={statusToggleStyle}>
+                    <div style={statusContentStyle}>
+                      {formData.isActive ? (
+                        <UserCheck size={24} color={primaryColor} />
+                      ) : (
+                        <UserX size={24} color="#ef4444" />
+                      )}
+                      <div>
+                        <div
+                          style={{
+                            fontSize: "14px",
+                            fontWeight: 600,
+                            color: textColor,
+                          }}
+                        >
+                          Account Status
+                        </div>
+                        <div style={{ fontSize: "12px", color: subTextColor }}>
+                          {formData.isActive
+                            ? "User can access the system"
+                            : "User account is disabled"}
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      style={toggleSwitchStyle}
+                      onClick={handleToggle}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.opacity = "0.8";
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.opacity = "1";
+                      }}
+                    >
+                      <div style={toggleKnobStyle} />
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
+            )}
+
+            {/* Role and Status for single column layout */}
+            {!shouldShowTwoColumns && (
+              <>
+                {showRole && (
+                  <div style={fieldStyle}>
+                    <label style={labelStyle}>Role</label>
+                    <div style={inputWrapperStyle}>
+                      <select
+                        name="role"
+                        value={formData.role}
+                        onChange={handleChange}
+                        style={selectStyle}
+                      >
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                        <option value="moderator">Moderator</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {showStatus && (
+                  <div style={statusToggleStyle}>
+                    <div style={statusContentStyle}>
+                      {formData.isActive ? (
+                        <UserCheck size={24} color={primaryColor} />
+                      ) : (
+                        <UserX size={24} color="#ef4444" />
+                      )}
+                      <div>
+                        <div
+                          style={{
+                            fontSize: "16px",
+                            fontWeight: 600,
+                            color: textColor,
+                          }}
+                        >
+                          Account Status
+                        </div>
+                        <div style={{ fontSize: "14px", color: subTextColor }}>
+                          {formData.isActive
+                            ? "User can access the system"
+                            : "User account is disabled"}
+                        </div>
+                      </div>
+                    </div>
+                    <div style={toggleSwitchStyle} onClick={handleToggle}>
+                      <div style={toggleKnobStyle} />
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </form>
 
@@ -711,11 +864,11 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
               }
             >
               {message.type === "success" ? (
-                <CheckCircle size={isMobile ? 16 : 18} color={primaryColor} />
+                <CheckCircle size={20} color={primaryColor} />
               ) : (
-                <AlertCircle size={isMobile ? 16 : 18} color="#ef4444" />
+                <AlertCircle size={20} color="#ef4444" />
               )}
-              <span>{message.text}</span>
+              <span style={{ fontWeight: 500 }}>{message.text}</span>
             </div>
           )}
         </div>
@@ -724,14 +877,27 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
         <div style={footerStyle}>
           {loginUrl && (
             <a href={loginUrl} style={loginLinkStyle}>
-              Already have an account? Sign in
+              Already have an account?{" "}
+              <span style={{ color: primaryColor }}>Sign in</span>
             </a>
           )}
 
           <div style={buttonContainerStyle}>
             {onClose && (
-              <button type="button" onClick={onClose} style={cancelButtonStyle}>
-                <X size={16} />
+              <button
+                type="button"
+                onClick={onClose}
+                style={cancelButtonStyle}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.backgroundColor = darkMode
+                    ? "rgba(255,255,255,0.1)"
+                    : "rgba(0,0,0,0.05)";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = inputBg;
+                }}
+              >
+                <X size={18} />
                 Cancel
               </button>
             )}
@@ -740,18 +906,31 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
               onClick={handleSignup}
               disabled={loading}
               style={loading ? disabledButtonStyle : submitButtonStyle}
+              onMouseOver={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.boxShadow = `0 6px 20px 0 ${primaryColor}60`;
+                }
+              }}
+              onMouseOut={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = `0 4px 14px 0 ${primaryColor}40`;
+                }
+              }}
             >
               {loading ? (
                 <Loader
-                  size={16}
+                  size={18}
                   style={{ animation: "spin 1s linear infinite" }}
                 />
               ) : (
-                <Plus size={16} />
+                <Plus size={18} />
               )}
               {loading ? "Creating..." : "Create Account"}
             </button>
           </div>
+          {footerText && <p style={footerTextStyle}>{footerText}</p>}
         </div>
       </div>
 
@@ -762,23 +941,8 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
             to { transform: rotate(360deg); }
           }
           
-          button:hover:not(:disabled) {
-            opacity: 0.9;
-            transform: translateY(-1px);
-          }
-          
-          input:focus, select:focus {
-            border-color: ${primaryColor};
-            box-shadow: 0 0 0 3px ${primaryColor}20;
-          }
-          
-          a:hover {
-            color: ${primaryColor};
-            text-decoration: underline;
-          }
-          
           @media (max-width: 480px) {
-            input {
+            input, select {
               font-size: 16px !important;
             }
           }

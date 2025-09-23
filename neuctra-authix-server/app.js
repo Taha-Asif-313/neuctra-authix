@@ -1,20 +1,25 @@
-import "dotenv/config"
-import express from 'express';
-import adminAuthRoutes from './routes/adminAuthRoutes.js';
-import userRoutes from './routes/userRoutes.js';
-import appRoutes from './routes/appRoutes.js';
-import cors from "cors"
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+
+import adminAuthRoutes from "./routes/adminAuthRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import appRoutes from "./routes/appRoutes.js";
 
 const app = express();
 app.use(express.json());
-app.use(cors({
-    origin: [process.env.CLIENT_URL,"http://localhost:5174"],
-    credentials:true
-}))
 
-// Routes
-app.use('/api/admin', adminAuthRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/apps', appRoutes);
+// 🔹 CORS configs
+const adminCors = cors({
+  origin: [process.env.CLIENT_URL, "http://localhost:5174"], // only admin client
+  credentials: true,
+});
+
+const userCors = cors(); // allow all origins (default: reflects request origin)
+
+// 🔹 Routes with specific CORS
+app.use("/api/admin", adminCors, adminAuthRoutes);
+app.use("/api/apps", adminCors, appRoutes);
+app.use("/api/users", userCors, userRoutes);
 
 export default app;
