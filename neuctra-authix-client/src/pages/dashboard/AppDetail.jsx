@@ -69,9 +69,24 @@ const AppDetail = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleCopy = (text) => {
+ const handleCopy = (text) => {
     try {
-      navigator.clipboard.writeText(text);
+      // Create a hidden textarea
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed"; // Prevent scrolling to bottom
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+
+      // Select and copy
+      textarea.select();
+      textarea.setSelectionRange(0, textarea.value.length);
+      const success = document.execCommand("copy");
+
+      document.body.removeChild(textarea);
+
+      if (!success) throw new Error("execCommand failed");
+
       setCopied(true);
       toast.success("App ID copied!");
       setTimeout(() => setCopied(false), 2000);

@@ -341,7 +341,7 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
     flexDirection: "column",
     alignItems: "center",
     gap: "12px",
-    margin:"10px 0px"
+    margin: "10px 0px",
   };
 
   const avatarPreviewStyle: React.CSSProperties = {
