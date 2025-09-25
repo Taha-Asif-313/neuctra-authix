@@ -207,7 +207,7 @@ const AvatarUpdateModal = ({ isOpen, onClose, currentAvatar, onSave }) => {
 };
 
 const ProfilePage = () => {
-  const { admin, token, logout } = useAuth();
+  const { admin, token, logout, updateProfile } = useAuth();
   const [formData, setFormData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
@@ -230,7 +230,10 @@ const ProfilePage = () => {
           }
         );
 
-        if (data.success) setFormData(data.data);
+        if (data.success) {
+          setFormData(data.data)
+        
+        }
         else toast.error(data.message);
       } catch (err) {
         console.error("Profile fetch error:", err);
@@ -268,6 +271,7 @@ const ProfilePage = () => {
           }
         );
         if (profileResponse.data.success)
+           updateProfile(data.data);
           setFormData(profileResponse.data.data);
       } else {
         toast.error(data.message);
@@ -291,6 +295,7 @@ const ProfilePage = () => {
 
       if (data.success) {
         setFormData(updateData);
+        updateProfile(updateData)
         toast.success("Avatar updated successfully!");
       }
     } catch (error) {
@@ -412,7 +417,7 @@ const ProfilePage = () => {
       />
 
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-6">
         <div className="relative group">
           <img
             src={
@@ -420,12 +425,12 @@ const ProfilePage = () => {
               "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
             }
             alt="Profile"
-            className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 border-zinc-700 object-cover shadow-lg"
+            className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-primary object-cover shadow-lg"
           />
           {editMode && (
             <button
               onClick={() => setShowAvatarModal(true)}
-              className="absolute bottom-2 right-2 bg-primary/90 p-2 rounded-full cursor-pointer shadow-lg transition-transform hover:scale-105"
+              className="absolute bottom-0 right-1 bg-primary/90 p-2 rounded-full cursor-pointer shadow-lg transition-transform hover:scale-105"
             >
               <Camera size={16} className="text-white" />
             </button>
@@ -442,8 +447,8 @@ const ProfilePage = () => {
             <span
               className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
                 formData.isActive
-                  ? "bg-primary/10 text-primary"
-                  : "bg-red-500/20 text-red-300"
+                  ? "bg-primary/5 text-primary"
+                  : "bg-red-500/5 text-red-500"
               }`}
             >
               {formData.isActive ? (
@@ -459,7 +464,7 @@ const ProfilePage = () => {
               )}
             </span>
 
-            <span className="inline-flex items-center px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs">
+            <span className="inline-flex items-center px-3 py-1 bg-blue-500/5 text-blue-500 rounded-full text-xs">
               <Calendar size={12} className="mr-1" />
               Joined {new Date(formData.createdAt).toLocaleDateString()}
             </span>
@@ -469,10 +474,10 @@ const ProfilePage = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-xl p-5 border border-blue-800/30">
+        <div className="bg-gradient-to-r from-blue-900/30 to-blue-800/5 rounded-xl p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-sm">Total Apps</p>
+              <p className="text-blue-600 mb-3 text-sm">Total Apps</p>
               <p className="text-2xl font-bold text-white">
                 {formData?._count?.apps ?? 0}
               </p>
@@ -483,10 +488,10 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-xl p-5 border border-green-800/30">
+        <div className="bg-gradient-to-r from-green-900/30 to-green-800/5 rounded-xl p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-sm">Managed Users</p>
+              <p className="text-green-600 mb-3 text-sm">Managed Users</p>
               <p className="text-2xl font-bold text-white">
                 {formData?._count?.users ?? 0}
               </p>
@@ -500,15 +505,7 @@ const ProfilePage = () => {
 
       {/* Profile Information */}
       <div className="backdrop-blur-sm overflow-hidden">
-        <div className="mb-5">
-          <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-            <User className="text-primary" size={24} />
-            Profile Information
-          </h2>
-          <p className="text-xs max-sm:hidden mt-1">
-            Manage your personal information and account settings
-          </p>
-        </div>
+     
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
           <ProfileField
@@ -575,7 +572,7 @@ const ProfilePage = () => {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 text-sm justify-between items-center my-5">
+      <div className="flex flex-row gap-4 text-sm justify-between items-center my-5">
         {editMode ? (
           <>
             <button
@@ -606,7 +603,7 @@ const ProfilePage = () => {
           <>
             <button
               onClick={() => setEditMode(true)}
-              className="flex items-center gap-2  px-6 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-white font-medium transition-colors"
+              className="flex items-center gap-2 max-md:text-xs px-6 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-white font-medium transition-colors"
             >
               <Edit size={14} />
               Edit Profile
@@ -614,7 +611,7 @@ const ProfilePage = () => {
 
             <button
               onClick={handleDelete}
-              className="flex items-center gap-2 px-6 py-3 bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 rounded-lg font-medium transition-colors"
+              className="flex items-center gap-2 px-6 py-3 max-md:text-xs bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 rounded-lg font-medium transition-colors"
             >
               <Trash2 size={16} />
               Delete Account
@@ -673,7 +670,7 @@ const ProfileField = ({
       </div>
 
       {/* Field container */}
-      <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2">
+      <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2.5">
         {editable && name ? (
           // Editable input
           <input

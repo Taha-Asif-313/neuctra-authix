@@ -44,6 +44,12 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("token", jwtToken);
   };
 
+  // Update Profile (you can call this after handleSubmit)
+  const updateProfile = (updatedAdmin) => {
+    setAdmin(updatedAdmin);
+    localStorage.setItem("admin", JSON.stringify(updatedAdmin));
+  };
+
   // Logout
   const logout = () => {
     setAdmin(null);
@@ -58,7 +64,16 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ admin, token, loading, isAuthenticated, login, logout }}
+      value={{
+        admin,
+        setAdmin, // still exposed in case you want manual control
+        token,
+        loading,
+        isAuthenticated,
+        login,
+        logout,
+        updateProfile, // <— added this helper
+      }}
     >
       {children}
     </AuthContext.Provider>
