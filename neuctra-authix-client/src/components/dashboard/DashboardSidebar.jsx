@@ -174,7 +174,7 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
         </nav>
 
         {/* Admin Footer */}
-        <div className="p-4 border-t border-gray-800">
+        <div className="p-4 border-t space-y-2 pb-6 border-gray-800">
           <Link
             to={"/dashboard/profile"}
             className="flex items-center space-x-3 p-3 text-gray-300 rounded-lg transition-colors"
@@ -201,7 +201,7 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
           <button
             onClick={() => setShowLogoutModal(true)}
-            className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-red-600/10 text-red-400 transition-colors"
+            className="w-full flex items-center space-x-3 px-4 py-3 text-sm rounded-lg bg-red-500/5 text-red-500 transition-colors"
           >
             <LogOut size={18} />
             <span>Logout</span>

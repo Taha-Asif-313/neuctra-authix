@@ -50,29 +50,29 @@ model App {
 }
 
 model User {
-  id        String   @id @default(cuid())       // crypto-generated ID
+  id        String   @id @default(cuid())
   name      String
   email     String
   password  String
-  token     String                            // 👈 store JWT token
+  token     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Extra user data
   phone     String?
   address   String?
   avatarUrl String?
   isActive  Boolean  @default(true)
   role      String   @default("user")
 
-  // Relation: each User belongs to one App
   appId     String
-  app       App @relation(fields: [appId], references: [id])
+  app       App       @relation(fields: [appId], references: [id])
 
-  // Relation: each User also belongs to one Admin
   adminId   String
   admin     AdminUser @relation(fields: [adminId], references: [id])
 
-  @@unique([email, appId]) // 👈 allow same email across apps, but unique per app
+  data      Json?    
+
+  @@unique([email, appId])
 }
+
 

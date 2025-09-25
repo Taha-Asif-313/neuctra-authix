@@ -567,3 +567,182 @@ export const getProfile = async (req, res) => {
     });
   }
 };
+
+/**
+ * @desc    Get user's data (array of JSON objects)
+ * @route   GET /api/users/:id/data
+ * @access  Private (Admin only)
+ */
+export const getUserData = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await prisma.user.findFirst({
+      where: { id, adminId: req.admin.id },
+      select: { id: true, data: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found or unauthorized",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User data fetched successfully",
+      data: user.data || [],
+    });
+  } catch (err) {
+    console.error("GetUserData Error:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+/**
+ * @desc    Add a new JSON object to user's data array
+ * @route   POST /api/users/:id/data
+ * @access  Private (Admin only)
+ */
+export const addUserData = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const newObject = req.body; // expects a JSON object
+
+    const user = await prisma.user.findFirst({
+      where: { id, adminId: req.admin.id },
+    });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found or unauthorized",
+      });
+    }
+
+    // 👇 Attach a unique ID before saving
+    const objectWithId = { id: generateId(), ...newObject };
+
+    const updatedData = [...(user.data || []), objectWithId];
+
+    await prisma.user.update({
+      where: { id },
+      data: { data: updatedData },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Data added successfully",
+      data: updatedData,
+    });
+  } catch (err) {
+    console.error("AddUserData Error:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+/**
+ * @desc    Update a JSON object in user's data array by object id
+ * @route   PUT /api/users/:id/data/:dataId
+ * @access  Private (Admin only)
+ */
+export const updateUserData = async (req, res) => {
+  try {
+    const { id, dataId } = req.params;
+    const updatedObject = req.body; // expects JSON object
+
+    const user = await prisma.user.findFirst({
+      where: { id, adminId: req.admin.id },
+    });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found or unauthorized",
+      });
+    }
+
+    let dataArray = user.data || [];
+    if (!Array.isArray(dataArray)) dataArray = [];
+
+    // find object by its id
+    const index = dataArray.findIndex((obj) => obj.id === dataId);
+    if (index === -1) {
+      return res.status(404).json({
+        success: false,
+        message: "Data object not found",
+      });
+    }
+
+    // keep the same id, update rest
+    dataArray[index] = { ...dataArray[index], ...updatedObject };
+
+    await prisma.user.update({
+      where: { id },
+      data: { data: dataArray },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Data updated successfully",
+      data: dataArray,
+    });
+  } catch (err) {
+    console.error("UpdateUserData Error:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+/**
+ * @desc    Delete a JSON object from user's data array by object id
+ * @route   DELETE /api/users/:id/data/:dataId
+ * @access  Private (Admin only)
+ */
+export const deleteUserData = async (req, res) => {
+  try {
+    const { id, dataId } = req.params;
+
+    const user = await prisma.user.findFirst({
+      where: { id, adminId: req.admin.id },
+    });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found or unauthorized",
+      });
+    }
+
+    let dataArray = user.data || [];
+    if (!Array.isArray(dataArray)) dataArray = [];
+
+    // filter out by id
+    const newArray = dataArray.filter((obj) => obj.id !== dataId);
+    if (newArray.length === dataArray.length) {
+      return res.status(404).json({
+        success: false,
+        message: "Data object not found",
+      });
+    }
+
+    await prisma.user.update({
+      where: { id },
+      data: { data: newArray },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Data deleted successfully",
+      data: newArray,
+    });
+  } catch (err) {
+    console.error("DeleteUserData Error:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
