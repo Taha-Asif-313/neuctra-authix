@@ -286,7 +286,7 @@ const DashboardPage = () => {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-2xl p-5 border border-blue-800/30">
+        <div className="bg-blue-900/30 rounded-2xl p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-400 text-sm">Total Apps</p>
@@ -304,7 +304,7 @@ const DashboardPage = () => {
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-2xl p-5 border border-green-800/30">
+        <div className="bg-green-900/30 rounded-2xl p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-400 text-sm">Active Users</p>
@@ -322,7 +322,7 @@ const DashboardPage = () => {
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-2xl p-5 border border-amber-800/30">
+        <div className="bg-amber-900/30 rounded-2xl p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-400 text-sm">Active Apps</p>
@@ -347,7 +347,7 @@ const DashboardPage = () => {
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-2xl p-5 border border-purple-800/30">
+        <div className="bg-purple-900/30 rounded-2xl p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-400 text-sm">Security Score</p>

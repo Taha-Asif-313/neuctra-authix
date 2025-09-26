@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, Settings, HelpCircle } from "lucide-react";
+import { Menu, Settings, HelpCircle, LogOut } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 
 const DashboardHeader = ({sidebarOpen, setSidebarOpen}) => {
-  const { admin } = useAuth();
+  const { admin , logout } = useAuth();
   const [expandedItems, setExpandedItems] = useState({});
   const location = useLocation();
 
@@ -31,14 +31,14 @@ const DashboardHeader = ({sidebarOpen, setSidebarOpen}) => {
           <h1 className="text-lg font-semibold text-white">Dashboard</h1>
         </div>
 
-        <div className="flex items-center space-x-4">
-          <Link to={"/dashboard/support"} className="p-2 rounded-full hover:bg-gray-800 relative">
-            <HelpCircle size={20} />
-          </Link>
+        <div className="flex items-center ">
+          <button onClick={()=>logout()} className="p-2 rounded-full hover:bg-gray-800 relative">
+            <LogOut size={20} />
+          </button>
           <Link to={"/dashboard/support"} className="p-2 rounded-full hover:bg-gray-800 relative">
             <Settings size={20} />
           </Link>
-          <Link to={"/dashboard/profile"}>
+          <Link className="p-2" to={"/dashboard/profile"}>
             {admin.avatarUrl ? (
               <img
                 src={admin.avatarUrl}

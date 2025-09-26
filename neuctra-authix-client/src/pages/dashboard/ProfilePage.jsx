@@ -231,10 +231,8 @@ const ProfilePage = () => {
         );
 
         if (data.success) {
-          setFormData(data.data)
-        
-        }
-        else toast.error(data.message);
+          setFormData(data.data);
+        } else toast.error(data.message);
       } catch (err) {
         console.error("Profile fetch error:", err);
         toast.error("Failed to load profile");
@@ -270,9 +268,8 @@ const ProfilePage = () => {
             },
           }
         );
-        if (profileResponse.data.success)
-           updateProfile(data.data);
-          setFormData(profileResponse.data.data);
+        if (profileResponse.data.success) updateProfile(data.data);
+        setFormData(profileResponse.data.data);
       } else {
         toast.error(data.message);
       }
@@ -295,7 +292,7 @@ const ProfilePage = () => {
 
       if (data.success) {
         setFormData(updateData);
-        updateProfile(updateData)
+        updateProfile(updateData);
         toast.success("Avatar updated successfully!");
       }
     } catch (error) {
@@ -417,7 +414,8 @@ const ProfilePage = () => {
       />
 
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-6">
+      <div className="flex flex-col sm:flex-row items-start  gap-3 md:gap-6 w-full justify-between">
+        {/* Avatar */}
         <div className="relative group">
           <img
             src={
@@ -437,6 +435,7 @@ const ProfilePage = () => {
           )}
         </div>
 
+        {/* Name + Info */}
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 truncate">
             {formData.name}
@@ -470,11 +469,60 @@ const ProfilePage = () => {
             </span>
           </div>
         </div>
+
+        {/* Header Actions */}
+        <div className="flex flex-row gap-3 text-sm">
+          {editMode ? (
+            <>
+              <button
+                onClick={handleCancelEdit}
+                className="flex items-center gap-2 px-4 py-2 text-zinc-300 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white font-medium transition-colors"
+              >
+                {saving ? (
+                  <>
+                    <RefreshCw size={14} className="animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save size={14} />
+                    Save
+                  </>
+                )}
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => setEditMode(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-white font-medium transition-colors"
+              >
+                <Edit size={14} />
+                Edit
+              </button>
+
+              <button
+                onClick={handleDelete}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-600/30 text-red-500 hover:text-red-300 rounded-lg font-medium transition-colors"
+              >
+                <Trash2 size={14} />
+                Delete
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-gradient-to-r from-blue-900/30 to-blue-800/5 rounded-xl p-5">
+        <div className="bg-gradient-to-r from-blue-900/30 to-blue-900/5 rounded-xl p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-blue-600 mb-3 text-sm">Total Apps</p>
@@ -505,8 +553,6 @@ const ProfilePage = () => {
 
       {/* Profile Information */}
       <div className="backdrop-blur-sm overflow-hidden">
-     
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
           <ProfileField
             icon={<Hash size={16} />}
@@ -569,55 +615,6 @@ const ProfilePage = () => {
             regenerating={regeneratingKey}
           />
         </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex flex-row gap-4 text-sm justify-between items-center my-5">
-        {editMode ? (
-          <>
-            <button
-              onClick={handleCancelEdit}
-              className="flex items-center gap-2 px-6 py-3 text-zinc-300 hover:text-white transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white font-medium transition-colors"
-            >
-              {saving ? (
-                <>
-                  <RefreshCw size={16} className="animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save size={16} />
-                  Save Changes
-                </>
-              )}
-            </button>
-          </>
-        ) : (
-          <>
-            <button
-              onClick={() => setEditMode(true)}
-              className="flex items-center gap-2 max-md:text-xs px-6 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-white font-medium transition-colors"
-            >
-              <Edit size={14} />
-              Edit Profile
-            </button>
-
-            <button
-              onClick={handleDelete}
-              className="flex items-center gap-2 px-6 py-3 max-md:text-xs bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 rounded-lg font-medium transition-colors"
-            >
-              <Trash2 size={16} />
-              Delete Account
-            </button>
-          </>
-        )}
       </div>
     </div>
   );
