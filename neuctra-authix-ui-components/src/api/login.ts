@@ -11,14 +11,17 @@ interface LoginOptions {
   apiKey: string; // required
 }
 
-interface UserInfo {
+export interface UserInfo {
   id: string;
   name: string;
   email: string;
-  token: string;
-  appId: string;
-  adminId?: string;
-  [key: string]: any; // allow extra fields
+  phone?: string;
+  address?: string;
+  avatarUrl?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  token?: string; // optional for API auth
+  [key: string]: any;
 }
 
 /**

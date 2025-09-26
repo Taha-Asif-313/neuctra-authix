@@ -6,10 +6,10 @@ import axios, { AxiosInstance, Method } from "axios";
 interface NeuctraAuthixConfig {
   /** Base URL of the Authix API (required) */
   baseUrl: string;
-  /** API key for authentication (optional) */
-  apiKey?: string;
-  /** App ID for scoping user operations (optional) */
-  appId?: string;
+  /** API key for authentication */
+  apiKey: string;
+  /** App ID for scoping user operations */
+  appId: string;
 }
 
 /**
@@ -33,7 +33,7 @@ interface SignupParams {
 interface LoginParams {
   email: string;
   password: string;
-  appId?: string | null;
+  appId: string;
 }
 
 /**
@@ -259,7 +259,7 @@ export class NeuctraAuthix {
 
     return this.request(
       "GET",
-      "/profile",
+      "/users/profile",
       {},
       { Authorization: `Bearer ${token}` }
     );
