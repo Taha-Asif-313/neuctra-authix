@@ -1,6 +1,7 @@
 import prisma from "../prisma.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { generateId } from "../utils/crypto.js";
 
 /**
  * @desc    User signup for a specific app
@@ -596,6 +597,50 @@ export const getUserData = async (req, res) => {
     });
   } catch (err) {
     console.error("GetUserData Error:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+/**
+ * @desc    Get a single JSON object from user's data array by object id
+ * @route   GET /api/users/:id/data/:dataId
+ * @access  Private (Admin only)
+ */
+export const getSingleUserData = async (req, res) => {
+  try {
+    const { id, dataId } = req.params;
+
+    const user = await prisma.user.findFirst({
+      where: { id, adminId: req.admin.id },
+      select: { id: true, data: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found or unauthorized",
+      });
+    }
+
+    const dataArray = user.data || [];
+    const object = dataArray.find((obj) => obj.id === dataId);
+
+    if (!object) {
+      return res.status(404).json({
+        success: false,
+        message: "Data object not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Single data object fetched successfully",
+      data: object,
+    });
+  } catch (err) {
+    console.error("GetSingleUserData Error:", err);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });

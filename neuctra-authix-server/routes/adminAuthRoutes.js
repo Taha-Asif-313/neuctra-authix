@@ -30,7 +30,6 @@ router.post("/api-key/generate", authMiddleware, generateNewApiKey);
 router.post("/api-key/revoke", authMiddleware, revokeApiKey);
 router.get("/api-key", authMiddleware, getApiKey);
 
-
 // Report Route
 router.get("/download-report", authMiddleware, generateAdminReport);
 router.get("/report", authMiddleware, getAdminReport);

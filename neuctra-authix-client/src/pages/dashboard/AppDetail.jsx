@@ -230,6 +230,7 @@ const AppDetail = () => {
             <table className="w-full text-sm text-left text-gray-300 min-w-[500px]">
               <thead className="bg-zinc-900/90 text-gray-400 uppercase text-xs tracking-wider">
                 <tr>
+                  <th className="px-4 sm:px-6 py-3">ID</th>
                   <th className="px-4 sm:px-6 py-3">Name</th>
                   <th className="px-4 sm:px-6 py-3">Email</th>
                   <th className="px-4 sm:px-6 py-3 text-right">Actions</th>

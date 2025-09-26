@@ -1,11 +1,20 @@
 import axios, { AxiosInstance, Method } from "axios";
 
+/**
+ * SDK configuration options
+ */
 interface NeuctraAuthixConfig {
+  /** Base URL of the Authix API (required) */
   baseUrl: string;
+  /** API key for authentication (optional) */
   apiKey?: string;
+  /** App ID for scoping user operations (optional) */
   appId?: string;
 }
 
+/**
+ * Parameters for signing up a new user
+ */
 interface SignupParams {
   name: string;
   email: string;
@@ -18,12 +27,18 @@ interface SignupParams {
   adminId?: string | null;
 }
 
+/**
+ * Parameters for logging in a user
+ */
 interface LoginParams {
   email: string;
   password: string;
   appId?: string | null;
 }
 
+/**
+ * Parameters for updating an existing user
+ */
 interface UpdateUserParams {
   userId: string;
   name?: string;
@@ -37,21 +52,79 @@ interface UpdateUserParams {
   appId?: string | null;
 }
 
+/**
+ * Parameters for deleting a user
+ */
 interface DeleteUserParams {
   userId: string;
   appId?: string | null;
 }
 
+/**
+ * Parameters for fetching a user profile
+ */
 interface GetProfileParams {
+  /** JWT access token */
   token: string;
 }
 
+// ================= USER EXTRA DATA =================
+
+/**
+ * Fetch all extra data objects for a user
+ */
+interface GetUserDataParams {
+  userId: string;
+}
+
+/**
+ * Fetch a single data object from a user's extra data
+ */
+interface GetSingleUserDataParams {
+  userId: string;
+  dataId: string;
+}
+
+/**
+ * Add a new object to a user's extra data
+ */
+interface AddUserDataParams {
+  userId: string;
+  /** The object to add */
+  data: Record<string, any>;
+}
+
+/**
+ * Update an existing object in a user's extra data
+ */
+interface UpdateUserDataParams {
+  userId: string;
+  dataId: string;
+  /** Fields to update */
+  data: Record<string, any>;
+}
+
+/**
+ * Delete an object from a user's extra data
+ */
+interface DeleteUserDataParams {
+  userId: string;
+  dataId: string;
+}
+
+/**
+ * Main SDK class for interacting with Neuctra Authix API
+ */
 export class NeuctraAuthix {
   private baseUrl: string;
   private apiKey: string | null;
   private appId: string | null;
   private client: AxiosInstance;
 
+  /**
+   * Initialize the SDK client
+   * @param config configuration object with baseUrl, apiKey, and appId
+   */
   constructor(config: NeuctraAuthixConfig) {
     if (!config || !config.baseUrl) {
       throw new Error("NeuctraAuthixClient: 'baseUrl' is required in config");
@@ -71,7 +144,13 @@ export class NeuctraAuthix {
     });
   }
 
-  // 🔹 Universal request helper with error handling
+  /**
+   * Universal request helper with error handling
+   * @param method HTTP method (GET, POST, PUT, DELETE)
+   * @param path API endpoint path
+   * @param data optional request body
+   * @param extraHeaders optional headers
+   */
   private async request<T = any, D extends object = Record<string, unknown>>(
     method: Method,
     path: string,
@@ -82,6 +161,7 @@ export class NeuctraAuthix {
     if (!path) throw new Error("Request path is required");
 
     try {
+      // Merge appId with request body
       const body = {
         ...(this.appId ? { appId: this.appId } : {}),
         ...(data || {}),
@@ -112,6 +192,10 @@ export class NeuctraAuthix {
 
   // ================= USERS =================
 
+  /**
+   * Register a new user
+   * @param params user details
+   */
   async signup(params: SignupParams) {
     const { name, email, password } = params;
     if (!name || !email || !password) {
@@ -121,6 +205,10 @@ export class NeuctraAuthix {
     return this.request("POST", "/users/signup", params);
   }
 
+  /**
+   * Login a user
+   * @param params login details
+   */
   async login(params: LoginParams) {
     const { email, password, appId } = params;
     if (!email || !password) {
@@ -134,6 +222,10 @@ export class NeuctraAuthix {
     });
   }
 
+  /**
+   * Update an existing user
+   * @param params fields to update
+   */
   async updateUser(params: UpdateUserParams) {
     const { userId, appId } = params;
     if (!userId) throw new Error("updateUser: 'userId' is required");
@@ -144,6 +236,10 @@ export class NeuctraAuthix {
     });
   }
 
+  /**
+   * Delete a user
+   * @param params requires userId and optionally appId
+   */
   async deleteUser(params: DeleteUserParams) {
     const { userId, appId } = params;
     if (!userId) throw new Error("deleteUser: 'userId' is required");
@@ -153,6 +249,10 @@ export class NeuctraAuthix {
     });
   }
 
+  /**
+   * Get the profile of the authenticated user
+   * @param params requires JWT token
+   */
   async getProfile(params: GetProfileParams) {
     const { token } = params;
     if (!token) throw new Error("getProfile: 'token' is required");
@@ -163,5 +263,67 @@ export class NeuctraAuthix {
       {},
       { Authorization: `Bearer ${token}` }
     );
+  }
+
+  // ================= USER EXTRA DATA =================
+
+  /**
+   * Get all data objects for a user
+   * @param params requires userId
+   */
+  async getUserData(params: GetUserDataParams) {
+    const { userId } = params;
+    if (!userId) throw new Error("getUserData: 'userId' is required");
+
+    return this.request("GET", `/users/${userId}/data`);
+  }
+
+  /**
+   * Get a single data object for a user
+   * @param params requires userId and dataId
+   */
+  async getSingleUserData(params: GetSingleUserDataParams) {
+    const { userId, dataId } = params;
+    if (!userId || !dataId)
+      throw new Error("getSingleUserData: 'userId' and 'dataId' are required");
+
+    return this.request("GET", `/users/${userId}/data/${dataId}`);
+  }
+
+  /**
+   * Add a new data object to a user
+   * @param params requires userId and data object
+   */
+  async addUserData(params: AddUserDataParams) {
+    const { userId, data } = params;
+    if (!userId) throw new Error("addUserData: 'userId' is required");
+    if (!data) throw new Error("addUserData: 'data' is required");
+
+    return this.request("POST", `/users/${userId}/data`, data);
+  }
+
+  /**
+   * Update a data object by its id
+   * @param params requires userId, dataId, and updated fields
+   */
+  async updateUserData(params: UpdateUserDataParams) {
+    const { userId, dataId, data } = params;
+    if (!userId || !dataId)
+      throw new Error("updateUserData: 'userId' and 'dataId' are required");
+    if (!data) throw new Error("updateUserData: 'data' is required");
+
+    return this.request("PUT", `/users/${userId}/data/${dataId}`, data);
+  }
+
+  /**
+   * Delete a data object by its id
+   * @param params requires userId and dataId
+   */
+  async deleteUserData(params: DeleteUserDataParams) {
+    const { userId, dataId } = params;
+    if (!userId || !dataId)
+      throw new Error("deleteUserData: 'userId' and 'dataId' are required");
+
+    return this.request("DELETE", `/users/${userId}/data/${dataId}`);
   }
 }
