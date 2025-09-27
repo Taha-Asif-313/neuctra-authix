@@ -76,9 +76,9 @@ export const UserButton: React.FC<UserButtonProps> = ({
 
   const colors = darkMode
     ? {
-        background: "#18181b",
-        surface: "#27272a",
-        border: "#3f3f46",
+        background: "#09090B",
+        surface: "#09090B",
+        border: "#27272a",
         textPrimary: "#ffffff",
         textSecondary: "#a1a1aa",
         accent: primaryColor,
