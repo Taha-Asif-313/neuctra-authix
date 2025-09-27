@@ -118,7 +118,6 @@ export const UserButton: React.FC<UserButtonProps> = ({
       borderRadius: "50%",
       overflow: "hidden",
       cursor: "pointer",
-      border: `2px solid ${colors.accent}`,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -247,7 +246,7 @@ export const UserButton: React.FC<UserButtonProps> = ({
             style={styles.avatarImage}
           />
         ) : (
-          <User size={20} color={colors.accent} />
+          <img src="https://api.dicebear.com/9.x/glass/svg?seed=Wyatt"  alt="User avatar" style={styles.avatarImage} />
         )}
       </div>
 

@@ -21,8 +21,9 @@ interface UserProfileProps {
   apiKey: string;
   appId: string;
   token: string;
+  user?: UserInfo | null; // ✅ accept user as prop
   darkMode?: boolean;
-  primaryColor?: string; // ✅ allow user to pass their brand color
+  primaryColor?: string;
 }
 
 export const UserProfile: React.FC<UserProfileProps> = ({
@@ -30,10 +31,11 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   apiKey,
   appId,
   token,
+  user: propUser = null, // ✅ default null
   darkMode = true,
-  primaryColor = "#3b82f6", // ✅ default fallback (blue)
+  primaryColor = "#3b82f6",
 }) => {
-  const [user, setUser] = useState<UserInfo | null>(null);
+  const [user, setUser] = useState<UserInfo | null>(propUser);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -57,11 +59,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       const { data } = await axios.put(
         `${baseUrl}/users/update/${user.id}`,
         updateData,
-        {
-          headers: {
-            "x-api-key": apiKey,
-          },
-        }
+        { headers: { "x-api-key": apiKey } }
       );
 
       if (data.success) {
@@ -83,31 +81,6 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     }
   };
 
-  const fetchProfile = async (authToken: string) => {
-    try {
-      const { data } = await axios.get(`${baseUrl}/users/profile`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          "x-api-key": apiKey,
-        },
-      });
-      if (data.success) {
-        setUser(data.user);
-        localStorage.setItem(
-          "userInfo",
-          JSON.stringify({ ...data.user, token: authToken })
-        );
-      } else {
-        showNotification("error", data.message || "Failed to fetch profile");
-      }
-    } catch (err) {
-      console.error(err);
-      showNotification("error", "Profile fetch error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
@@ -115,11 +88,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       const { data } = await axios.put(
         `${baseUrl}/users/update/${user.id}`,
         user,
-        {
-          headers: {
-            "x-api-key": apiKey,
-          },
-        }
+        { headers: { "x-api-key": apiKey } }
       );
       if (data.success) {
         setUser(data.user);
@@ -142,20 +111,14 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
   const handleDelete = async () => {
     if (!user) return;
-    if (
-      !window.confirm(
-        "Are you sure you want to delete your account? This action cannot be undone."
-      )
-    )
+    if (!window.confirm("Are you sure you want to delete your account?"))
       return;
     try {
       const { data } = await axios.delete(
         `${baseUrl}/users/delete/${user.id}`,
         {
           data: { appId },
-          headers: {
-            "x-api-key": apiKey,
-          },
+          headers: { "x-api-key": apiKey },
         }
       );
       if (data.success) {
@@ -172,14 +135,17 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   };
 
   useEffect(() => {
-    const stored = getStoredUserInfo();
-    if (stored) {
-      setUser(stored);
+    if (propUser) {
+      setUser(propUser);
       setLoading(false);
     } else {
-      fetchProfile(token);
+      const stored = localStorage.getItem("userInfo");
+      if (stored) {
+        setUser(JSON.parse(stored)); // now it's an object
+      }
+      setLoading(false);
     }
-  }, [token]);
+  }, [propUser]);
 
   // utility to darken/lighten color for hover states
   const adjustColor = (hex: string, percent: number) => {
@@ -229,7 +195,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     container: {
       color: colors.textPrimary,
       fontFamily: "'Inter', sans-serif",
-      width:"100%"
+      width: "100%",
     },
     loadingContainer: {
       display: "flex",
@@ -648,7 +614,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 <img
                   src={
                     user.avatarUrl ||
-                    `https://api.dicebear.com/7.x/identicon/svg?seed=${user.name}`
+                    `https://api.dicebear.com/9.x/glass/svg?seed=Wyatt`
                   }
                   alt="Profile avatar"
                   style={styles.avatar}
