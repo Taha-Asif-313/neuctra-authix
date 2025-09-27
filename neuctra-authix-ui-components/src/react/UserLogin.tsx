@@ -55,7 +55,9 @@ export const UserLogin: React.FC<LoginFormProps> = ({
     type: "success" | "error";
     text: string;
   } | null>(null);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {}
+  );
 
   const isMobile = window.innerWidth < 768;
   const textColor = darkMode ? "#ffffff" : "#111827";
@@ -66,9 +68,11 @@ export const UserLogin: React.FC<LoginFormProps> = ({
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
     if (!email) newErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Invalid email address";
+    else if (!/\S+@\S+\.\S+/.test(email))
+      newErrors.email = "Invalid email address";
     if (!password) newErrors.password = "Password is required";
-    else if (password.length < 6) newErrors.password = "Password must be at least 6 characters";
+    else if (password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -81,7 +85,10 @@ export const UserLogin: React.FC<LoginFormProps> = ({
     setMessage(null);
 
     try {
-      const user = await loginUser({ email, password, appId }, { baseUrl, apiKey });
+      const user = await loginUser(
+        { email, password, appId },
+        { baseUrl, apiKey }
+      );
       setMessage({ type: "success", text: `Welcome ${user.name}` });
       if (onSuccess) onSuccess(user);
     } catch (err: any) {
@@ -99,9 +106,10 @@ export const UserLogin: React.FC<LoginFormProps> = ({
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        margin:"auto",
-        borderRadius : "10px",
-        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        margin: "auto",
+        borderRadius: "10px",
+        fontFamily:
+          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
         backgroundColor: darkMode ? "#000000" : "#ffffff",
         padding: isMobile ? "20px" : "30px 28px",
       }}
@@ -219,7 +227,9 @@ export const UserLogin: React.FC<LoginFormProps> = ({
                 onChange={(e) => setEmail(e.target.value)}
                 style={{
                   width: "100%",
-                  padding: isMobile ? "12px 12px 12px 42px" : "14px 14px 14px 46px",
+                  padding: isMobile
+                    ? "12px 12px 12px 42px"
+                    : "14px 14px 14px 46px",
                   backgroundColor: inputBg,
                   border: `1px solid ${inputBorder}`,
                   borderRadius: "12px",
@@ -232,7 +242,9 @@ export const UserLogin: React.FC<LoginFormProps> = ({
               />
             </div>
             {errors.email && (
-              <span style={{ fontSize: "12px", color: "#ef4444", marginTop: "2px" }}>
+              <span
+                style={{ fontSize: "12px", color: "#ef4444", marginTop: "2px" }}
+              >
                 {errors.email}
               </span>
             )}
@@ -268,7 +280,9 @@ export const UserLogin: React.FC<LoginFormProps> = ({
                 onChange={(e) => setPassword(e.target.value)}
                 style={{
                   width: "100%",
-                  padding: isMobile ? "12px 42px 12px 42px" : "14px 46px 14px 46px",
+                  padding: isMobile
+                    ? "12px 42px 12px 42px"
+                    : "14px 46px 14px 46px",
                   backgroundColor: inputBg,
                   border: `1px solid ${inputBorder}`,
                   borderRadius: "12px",
@@ -297,11 +311,17 @@ export const UserLogin: React.FC<LoginFormProps> = ({
                   zIndex: 1,
                 }}
               >
-                {showPassword ? <EyeOff size={isMobile ? 16 : 18} /> : <Eye size={isMobile ? 16 : 18} />}
+                {showPassword ? (
+                  <EyeOff size={isMobile ? 16 : 18} />
+                ) : (
+                  <Eye size={isMobile ? 16 : 18} />
+                )}
               </button>
             </div>
             {errors.password && (
-              <span style={{ fontSize: "12px", color: "#ef4444", marginTop: "2px" }}>
+              <span
+                style={{ fontSize: "12px", color: "#ef4444", marginTop: "2px" }}
+              >
                 {errors.password}
               </span>
             )}
@@ -367,7 +387,10 @@ export const UserLogin: React.FC<LoginFormProps> = ({
           >
             {loading ? (
               <>
-                <Loader size={isMobile ? 16 : 18} style={{ animation: "spin 1s linear infinite" }} />
+                <Loader
+                  size={isMobile ? 16 : 18}
+                  style={{ animation: "spin 1s linear infinite" }}
+                />
                 Signing In...
               </>
             ) : (
@@ -387,12 +410,22 @@ export const UserLogin: React.FC<LoginFormProps> = ({
               display: "flex",
               alignItems: "center",
               gap: isMobile ? "8px" : "12px",
-              backgroundColor: message.type === "success" ? `${primaryColor}15` : "rgba(239, 68, 68, 0.1)",
-              border: message.type === "success" ? `1px solid ${primaryColor}30` : "1px solid rgba(239, 68, 68, 0.3)",
+              backgroundColor:
+                message.type === "success"
+                  ? `${primaryColor}15`
+                  : "rgba(239, 68, 68, 0.1)",
+              border:
+                message.type === "success"
+                  ? `1px solid ${primaryColor}30`
+                  : "1px solid rgba(239, 68, 68, 0.3)",
               color: message.type === "success" ? primaryColor : "#ef4444",
             }}
           >
-            {message.type === "success" ? <CheckCircle size={isMobile ? 16 : 18} /> : <AlertCircle size={isMobile ? 16 : 18} />}
+            {message.type === "success" ? (
+              <CheckCircle size={isMobile ? 16 : 18} />
+            ) : (
+              <AlertCircle size={isMobile ? 16 : 18} />
+            )}
             <span style={{ fontWeight: 500 }}>{message.text}</span>
           </div>
         )}
@@ -417,12 +450,6 @@ export const UserLogin: React.FC<LoginFormProps> = ({
             to { transform: rotate(360deg); }
           }
           
-          button:hover:not(:disabled) {
-            opacity: 0.95;
-            transform: translateY(-1px);
-            box-shadow: 0 8px 20px 0 ${primaryColor}40;
-          }
-          
           input:focus {
             border-color: ${primaryColor};
             box-shadow: 0 0 0 3px ${primaryColor}20;
@@ -431,10 +458,6 @@ export const UserLogin: React.FC<LoginFormProps> = ({
           a:hover {
             color: ${primaryColor};
             text-decoration: underline;
-          }
-          
-          button[type="button"]:hover {
-            background: ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"};
           }
 
           @media (max-width: 768px) {

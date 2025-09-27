@@ -1,17 +1,35 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { getStoredUserInfo, UserInfo } from "../api/login.js";
+import {
+  Edit3,
+  Save,
+  X,
+  Trash2,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Camera,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
 
 interface UserProfileProps {
   baseUrl: string;
   apiKey: string;
+  appId: string;
   token: string;
+  darkMode?: boolean;
 }
 
 export const UserProfile: React.FC<UserProfileProps> = ({
   baseUrl,
   apiKey,
+  appId,
   token,
+  darkMode = true,
 }) => {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,11 +78,10 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     setSaving(true);
     try {
       const { data } = await axios.put(
-        `${baseUrl}/api/users/${user.id}`,
+        `${baseUrl}/users/update/${user.id}`,
         user,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
             "x-api-key": apiKey,
           },
         }
@@ -88,28 +105,36 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     }
   };
 
-  const handleDelete = async () => {
-    if (!user) return;
-    if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
-    try {
-      const { data } = await axios.delete(`${baseUrl}/api/users/${user.id}`, {
+ const handleDelete = async () => {
+  if (!user) return;
+  if (
+    !window.confirm(
+      "Are you sure you want to delete your account? This action cannot be undone."
+    )
+  )
+    return;
+  try {
+    const { data } = await axios.delete(
+      `${baseUrl}/users/delete/${user.id}`,
+      {
+        data: { appId: user.appId }, // Send as object with appId property
         headers: {
-          Authorization: `Bearer ${token}`,
           "x-api-key": apiKey,
         },
-      });
-      if (data.success) {
-        localStorage.removeItem("userInfo");
-        showNotification("success", "Account deleted successfully");
-        window.location.href = "/login";
-      } else {
-        showNotification("error", data.message);
       }
-    } catch (err) {
-      console.error(err);
-      showNotification("error", "Delete failed");
+    );
+    if (data.success) {
+      localStorage.removeItem("userInfo");
+      showNotification("success", "Account deleted successfully");
+      window.location.href = "/login";
+    } else {
+      showNotification("error", data.message);
     }
-  };
+  } catch (err) {
+    console.error(err);
+    showNotification("error", "Delete failed");
+  }
+};
 
   useEffect(() => {
     const stored = getStoredUserInfo();
@@ -121,39 +146,51 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     }
   }, [token]);
 
-  // Styles
+  // Color schemes for dark/light mode
+  const colors = darkMode
+    ? {
+        background: "#000000",
+        surface: "#09090b",
+        surfaceLight: "#27272a",
+        surfaceLighter: "#3f3f46",
+        textPrimary: "#ffffff",
+        textSecondary: "#d4d4d8",
+        textTertiary: "#a1a1aa",
+        accent: "#3b82f6",
+        accentHover: "#2563eb",
+        success: "#10b981",
+        error: "#ef4444",
+        border: "#27272a",
+      }
+    : {
+        background: "#ffffff",
+        surface: "#fafafa",
+        surfaceLight: "#f4f4f5",
+        surfaceLighter: "#e4e4e7",
+        textPrimary: "#18181b",
+        textSecondary: "#52525b",
+        textTertiary: "#71717a",
+        accent: "#3b82f6",
+        accentHover: "#2563eb",
+        success: "#10b981",
+        error: "#ef4444",
+        border: "#e4e4e7",
+      };
+
+  // Base styles without media queries
   const styles = {
     container: {
+      backgroundColor: colors.background,
+      color: colors.textPrimary,
+      fontFamily: "'Inter', sans-serif",
       minHeight: "100vh",
-      background: "linear-gradient(135deg, #111827 0%, #000000 100%)",
-      color: "white",
-      fontFamily: "'Inter', sans-serif"
     },
     loadingContainer: {
       display: "flex",
       flexDirection: "column" as const,
       alignItems: "center",
       justifyContent: "center",
-      minHeight: "400px"
-    },
-    spinner: {
-      animation: "spin 1s linear infinite",
-      height: "40px",
-      width: "40px",
-      border: "4px solid #3b82f6",
-      borderTop: "4px solid transparent",
-      borderRadius: "50%",
-      marginBottom: "12px"
-    },
-    errorIcon: {
-      height: "40px",
-      width: "40px",
-      backgroundColor: "#ef4444",
-      borderRadius: "50%",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      marginBottom: "12px"
+      minHeight: "400px",
     },
     notification: {
       position: "fixed" as const,
@@ -165,32 +202,33 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       backdropFilter: "blur(8px)",
       border: "1px solid",
       zIndex: 50,
-      transition: "all 0.3s ease"
-    },
-    notificationSuccess: {
-      backgroundColor: "rgba(34, 197, 94, 0.1)",
-      borderColor: "rgba(34, 197, 94, 0.3)",
-      color: "#86efac"
-    },
-    notificationError: {
-      backgroundColor: "rgba(239, 68, 68, 0.1)",
-      borderColor: "rgba(239, 68, 68, 0.3)",
-      color: "#fca5a5"
-    },
-    notificationContent: {
+      transition: "all 0.3s ease",
       display: "flex",
       alignItems: "center",
-      gap: "8px"
+      gap: "8px",
     },
-    statusDot: {
-      width: "8px",
-      height: "8px",
-      borderRadius: "50%"
+    notificationSuccess: {
+      backgroundColor: darkMode
+        ? "rgba(16, 185, 129, 0.1)"
+        : "rgba(16, 185, 129, 0.05)",
+      borderColor: darkMode
+        ? "rgba(16, 185, 129, 0.3)"
+        : "rgba(16, 185, 129, 0.2)",
+      color: darkMode ? "#34d399" : "#059669",
+    },
+    notificationError: {
+      backgroundColor: darkMode
+        ? "rgba(239, 68, 68, 0.1)"
+        : "rgba(239, 68, 68, 0.05)",
+      borderColor: darkMode
+        ? "rgba(239, 68, 68, 0.3)"
+        : "rgba(239, 68, 68, 0.2)",
+      color: darkMode ? "#f87171" : "#dc2626",
     },
     mainContainer: {
       maxWidth: "1200px",
       margin: "0 auto",
-      padding: "32px 16px"
+      padding: "32px 16px",
     },
     header: {
       display: "flex",
@@ -198,139 +236,150 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       justifyContent: "space-between",
       alignItems: "flex-start",
       marginBottom: "32px",
-      gap: "16px"
+      gap: "16px",
     },
     headerTitle: {
       fontSize: "clamp(1.875rem, 1.5rem + 1.5vw, 2.5rem)",
       fontWeight: "bold",
-      background: "linear-gradient(to right, white, #d1d5db)",
+      background: darkMode
+        ? "linear-gradient(to right, white, #d1d5db)"
+        : "linear-gradient(to right, #111827, #374151)",
       WebkitBackgroundClip: "text",
       WebkitTextFillColor: "transparent",
-      backgroundClip: "text"
-    },
-    headerSubtitle: {
-      color: "#9ca3af",
-      marginTop: "4px"
-    },
-    backButton: {
-      padding: "10px 24px",
-      backgroundColor: "rgba(255, 255, 255, 0.05)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      borderRadius: "12px",
-      color: "white",
-      cursor: "pointer",
-      transition: "all 0.2s ease",
-      backdropFilter: "blur(8px)"
+      backgroundClip: "text",
     },
     grid: {
       display: "grid",
-      gap: "24px",
-      gridTemplateColumns: "1fr"
+      gap: "32px",
+      gridTemplateColumns: "1fr",
     },
     avatarSection: {
-      backgroundColor: "rgba(255, 255, 255, 0.05)",
-      backdropFilter: "blur(8px)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      borderRadius: "20px",
+      backgroundColor: colors.surface,
+      borderRadius: "16px",
       padding: "24px",
-      textAlign: "center" as const
+      textAlign: "center" as const,
+      display: "flex",
+      flexDirection: "column" as const,
+      justifyContent: "center",
+      alignItems: "center",
     },
     avatarContainer: {
       position: "relative" as const,
-      display: "inline-block"
+      display: "inline-block",
+      marginBottom: "16px",
     },
     avatar: {
       width: "128px",
       height: "128px",
-      borderRadius: "20px",
-      margin: "0 auto 16px",
+      borderRadius: "50%",
       objectFit: "cover" as const,
-      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.3)"
+      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.3)",
+      border: `3px solid ${colors.border}`,
     },
     changeAvatarButton: {
       position: "absolute" as const,
       bottom: "8px",
       right: "8px",
-      backgroundColor: "#3b82f6",
+      backgroundColor: colors.accent,
       color: "white",
-      padding: "6px 12px",
-      borderRadius: "8px",
-      fontSize: "14px",
+      padding: "8px",
+      borderRadius: "50%",
       border: "none",
       cursor: "pointer",
-      transition: "background-color 0.2s ease"
+      transition: "all 0.2s ease",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
     },
     detailsSection: {
-      backgroundColor: "rgba(255, 255, 255, 0.05)",
-      backdropFilter: "blur(8px)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      borderRadius: "20px",
-      padding: "24px"
+      backgroundColor: colors.surface,
+      borderRadius: "16px",
+      padding: "24px",
     },
     sectionTitle: {
-      fontSize: "18px",
+      fontSize: "20px",
       fontWeight: "600",
-      marginBottom: "16px",
-      color: "#d1d5db"
+      marginBottom: "24px",
+      color: colors.textSecondary,
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
     },
     fieldContainer: {
       display: "flex",
       flexDirection: "column" as const,
-      gap: "12px",
-      padding: "12px",
-      borderRadius: "8px",
-      backgroundColor: "rgba(255, 255, 255, 0.05)",
-      marginBottom: "16px"
+      gap: "8px",
+      padding: "16px",
+      borderRadius: "12px",
+      backgroundColor: colors.surfaceLight,
+      marginBottom: "12px",
+      transition: "all 0.2s ease",
     },
     fieldLabel: {
-      color: "#9ca3af",
+      color: colors.textTertiary,
       fontSize: "14px",
       fontWeight: "500",
-      minWidth: "120px"
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
     },
     fieldInput: {
       flex: 1,
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
-      border: "1px solid rgba(255, 255, 255, 0.2)",
+      backgroundColor: "transparent",
+      border: `1px solid ${colors.border}`,
       borderRadius: "8px",
-      padding: "8px 12px",
-      color: "white",
+      padding: "12px",
+      color: colors.textPrimary,
       outline: "none",
-      transition: "border-color 0.2s ease"
+      transition: "border-color 0.2s ease",
+      fontSize: "16px",
+    },
+    fieldValue: {
+      flex: 1,
+      color: colors.textPrimary,
+      fontSize: "16px",
+      padding: "4px 0",
     },
     actionButtons: {
       display: "flex",
       flexDirection: "column" as const,
-      justifyContent: "flex-end",
       gap: "12px",
-      marginTop: "32px"
+      marginTop: "32px",
     },
     button: {
-      padding: "10px 24px",
+      padding: "12px 24px",
       borderRadius: "12px",
       border: "none",
       cursor: "pointer",
       transition: "all 0.2s ease",
       fontSize: "14px",
-      fontWeight: "500"
+      fontWeight: "500",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "8px",
     },
     cancelButton: {
-      backgroundColor: "rgba(255, 255, 255, 0.05)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      color: "white"
+      backgroundColor: colors.surfaceLight,
+      color: colors.textPrimary,
+      border: `1px solid ${colors.border}`,
     },
     saveButton: {
-      background: "linear-gradient(to right, #3b82f6, #2563eb)",
-      color: "white"
+      background: `linear-gradient(to right, ${colors.accent}, ${colors.accentHover})`,
+      color: "white",
     },
     editButton: {
-      background: "linear-gradient(to right, #3b82f6, #2563eb)",
-      color: "white"
+      background: `linear-gradient(to right, ${colors.accent}, ${colors.accentHover})`,
+      color: "white",
     },
     deleteButton: {
-      backgroundColor: "rgba(239, 68, 68, 0.1)",
-      border: "1px solid rgba(239, 68, 68, 0.3)",
-      color: "#fca5a5"
+      backgroundColor: darkMode
+        ? "rgba(239, 68, 68, 0.1)"
+        : "rgba(239, 68, 68, 0.05)",
+      color: colors.error,
+      border: `1px solid ${
+        darkMode ? "rgba(239, 68, 68, 0.3)" : "rgba(239, 68, 68, 0.2)"
+      }`,
     },
     modalOverlay: {
       position: "fixed" as const,
@@ -344,213 +393,277 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       alignItems: "center",
       justifyContent: "center",
       padding: "16px",
-      zIndex: 50
+      zIndex: 50,
     },
     modal: {
-      backgroundColor: "#374151",
-      border: "1px solid #4b5563",
+      backgroundColor: colors.surface,
+      border: `1px solid ${colors.border}`,
       borderRadius: "20px",
       padding: "24px",
       maxWidth: "400px",
-      width: "100%"
+      width: "100%",
     },
     modalTitle: {
       fontSize: "20px",
       fontWeight: "600",
-      marginBottom: "16px"
+      marginBottom: "8px",
+      color: colors.textPrimary,
     },
     modalInput: {
       width: "100%",
       padding: "12px",
       borderRadius: "8px",
-      backgroundColor: "#4b5563",
-      border: "1px solid #6b7280",
-      color: "white",
+      backgroundColor: colors.surfaceLight,
+      border: `1px solid ${colors.border}`,
+      color: colors.textPrimary,
       outline: "none",
-      marginBottom: "16px"
+      marginBottom: "16px",
+      fontSize: "16px",
     },
     modalButtons: {
       display: "flex",
       justifyContent: "flex-end",
-      gap: "12px"
+      gap: "12px",
     },
     modalCancel: {
-      padding: "8px 16px",
-      color: "#9ca3af",
+      padding: "10px 20px",
+      color: colors.textTertiary,
       background: "none",
       border: "none",
-      cursor: "pointer"
+      cursor: "pointer",
+      borderRadius: "8px",
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
     },
     modalConfirm: {
-      padding: "8px 16px",
-      backgroundColor: "#3b82f6",
+      padding: "10px 20px",
+      backgroundColor: colors.accent,
       color: "white",
       border: "none",
       borderRadius: "8px",
-      cursor: "pointer"
-    }
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+    },
   };
 
-  // Media queries for responsiveness
-  const mediaQueries = {
-    sm: "@media (min-width: 640px)",
-    lg: "@media (min-width: 1024px)"
-  };
-
-  // Apply responsive styles
-  Object.assign(styles.header, {
-    [mediaQueries.sm]: {
-      flexDirection: "row",
-      alignItems: "center"
+  // CSS classes for responsive behavior
+  const cssStyles = `
+    .user-profile-header {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 32px;
+      gap: 16px;
     }
-  });
-
-  Object.assign(styles.grid, {
-    [mediaQueries.lg]: {
-      gridTemplateColumns: "1fr 2fr"
+    
+    .user-profile-grid {
+      display: grid;
+      gap: 32px;
+      grid-template-columns: 1fr;
     }
-  });
-
-  Object.assign(styles.fieldContainer, {
-    [mediaQueries.sm]: {
-      flexDirection: "row",
-      alignItems: "center"
+    
+    .user-profile-field-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 16px;
+      border-radius: 12px;
+      background-color: ${colors.surfaceLight};
+      margin-bottom: 12px;
+      transition: all 0.2s ease;
     }
-  });
-
-  Object.assign(styles.actionButtons, {
-    [mediaQueries.sm]: {
-      flexDirection: "row"
+    
+    .user-profile-action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 32px;
     }
-  });
+    
+    @media (min-width: 640px) {
+      .user-profile-header {
+        flex-direction: row;
+        align-items: center;
+      }
+      
+      .user-profile-field-container {
+        flex-direction: row;
+        align-items: center;
+      }
+      
+      .user-profile-action-buttons {
+        flex-direction: row;
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .user-profile-grid {
+        grid-template-columns: 1fr 2fr;
+      }
+    }
+    
+    .user-profile-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .user-profile-input:focus {
+      border-color: ${colors.accent} !important;
+      box-shadow: 0 0 0 3px ${colors.accent}20;
+    }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  `;
 
   if (loading) {
     return (
-      <div style={styles.loadingContainer}>
-        <div style={styles.spinner}></div>
-        <p style={{ color: "#6b7280" }}>Loading your profile...</p>
+      <div style={styles.container}>
+        <style>{cssStyles}</style>
+        <div style={styles.loadingContainer}>
+          <Loader2
+            size={40}
+            color={colors.accent}
+            style={{ animation: "spin 1s linear infinite" }}
+          />
+          <p style={{ color: colors.textTertiary, marginTop: "12px" }}>
+            Loading your profile...
+          </p>
+        </div>
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div style={styles.loadingContainer}>
-        <div style={styles.errorIcon}>
-          <span style={{ color: "white", fontWeight: "bold" }}>!</span>
+      <div style={styles.container}>
+        <style>{cssStyles}</style>
+        <div style={styles.loadingContainer}>
+          <AlertCircle size={40} color={colors.error} />
+          <p style={{ color: colors.textTertiary, marginTop: "12px" }}>
+            No profile found. Please log in again.
+          </p>
         </div>
-        <p style={{ color: "#9ca3af" }}>No profile found. Please log in again.</p>
       </div>
     );
   }
 
   return (
     <div style={styles.container}>
-      {/* Global styles for animations */}
-      <style>
-        {`
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-          
-          button:hover {
-            transform: translateY(-1px);
-          }
-          
-          input:focus {
-            border-color: #3b82f6 !important;
-          }
-        `}
-      </style>
+      <style>{cssStyles}</style>
 
       {/* Notification */}
       {notification && (
         <div
           style={{
             ...styles.notification,
-            ...(notification.type === "success" ? styles.notificationSuccess : styles.notificationError)
+            ...(notification.type === "success"
+              ? styles.notificationSuccess
+              : styles.notificationError),
           }}
         >
-          <div style={styles.notificationContent}>
-            <div
-              style={{
-                ...styles.statusDot,
-                backgroundColor: notification.type === "success" ? "#34d399" : "#f87171"
-              }}
-            ></div>
-            {notification.message}
-          </div>
+          {notification.type === "success" ? (
+            <CheckCircle size={20} />
+          ) : (
+            <AlertCircle size={20} />
+          )}
+          {notification.message}
         </div>
       )}
 
       <div style={styles.mainContainer}>
-        {/* Header */}
-        <div style={styles.header}>
-          <div>
-            <h1 style={styles.headerTitle}>Profile Settings</h1>
-            <p style={styles.headerSubtitle}>Manage your account information</p>
-          </div>
-          <button
-            onClick={() => (window.location.href = "/dashboard")}
-            style={styles.backButton}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
-            }}
-          >
-            ← Back to Dashboard
-          </button>
-        </div>
-
         {/* Profile Content */}
-        <div style={styles.grid}>
+        <div className="user-profile-grid">
           {/* Avatar Section */}
-          <div>
-            <div style={styles.avatarSection}>
-              <div style={styles.avatarContainer}>
-                <img
-                  src={
-                    user.avatarUrl ||
-                    `https://api.dicebear.com/7.x/identicon/svg?seed=${user.name}`
-                  }
-                  alt="Profile avatar"
-                  style={styles.avatar}
-                />
-                <button
-                  onClick={() => setAvatarModal(true)}
-                  style={styles.changeAvatarButton}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.backgroundColor = "#2563eb";
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.backgroundColor = "#3b82f6";
-                  }}
-                >
-                  Change
-                </button>
-              </div>
-              <h2 style={{ fontSize: "20px", fontWeight: "600", marginBottom: "4px" }}>{user.name}</h2>
-              <p style={{ color: "#9ca3af", fontSize: "14px" }}>{user.email}</p>
+          <div style={styles.avatarSection}>
+            <div style={styles.avatarContainer}>
+              <img
+                src={
+                  user.avatarUrl ||
+                  `https://api.dicebear.com/7.x/identicon/svg?seed=${user.name}`
+                }
+                alt="Profile avatar"
+                style={styles.avatar}
+              />
+              <button
+                onClick={() => setAvatarModal(true)}
+                style={styles.changeAvatarButton}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.accentHover;
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.accent;
+                }}
+              >
+                <Camera size={16} />
+              </button>
             </div>
+            <h2
+              style={{
+                fontSize: "24px",
+                fontWeight: "600",
+                marginBottom: "4px",
+              }}
+            >
+              {user.name}
+            </h2>
+            <p style={{ color: colors.textTertiary, fontSize: "14px" }}>
+              {user.email}
+            </p>
           </div>
 
           {/* Profile Details */}
-          <div>
-            <div style={styles.detailsSection}>
-              <h3 style={styles.sectionTitle}>Personal Information</h3>
-              
-              <div>
-                {[
-                  { label: "Full Name", value: user.name, name: "name", type: "text" },
-                  { label: "Email Address", value: user.email, name: "email", type: "email" },
-                  { label: "Phone Number", value: user.phone || "Not set", name: "phone", type: "tel" },
-                  { label: "Address", value: user.address || "Not provided", name: "address", type: "text" },
-                ].map((field) => (
-                  <div key={field.name} style={styles.fieldContainer}>
+          <div style={styles.detailsSection}>
+            <h3 style={styles.sectionTitle}>
+              <User size={20} />
+              Personal Information
+            </h3>
+
+            <div>
+              {[
+                {
+                  label: "Full Name",
+                  value: user.name,
+                  name: "name",
+                  type: "text",
+                  icon: User,
+                },
+                {
+                  label: "Email Address",
+                  value: user.email,
+                  name: "email",
+                  type: "email",
+                  icon: Mail,
+                },
+                {
+                  label: "Phone Number",
+                  value: user.phone || "Not set",
+                  name: "phone",
+                  type: "tel",
+                  icon: Phone,
+                },
+                {
+                  label: "Address",
+                  value: user.address || "Not provided",
+                  name: "address",
+                  type: "text",
+                  icon: MapPin,
+                },
+              ].map((field) => {
+                const IconComponent = field.icon;
+                return (
+                  <div
+                    key={field.name}
+                    className="user-profile-field-container"
+                  >
                     <label style={styles.fieldLabel}>
+                      <IconComponent size={16} />
                       {field.label}
                     </label>
                     {editMode ? (
@@ -560,57 +673,55 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                         value={user[field.name as keyof UserInfo] as string}
                         onChange={(e) =>
                           setUser((prev) =>
-                            prev ? { ...prev, [e.target.name]: e.target.value } : prev
+                            prev
+                              ? { ...prev, [e.target.name]: e.target.value }
+                              : prev
                           )
                         }
                         style={styles.fieldInput}
+                        className="user-profile-input"
                         placeholder={`Enter ${field.label.toLowerCase()}`}
                       />
                     ) : (
-                      <span style={{ flex: 1, color: "white" }}>{field.value}</span>
+                      <span style={styles.fieldValue}>{field.value}</span>
                     )}
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div style={styles.actionButtons}>
+        <div className="user-profile-action-buttons">
           {editMode ? (
             <>
               <button
                 onClick={() => setEditMode(false)}
                 style={{ ...styles.button, ...styles.cancelButton }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
-                }}
+                className="user-profile-button"
               >
+                <X size={16} />
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                style={{ 
-                  ...styles.button, 
+                style={{
+                  ...styles.button,
                   ...styles.saveButton,
-                  opacity: saving ? 0.5 : 1
+                  opacity: saving ? 0.7 : 1,
                 }}
-                onMouseOver={(e) => {
-                  if (!saving) {
-                    e.currentTarget.style.background = "linear-gradient(to right, #2563eb, #1d4ed8)";
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (!saving) {
-                    e.currentTarget.style.background = "linear-gradient(to right, #3b82f6, #2563eb)";
-                  }
-                }}
+                className="user-profile-button"
               >
+                {saving ? (
+                  <Loader2
+                    size={16}
+                    style={{ animation: "spin 1s linear infinite" }}
+                  />
+                ) : (
+                  <Save size={16} />
+                )}
                 {saving ? "Saving..." : "Save Changes"}
               </button>
             </>
@@ -619,25 +730,17 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               <button
                 onClick={() => setEditMode(true)}
                 style={{ ...styles.button, ...styles.editButton }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.background = "linear-gradient(to right, #2563eb, #1d4ed8)";
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.background = "linear-gradient(to right, #3b82f6, #2563eb)";
-                }}
+                className="user-profile-button"
               >
+                <Edit3 size={16} />
                 Edit Profile
               </button>
               <button
                 onClick={handleDelete}
                 style={{ ...styles.button, ...styles.deleteButton }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.2)";
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
-                }}
+                className="user-profile-button"
               >
+                <Trash2 size={16} />
                 Delete Account
               </button>
             </>
@@ -650,29 +753,31 @@ export const UserProfile: React.FC<UserProfileProps> = ({
         <div style={styles.modalOverlay}>
           <div style={styles.modal}>
             <h2 style={styles.modalTitle}>Update Avatar</h2>
-            <p style={{ color: "#9ca3af", fontSize: "14px", marginBottom: "16px" }}>
+            <p
+              style={{
+                color: colors.textTertiary,
+                fontSize: "14px",
+                marginBottom: "16px",
+              }}
+            >
               Enter the URL of your new avatar image
             </p>
-            
+
             <input
               type="url"
               placeholder="https://example.com/avatar.jpg"
               value={newAvatar}
               onChange={(e) => setNewAvatar(e.target.value)}
               style={styles.modalInput}
+              className="user-profile-input"
             />
-            
+
             <div style={styles.modalButtons}>
               <button
                 onClick={() => setAvatarModal(false)}
                 style={styles.modalCancel}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.color = "white";
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.color = "#9ca3af";
-                }}
               >
+                <X size={16} />
                 Cancel
               </button>
               <button
@@ -686,13 +791,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                   }
                 }}
                 style={styles.modalConfirm}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = "#2563eb";
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = "#3b82f6";
-                }}
               >
+                <Camera size={16} />
                 Update Avatar
               </button>
             </div>
