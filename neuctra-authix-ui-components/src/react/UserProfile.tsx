@@ -207,7 +207,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
         accentHover: adjustColor(primaryColor, -30), // darker for hover
         success: "#10b981",
         error: "rgba(239, 68, 68)",
-        border: primaryColor,
+        border: "#09090B",
       }
     : {
         background: "#ffffff",
@@ -227,10 +227,9 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   // Base styles without media queries
   const styles = {
     container: {
-      backgroundColor: colors.background,
       color: colors.textPrimary,
       fontFamily: "'Inter', sans-serif",
-      minHeight: "100vh",
+      width:"100%"
     },
     loadingContainer: {
       display: "flex",
@@ -276,7 +275,6 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     mainContainer: {
       maxWidth: "1200px",
       margin: "0 auto",
-      padding: "32px 16px",
     },
     header: {
       display: "flex",
@@ -347,7 +345,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     sectionTitle: {
       fontSize: "20px",
       fontWeight: "600",
-      marginBottom: "24px",
+      marginBottom: "10px",
       color: colors.textSecondary,
       display: "flex",
       alignItems: "center",
@@ -363,7 +361,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     },
     fieldLabel: {
       color: colors.textTertiary,
-      fontSize: "14px",
+      fontSize: "12px",
       fontWeight: "500",
       display: "flex",
       alignItems: "center",
@@ -378,14 +376,14 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       color: colors.textPrimary,
       outline: "none",
       transition: "border-color 0.2s ease",
-      fontSize: "16px",
+      fontSize: "14px",
       minHeight: "44px", // ✅ consistent height
       boxSizing: "border-box" as const,
     },
     fieldValue: {
       flex: 1,
       color: colors.textPrimary,
-      fontSize: "16px",
+      fontSize: "14px",
       padding: "12px", // ✅ match input padding
       border: `1px solid transparent`, // ✅ keep layout stable
       borderRadius: "8px", // ✅ same shape
@@ -535,8 +533,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     .user-profile-action-buttons {
       display: flex;
       flex-direction: column;
+      justify-content:center;
       gap: 12px;
-      margin-top: 14px;
     }
     
     @media (min-width: 640px) {
@@ -635,45 +633,110 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       <div style={styles.mainContainer}>
         {/* Profile Content */}
         <div className="user-profile-grid">
-          {/* Avatar Section */}
-          <div style={styles.avatarSection}>
-            <div style={styles.avatarContainer}>
-              <img
-                src={
-                  user.avatarUrl ||
-                  `https://api.dicebear.com/7.x/identicon/svg?seed=${user.name}`
-                }
-                alt="Profile avatar"
-                style={styles.avatar}
-              />
-              <button
-                onClick={() => setAvatarModal(true)}
-                style={styles.changeAvatarButton}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = colors.accentHover;
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = colors.accent;
+          {/* Left Column (Avatar + Actions) */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              gap: "18px",
+            }}
+          >
+            {/* Avatar Section */}
+            <div style={styles.avatarSection}>
+              <div style={styles.avatarContainer}>
+                <img
+                  src={
+                    user.avatarUrl ||
+                    `https://api.dicebear.com/7.x/identicon/svg?seed=${user.name}`
+                  }
+                  alt="Profile avatar"
+                  style={styles.avatar}
+                />
+                <button
+                  onClick={() => setAvatarModal(true)}
+                  style={styles.changeAvatarButton}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.accentHover;
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.accent;
+                  }}
+                >
+                  <Camera size={16} />
+                </button>
+              </div>
+              <h2
+                style={{
+                  fontSize: "24px",
+                  fontWeight: "600",
+                  marginBottom: "4px",
                 }}
               >
-                <Camera size={16} />
-              </button>
+                {user.name}
+              </h2>
+              <p style={{ color: colors.textTertiary, fontSize: "14px" }}>
+                {user.email}
+              </p>
             </div>
-            <h2
-              style={{
-                fontSize: "24px",
-                fontWeight: "600",
-                marginBottom: "4px",
-              }}
-            >
-              {user.name}
-            </h2>
-            <p style={{ color: colors.textTertiary, fontSize: "14px" }}>
-              {user.email}
-            </p>
+
+            {/* Action Buttons */}
+            <div className="user-profile-action-buttons">
+              {editMode ? (
+                <>
+                  <button
+                    onClick={() => setEditMode(false)}
+                    style={{ ...styles.button, ...styles.cancelButton }}
+                    className="user-profile-button"
+                  >
+                    <X size={16} />
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    style={{
+                      ...styles.button,
+                      ...styles.saveButton,
+                      opacity: saving ? 0.7 : 1,
+                    }}
+                    className="user-profile-button"
+                  >
+                    {saving ? (
+                      <Loader2
+                        size={16}
+                        style={{ animation: "spin 1s linear infinite" }}
+                      />
+                    ) : (
+                      <Save size={16} />
+                    )}
+                    {saving ? "Saving..." : "Save Changes"}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setEditMode(true)}
+                    style={{ ...styles.button, ...styles.editButton }}
+                    className="user-profile-button"
+                  >
+                    <Edit3 size={16} />
+                    Edit Profile
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    style={{ ...styles.button, ...styles.deleteButton }}
+                    className="user-profile-button"
+                  >
+                    <Trash2 size={16} />
+                    Delete Account
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
-          {/* Profile Details */}
+          {/* Right Column (User Details) */}
           <div style={styles.detailsSection}>
             <h3 style={styles.sectionTitle}>
               <User size={20} />
@@ -745,61 +808,6 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               })}
             </div>
           </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="user-profile-action-buttons">
-          {editMode ? (
-            <>
-              <button
-                onClick={() => setEditMode(false)}
-                style={{ ...styles.button, ...styles.cancelButton }}
-                className="user-profile-button"
-              >
-                <X size={16} />
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                style={{
-                  ...styles.button,
-                  ...styles.saveButton,
-                  opacity: saving ? 0.7 : 1,
-                }}
-                className="user-profile-button"
-              >
-                {saving ? (
-                  <Loader2
-                    size={16}
-                    style={{ animation: "spin 1s linear infinite" }}
-                  />
-                ) : (
-                  <Save size={16} />
-                )}
-                {saving ? "Saving..." : "Save Changes"}
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => setEditMode(true)}
-                style={{ ...styles.button, ...styles.editButton }}
-                className="user-profile-button"
-              >
-                <Edit3 size={16} />
-                Edit Profile
-              </button>
-              <button
-                onClick={handleDelete}
-                style={{ ...styles.button, ...styles.deleteButton }}
-                className="user-profile-button"
-              >
-                <Trash2 size={16} />
-                Delete Account
-              </button>
-            </>
-          )}
         </div>
       </div>
 

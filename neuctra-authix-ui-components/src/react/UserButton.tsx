@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
-import { LogOut, Mail, User } from "lucide-react";
+import { Info, LogOut, Mail, User } from "lucide-react";
 
+// Shape of user info stored in localStorage
 interface UserInfo {
   name: string;
   email: string;
   avatarUrl?: string;
-  profileUrl?: string; // ✅ Added profile link
+  profileUrl?: string; // Optional profile link
 }
 
+// Props accepted by UserButton component
 interface UserButtonProps {
-  darkMode?: boolean;
-  primaryColor?: string;
-  onLogout: () => void;
-  profileUrl?: string; // ✅ accept profile URL as prop
+  darkMode?: boolean; // Switch for dark/light mode
+  primaryColor?: string; // Accent color (brand theme)
+  onLogout: () => void; // Callback when logout button is clicked
+  profileUrl?: string; // Profile link override (takes priority over localStorage)
 }
 
 export const UserButton: React.FC<UserButtonProps> = ({
@@ -21,12 +23,14 @@ export const UserButton: React.FC<UserButtonProps> = ({
   onLogout,
   profileUrl,
 }) => {
-  const [open, setOpen] = useState(false);
-  const [user, setUser] = useState<UserInfo | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false); // Tracks dropdown open/close state
+  const [user, setUser] = useState<UserInfo | null>(null); // Stores user info
+  const [error, setError] = useState<string | null>(null); // Error message if data load fails
+  const dropdownRef = useRef<HTMLDivElement>(null); // Ref to detect clicks outside dropdown
 
-  // Close when clicking outside
+  /**
+   * Close dropdown when clicking outside of it
+   */
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (
@@ -36,11 +40,14 @@ export const UserButton: React.FC<UserButtonProps> = ({
         setOpen(false);
       }
     };
+
     if (open) document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
-  // Load user info from localStorage + merge with props
+  /**
+   * Load user info from localStorage, and merge with props (profileUrl override if passed).
+   */
   useEffect(() => {
     try {
       const stored = localStorage.getItem("userInfo");
@@ -48,13 +55,13 @@ export const UserButton: React.FC<UserButtonProps> = ({
         const parsed: UserInfo = JSON.parse(stored);
 
         if (parsed?.name && parsed?.email) {
-          // ✅ Merge profileUrl from props (if passed)
+          // Merge profileUrl from props if available
           setUser({ ...parsed, profileUrl: profileUrl || parsed.profileUrl });
         } else {
           setError("Invalid user data format.");
         }
       } else {
-        setError("No user found in localStorage.");
+        setError("No user session found. Please log in to continue.");
       }
     } catch (err) {
       console.error("Failed to parse userInfo:", err);
@@ -62,7 +69,10 @@ export const UserButton: React.FC<UserButtonProps> = ({
     }
   }, [profileUrl]);
 
-  // Utility: darken/lighten color
+  /**
+   * Utility to darken/lighten a hex color
+   * Example: adjustColor("#3b82f6", -30) → darker blue
+   */
   const adjustColor = (hex: string, percent: number) => {
     let num = parseInt(hex.replace("#", ""), 16);
     let r = (num >> 16) + percent;
@@ -74,6 +84,9 @@ export const UserButton: React.FC<UserButtonProps> = ({
     return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, "0")}`;
   };
 
+  /**
+   * Theme styles depending on darkMode
+   */
   const colors = darkMode
     ? {
         background: "#09090B",
@@ -94,6 +107,9 @@ export const UserButton: React.FC<UserButtonProps> = ({
         accentHover: adjustColor(primaryColor, -30),
       };
 
+  /**
+   * Inline style objects for different UI parts
+   */
   const styles = {
     wrapper: { position: "relative" as const },
     avatarButton: {
@@ -195,16 +211,23 @@ export const UserButton: React.FC<UserButtonProps> = ({
       opacity: 0.9,
       transform: "scale(1.02)",
     },
+    // ✅ Styles
     errorText: {
-      color: "red",
-      fontSize: "13px",
-      marginTop: "8px",
+      fontSize: "12px",
+      color: "#ef4444", // red tone for errors
+      display: "flex",
+      alignItems: "start",
+      gap: "6px",
+      padding: "6px 8px",
+      backgroundColor: "rgba(239, 68, 68, 0.1)", // subtle red background
+      borderRadius: "6px",
+      fontWeight: 500,
     },
   };
 
   return (
     <div style={styles.wrapper} ref={dropdownRef}>
-      {/* Avatar Trigger */}
+      {/* === Avatar button (toggle dropdown) === */}
       <div
         style={styles.avatarButton}
         onClick={() => setOpen((prev) => !prev)}
@@ -228,11 +251,12 @@ export const UserButton: React.FC<UserButtonProps> = ({
         )}
       </div>
 
-      {/* Dropdown + Arrow */}
+      {/* === Dropdown Menu with Arrow === */}
       <div style={styles.arrow} hidden={!open}></div>
       <div style={styles.dropdown}>
         {user ? (
           <>
+            {/* User name + email */}
             <div style={styles.userInfo}>
               <div style={styles.userName}>
                 <User size={16} /> {user.name}
@@ -241,7 +265,7 @@ export const UserButton: React.FC<UserButtonProps> = ({
                 <Mail size={16} /> {user.email}
               </div>
 
-              {/* ✅ Profile Link */}
+              {/* Profile link (if provided) */}
               {user.profileUrl && (
                 <a
                   href={user.profileUrl}
@@ -254,6 +278,7 @@ export const UserButton: React.FC<UserButtonProps> = ({
               )}
             </div>
 
+            {/* Logout button */}
             <button
               style={styles.logoutButton}
               onMouseOver={(e) =>
@@ -266,7 +291,10 @@ export const UserButton: React.FC<UserButtonProps> = ({
             </button>
           </>
         ) : (
-          <p style={styles.errorText}>{error || "Not logged in"}</p>
+          // Error state if user not loaded
+          <p style={styles.errorText}>
+            <Info size={18} /> {error || "Not logged in"}
+          </p>
         )}
       </div>
     </div>
