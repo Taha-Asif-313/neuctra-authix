@@ -248,7 +248,7 @@ const DashboardPage = () => {
 
         <div className="flex items-center gap-3">
           {/* View Toggle */}
-          <div className="flex bg-zinc-900 rounded-lg p-1">
+          <div className="flex">
             <button
               onClick={() => setViewMode("grid")}
               className={`p-2 rounded-md transition ${

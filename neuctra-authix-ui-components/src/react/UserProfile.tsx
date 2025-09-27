@@ -22,6 +22,7 @@ interface UserProfileProps {
   appId: string;
   token: string;
   darkMode?: boolean;
+  primaryColor?: string; // ✅ allow user to pass their brand color
 }
 
 export const UserProfile: React.FC<UserProfileProps> = ({
@@ -30,6 +31,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   appId,
   token,
   darkMode = true,
+  primaryColor = "#3b82f6", // ✅ default fallback (blue)
 }) => {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -46,6 +48,39 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   const showNotification = (type: "success" | "error", message: string) => {
     setNotification({ type, message });
     setTimeout(() => setNotification(null), 3000);
+  };
+
+  const handleAvatarUpdate = async (newAvatarUrl: string) => {
+    if (!user) return false;
+    try {
+      const updateData = { ...user, avatarUrl: newAvatarUrl };
+      const { data } = await axios.put(
+        `${baseUrl}/users/update/${user.id}`,
+        updateData,
+        {
+          headers: {
+            "x-api-key": apiKey,
+          },
+        }
+      );
+
+      if (data.success) {
+        setUser(updateData);
+        localStorage.setItem(
+          "userInfo",
+          JSON.stringify({ ...updateData, token })
+        );
+        showNotification("success", "Avatar updated successfully!");
+        return true;
+      } else {
+        showNotification("error", data.message || "Failed to update avatar");
+        return false;
+      }
+    } catch (error) {
+      console.error("Avatar update error:", error);
+      showNotification("error", "Failed to update avatar");
+      return false;
+    }
   };
 
   const fetchProfile = async (authToken: string) => {
@@ -105,36 +140,36 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     }
   };
 
- const handleDelete = async () => {
-  if (!user) return;
-  if (
-    !window.confirm(
-      "Are you sure you want to delete your account? This action cannot be undone."
+  const handleDelete = async () => {
+    if (!user) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to delete your account? This action cannot be undone."
+      )
     )
-  )
-    return;
-  try {
-    const { data } = await axios.delete(
-      `${baseUrl}/users/delete/${user.id}`,
-      {
-        data: { appId: user.appId }, // Send as object with appId property
-        headers: {
-          "x-api-key": apiKey,
-        },
+      return;
+    try {
+      const { data } = await axios.delete(
+        `${baseUrl}/users/delete/${user.id}`,
+        {
+          data: { appId },
+          headers: {
+            "x-api-key": apiKey,
+          },
+        }
+      );
+      if (data.success) {
+        localStorage.removeItem("userInfo");
+        showNotification("success", "Account deleted successfully");
+        window.location.href = "/login";
+      } else {
+        showNotification("error", data.message);
       }
-    );
-    if (data.success) {
-      localStorage.removeItem("userInfo");
-      showNotification("success", "Account deleted successfully");
-      window.location.href = "/login";
-    } else {
-      showNotification("error", data.message);
+    } catch (err) {
+      console.error(err);
+      showNotification("error", "Delete failed");
     }
-  } catch (err) {
-    console.error(err);
-    showNotification("error", "Delete failed");
-  }
-};
+  };
 
   useEffect(() => {
     const stored = getStoredUserInfo();
@@ -146,21 +181,33 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     }
   }, [token]);
 
+  // utility to darken/lighten color for hover states
+  const adjustColor = (hex: string, percent: number) => {
+    let num = parseInt(hex.replace("#", ""), 16);
+    let r = (num >> 16) + percent;
+    let g = ((num >> 8) & 0x00ff) + percent;
+    let b = (num & 0x0000ff) + percent;
+    r = Math.min(255, Math.max(0, r));
+    g = Math.min(255, Math.max(0, g));
+    b = Math.min(255, Math.max(0, b));
+    return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, "0")}`;
+  };
+
   // Color schemes for dark/light mode
   const colors = darkMode
     ? {
         background: "#000000",
         surface: "#09090b",
-        surfaceLight: "#27272a",
+        surfaceLight: "#09090b",
         surfaceLighter: "#3f3f46",
         textPrimary: "#ffffff",
         textSecondary: "#d4d4d8",
         textTertiary: "#a1a1aa",
-        accent: "#3b82f6",
-        accentHover: "#2563eb",
+        accent: primaryColor,
+        accentHover: adjustColor(primaryColor, -30), // darker for hover
         success: "#10b981",
-        error: "#ef4444",
-        border: "#27272a",
+        error: "rgba(239, 68, 68)",
+        border: primaryColor,
       }
     : {
         background: "#ffffff",
@@ -170,8 +217,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({
         textPrimary: "#18181b",
         textSecondary: "#52525b",
         textTertiary: "#71717a",
-        accent: "#3b82f6",
-        accentHover: "#2563eb",
+        accent: primaryColor,
+        accentHover: adjustColor(primaryColor, -30),
         success: "#10b981",
         error: "#ef4444",
         border: "#e4e4e7",
@@ -194,6 +241,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     },
     notification: {
       position: "fixed" as const,
+      fontSize: "12px",
       top: "20px",
       right: "20px",
       padding: "12px 24px",
@@ -309,9 +357,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       display: "flex",
       flexDirection: "column" as const,
       gap: "8px",
-      padding: "16px",
       borderRadius: "12px",
-      backgroundColor: colors.surfaceLight,
       marginBottom: "12px",
       transition: "all 0.2s ease",
     },
@@ -328,31 +374,40 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       backgroundColor: "transparent",
       border: `1px solid ${colors.border}`,
       borderRadius: "8px",
-      padding: "12px",
+      padding: "12px", // keep padding for edit mode
       color: colors.textPrimary,
       outline: "none",
       transition: "border-color 0.2s ease",
       fontSize: "16px",
+      minHeight: "44px", // ✅ consistent height
+      boxSizing: "border-box" as const,
     },
     fieldValue: {
       flex: 1,
       color: colors.textPrimary,
       fontSize: "16px",
-      padding: "4px 0",
+      padding: "12px", // ✅ match input padding
+      border: `1px solid transparent`, // ✅ keep layout stable
+      borderRadius: "8px", // ✅ same shape
+      minHeight: "44px", // ✅ same height as input
+      display: "flex",
+      alignItems: "center", // ✅ vertically center text
+      boxSizing: "border-box" as const,
     },
+
     actionButtons: {
       display: "flex",
       flexDirection: "column" as const,
       gap: "12px",
-      marginTop: "32px",
+      marginTop: "12px",
     },
     button: {
-      padding: "12px 24px",
-      borderRadius: "12px",
+      padding: "10px 24px",
+      borderRadius: "6px",
       border: "none",
       cursor: "pointer",
       transition: "all 0.2s ease",
-      fontSize: "14px",
+      fontSize: "12px",
       fontWeight: "500",
       display: "flex",
       alignItems: "center",
@@ -374,7 +429,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     },
     deleteButton: {
       backgroundColor: darkMode
-        ? "rgba(239, 68, 68, 0.1)"
+        ? "rgba(239, 68, 68, 0.05)"
         : "rgba(239, 68, 68, 0.05)",
       color: colors.error,
       border: `1px solid ${
@@ -402,11 +457,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       padding: "24px",
       maxWidth: "400px",
       width: "100%",
+      fontSize: "14px",
     },
     modalTitle: {
       fontSize: "20px",
       fontWeight: "600",
-      marginBottom: "8px",
+      marginBottom: "4px",
       color: colors.textPrimary,
     },
     modalInput: {
@@ -418,15 +474,16 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       color: colors.textPrimary,
       outline: "none",
       marginBottom: "16px",
-      fontSize: "16px",
+      fontSize: "12px",
     },
     modalButtons: {
       display: "flex",
       justifyContent: "flex-end",
       gap: "12px",
+      fontSize: "14px",
     },
     modalCancel: {
-      padding: "10px 20px",
+      padding: "8px 20px",
       color: colors.textTertiary,
       background: "none",
       border: "none",
@@ -437,7 +494,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       gap: "8px",
     },
     modalConfirm: {
-      padding: "10px 20px",
+      padding: "8px 20px",
       backgroundColor: colors.accent,
       color: "white",
       border: "none",
@@ -462,7 +519,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     
     .user-profile-grid {
       display: grid;
-      gap: 32px;
+      gap: 20px;
       grid-template-columns: 1fr;
     }
     
@@ -470,10 +527,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       display: flex;
       flex-direction: column;
       gap: 8px;
-      padding: 16px;
       border-radius: 12px;
-      background-color: ${colors.surfaceLight};
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       transition: all 0.2s ease;
     }
     
@@ -481,7 +536,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       display: flex;
       flex-direction: column;
       gap: 12px;
-      margin-top: 32px;
+      margin-top: 14px;
     }
     
     @media (min-width: 640px) {
@@ -774,20 +829,23 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
             <div style={styles.modalButtons}>
               <button
-                onClick={() => setAvatarModal(false)}
+                onClick={() => {
+                  setAvatarModal(false);
+                  setNewAvatar("");
+                }}
                 style={styles.modalCancel}
               >
                 <X size={16} />
                 Cancel
               </button>
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (newAvatar) {
-                    setUser((prev) =>
-                      prev ? { ...prev, avatarUrl: newAvatar } : prev
-                    );
-                    setAvatarModal(false);
-                    setNewAvatar("");
+                    const success = await handleAvatarUpdate(newAvatar);
+                    if (success) {
+                      setAvatarModal(false);
+                      setNewAvatar("");
+                    }
                   }
                 }}
                 style={styles.modalConfirm}
