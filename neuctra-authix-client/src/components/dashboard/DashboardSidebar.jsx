@@ -14,6 +14,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
+import LogoutModal from "./LogoutModal";
 
 const navItems = [
   { name: "Overview", path: "/dashboard", icon: LayoutDashboard },
@@ -79,12 +80,12 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
       >
         <div className="p-5 text-xl font-bold text-white flex items-center justify-between">
           <Link to={"/dashboard"} className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
-              <img src="/logo.png" size={20} />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+              <img src="/logo.png" />
             </div>
             <span className="text-sm">
               Neuctra{" "}
-              <span className="text-primary italic font-black">Authix</span>
+              <span className="text-primary font-black">Authix</span>
             </span>
           </Link>
           <button
@@ -211,30 +212,10 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
       {/* Logout Modal */}
       {showLogoutModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-50">
-          <div className="bg-zinc-950 border border-zinc-900 p-6 rounded-lg w-lg">
-            <h2 className="text-lg font-bold text-white mb-4">
-              Confirm Logout
-            </h2>
-            <p className="text-gray-400 mb-6">
-              Are you sure you want to logout?
-            </p>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowLogoutModal(false)}
-                className="px-4 py-2 rounded text-sm bg-zinc-800 text-gray-300 hover:bg-gray-600"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 rounded text-sm bg-red-600 text-white hover:bg-red-700"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
+        <LogoutModal
+          onClose={() => setShowLogoutModal(false)}
+          onConfirm={handleLogout} // your logout function
+        />
       )}
     </>
   );
