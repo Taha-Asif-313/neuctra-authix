@@ -207,7 +207,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
         accentHover: adjustColor(primaryColor, -30), // darker for hover
         success: "#10b981",
         error: "rgba(239, 68, 68)",
-        border: "#09090B",
+        border: "#18181B",
       }
     : {
         background: "#ffffff",
