@@ -10,6 +10,11 @@ import {
   getApiKey,
   generateAdminReport,
   getAdminReport,
+  // ✅ New controllers
+  sendVerifyOTP,
+  verifyEmail,
+  forgotPassword,
+  resetPassword,
 } from "../controllers/adminAuthController.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -19,6 +24,14 @@ const router = express.Router();
 // ===== Admin Auth Routes =====
 router.post("/signup", signupAdmin);
 router.post("/login", loginAdmin);
+
+// ===== Email Verification =====
+router.post("/send-verify-otp", sendVerifyOTP);   // send OTP
+router.post("/verify-email", verifyEmail);        // verify email with OTP
+
+// ===== Password Reset =====
+router.post("/forgot-password", forgotPassword);  // send reset OTP
+router.post("/reset-password", resetPassword);    // reset with OTP
 
 // ===== Admin Profile & Management =====
 router.get("/profile", authMiddleware, getAdminProfile);
@@ -30,7 +43,7 @@ router.post("/api-key/generate", authMiddleware, generateNewApiKey);
 router.post("/api-key/revoke", authMiddleware, revokeApiKey);
 router.get("/api-key", authMiddleware, getApiKey);
 
-// Report Route
+// ===== Reports =====
 router.get("/download-report", authMiddleware, generateAdminReport);
 router.get("/report", authMiddleware, getAdminReport);
 

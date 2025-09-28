@@ -2,6 +2,9 @@ import prisma from "../prisma.js";
 import { hashPassword, comparePassword } from "../utils/password.js";
 import { generateToken } from "../utils/jwt.js";
 import { generateApiKey, generateId } from "../utils/crypto.js";
+import { sendEmail, sendOTPEmail } from "../utils/mailer.js";
+import { addMonths } from "date-fns";
+import crypto from "crypto";
 import { Parser } from "json2csv";
 import ExcelJS from "exceljs";
 import PDFDocument from "pdfkit";
@@ -196,7 +199,7 @@ export const deleteAdmin = async (req, res) => {
     const { id } = req.params;
 
     const admin = await prisma.adminUser.findUnique({
-      where: { id: Number(id) },
+      where: { id: id },
     });
     if (!admin) {
       return res.status(404).json({
@@ -205,7 +208,7 @@ export const deleteAdmin = async (req, res) => {
       });
     }
 
-    await prisma.adminUser.delete({ where: { id: Number(id) } });
+    await prisma.adminUser.delete({ where: { id: id } });
 
     return res.status(200).json({
       success: true,
@@ -219,6 +222,199 @@ export const deleteAdmin = async (req, res) => {
       error: err.message,
     });
   }
+};
+
+/**
+ * @desc Send email verification OTP
+ * @route POST /api/admin/send-verify-otp
+ */
+export const sendVerifyOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const admin = await prisma.adminUser.findUnique({ where: { email } });
+    if (!admin) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Admin not found" });
+    }
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+    await prisma.adminUser.update({
+      where: { email },
+      data: { otp, otpExpiry },
+    });
+
+    await sendOTPEmail(email, otp);
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent to email",
+    });
+  } catch (err) {
+    console.error("SendVerifyOTP Error:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+/**
+ * @desc Verify email with OTP
+ * @route POST /api/admin/verify-email
+ */
+export const verifyEmail = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    const admin = await prisma.adminUser.findUnique({ where: { email } });
+    if (!admin || admin.otp !== otp || new Date() > admin.otpExpiry) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired OTP",
+      });
+    }
+
+    await prisma.adminUser.update({
+      where: { email },
+      data: { isVerified: true, otp: null, otpExpiry: null },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Email verified successfully",
+    });
+  } catch (err) {
+    console.error("VerifyEmail Error:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+/**
+ * @desc Send reset password OTP
+ * @route POST /api/admin/forgot-password
+ */
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const admin = await prisma.adminUser.findUnique({ where: { email } });
+
+    if (!admin) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Admin not found" });
+    }
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+    await prisma.adminUser.update({
+      where: { email },
+      data: { otp, otpExpiry },
+    });
+
+    await sendEmail({
+      to: email,
+      subject: "Password Reset OTP",
+      html: `<p>Your reset OTP is: <b>${otp}</b></p>`,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset OTP sent",
+    });
+  } catch (err) {
+    console.error("ForgotPassword Error:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+/**
+ * @desc Reset password with OTP
+ * @route POST /api/admin/reset-password
+ */
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    const admin = await prisma.adminUser.findUnique({ where: { email } });
+    if (!admin || admin.otp !== otp || new Date() > admin.otpExpiry) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired OTP",
+      });
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+
+    await prisma.adminUser.update({
+      where: { email },
+      data: { password: hashedPassword, otp: null, otpExpiry: null },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset successfully",
+    });
+  } catch (err) {
+    console.error("ResetPassword Error:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+
+export const upgradePackage = async (req, res) => {
+  try {
+    const { id } = req.params; // admin id
+    const { packageType } = req.body; // basic | pro
+
+    const startDate = new Date();
+    const endDate = addMonths(startDate, 1); // add 1 month
+
+    const updated = await prisma.adminUser.update({
+      where: { id },
+      data: {
+        subscriptionPackage: packageType,
+        subscriptionStartDate: startDate,
+        subscriptionEndDate: endDate,
+        isPackageValid: true,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Upgraded to ${packageType} package`,
+      data: updated,
+    });
+  } catch (err) {
+    console.error("UpgradePackage Error:", err);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+// Example check & reset expired subscription
+export const checkAndResetPackages = async () => {
+  const now = new Date();
+  await prisma.adminUser.updateMany({
+    where: {
+      subscriptionEndDate: { lte: now },
+      isPackageValid: true,
+    },
+    data: {
+      subscriptionPackage: "free",
+      isPackageValid: false,
+      subscriptionStartDate: null,
+      subscriptionEndDate: null,
+    },
+  });
 };
 
 /**

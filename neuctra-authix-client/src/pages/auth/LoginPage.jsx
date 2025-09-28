@@ -182,12 +182,12 @@ const LoginPage = () => {
                     Remember me
                   </span>
                 </label>
-                <a
-                  href="#"
-                  className="text-sm font-medium text-[#00c420] hover:text-emerald-500"
+                <Link
+                  to="/forgot-password"
+                  className="text-sm font-medium text-[#00c420] hover:text-green-500"
                 >
                   Forgot password?
-                </a>
+                </Link>
               </div>
 
               {/* Submit */}

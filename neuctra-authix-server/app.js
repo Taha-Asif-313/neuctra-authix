@@ -11,7 +11,7 @@ app.use(express.json());
 
 // 🔹 CORS configs
 const adminCors = cors({
-  origin: [process.env.CLIENT_URL, "http://localhost:5174"], // only admin client
+  origin: [process.env.CLIENT_URL], // only admin client
   credentials: true,
 });
 

@@ -31,12 +31,12 @@ const DashboardHeader = ({sidebarOpen, setSidebarOpen}) => {
           <h1 className="text-lg font-semibold text-white">Dashboard</h1>
         </div>
 
-        <div className="flex items-center ">
+        <div className="flex gap-3 items-center ">
           <button onClick={()=>logout()} className="p-2 rounded-full hover:bg-gray-800 relative">
             <LogOut size={20} />
           </button>
           <Link to={"/dashboard/support"} className="p-2 rounded-full hover:bg-gray-800 relative">
-            <Settings size={20} />
+            <HelpCircle size={20} />
           </Link>
           <Link className="p-2" to={"/dashboard/profile"}>
             {admin.avatarUrl ? (

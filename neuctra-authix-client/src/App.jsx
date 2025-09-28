@@ -25,6 +25,8 @@ import SupportPage from "./pages/dashboard/SupportPage";
 import DocsLayout from "./layouts/DocsLayout";
 import Introduction from "./pages/docs/Introduction";
 import NeuctraAuthixClientSdk from "./pages/docs/NeuctraAuthixClientSdk";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 
 // ✅ Protected wrapper inside same file
 const ProtectedRoute = ({ Component }) => {
@@ -53,7 +55,7 @@ function AppContent() {
   return (
     <div className="App min-h-screen bg-black transition-colors duration-200">
       <Routes>
-        {/* Public routes */}
+        {/* ===== Public Routes ===== */}
         <Route path="/" element={<AuthLayout />}>
           <Route
             index
@@ -81,6 +83,26 @@ function AppContent() {
               )
             }
           />
+          <Route
+            path="forgot-password"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <ForgotPasswordPage />
+              )
+            }
+          />
+          <Route
+            path="reset-password/:token"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <ResetPasswordPage />
+              )
+            }
+          />
         </Route>
 
         {/* Protected dashboard */}
@@ -99,12 +121,11 @@ function AppContent() {
 
         {/* Public Docs */}
         <Route path="/docs" element={<DocsLayout />}>
+          <Route index element={<Introduction />} />
           <Route
-            index
-            element={<Introduction/>}
+            path="neuctra-authix-sdk"
+            element={<NeuctraAuthixClientSdk />}
           />
-          <Route path="neuctra-authix-sdk" element={<NeuctraAuthixClientSdk />} />
-  
         </Route>
 
         {/* Catch-all */}
