@@ -29,7 +29,10 @@ import {
   Link,
   Image,
   Loader,
+  Lock,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import DeleteAdminModal from "../../components/dashboard/DeleteAdminModal";
 
 // Avatar Update Modal Component
 const AvatarUpdateModal = ({ isOpen, onClose, currentAvatar, onSave }) => {
@@ -99,7 +102,7 @@ const AvatarUpdateModal = ({ isOpen, onClose, currentAvatar, onSave }) => {
       <div className="bg-zinc-900 rounded-2xl border border-zinc-700 max-w-md w-full">
         <div className="p-6 border-b border-zinc-800">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+            <h3 className="text-xl max-sm:text-lg font-semibold text-white flex items-center gap-2">
               <Camera size={20} />
               Update Profile Picture
             </h3>
@@ -110,7 +113,7 @@ const AvatarUpdateModal = ({ isOpen, onClose, currentAvatar, onSave }) => {
               <X size={24} />
             </button>
           </div>
-          <p className="text-zinc-400 text-sm">
+          <p className="text-zinc-400 text-sm max-sm:hidden">
             Enter a URL for your new profile picture
           </p>
         </div>
@@ -173,7 +176,7 @@ const AvatarUpdateModal = ({ isOpen, onClose, currentAvatar, onSave }) => {
             </div>
           </div>
 
-          <div className="flex gap-3 mt-6">
+          <div className="flex max-sm:flex-col-reverse gap-3 mt-6">
             <button
               type="button"
               onClick={onClose}
@@ -206,8 +209,194 @@ const AvatarUpdateModal = ({ isOpen, onClose, currentAvatar, onSave }) => {
   );
 };
 
+// --- Change Password Modal ---
+const ChangePasswordModal = ({ isOpen, onClose }) => {
+  const [formData, setFormData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.currentPassword)
+      newErrors.currentPassword = "Current password is required";
+    if (!formData.newPassword)
+      newErrors.newPassword = "New password is required";
+    else if (formData.newPassword.length < 6)
+      newErrors.newPassword = "Password must be at least 6 characters";
+    if (formData.newPassword !== formData.confirmPassword)
+      newErrors.confirmPassword = "Passwords do not match";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    setLoading(true);
+    try {
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_SERVER_URL}/api/admin/change-password`,
+        {
+          currentPassword: formData.currentPassword,
+          newPassword: formData.newPassword,
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+
+      if (data.success) {
+        toast.success(data.message || "Password updated successfully");
+        setFormData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+        onClose();
+      } else {
+        toast.error(data.message || "Failed to update password");
+      }
+    } catch (err) {
+      console.error("Change password error:", err);
+      toast.error(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-zinc-900 rounded-2xl border border-zinc-700 max-w-md w-full">
+        <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
+          <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+            <Lock size={20} /> Change Password
+          </h3>
+          <button onClick={onClose} className="text-zinc-400 hover:text-white">
+            <X size={22} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Current Password */}
+          <PasswordField
+            label="Current Password"
+            name="currentPassword"
+            value={formData.currentPassword}
+            onChange={handleChange}
+            error={errors.currentPassword}
+            show={showPasswords.current}
+            toggleShow={() =>
+              setShowPasswords((p) => ({ ...p, current: !p.current }))
+            }
+          />
+
+          {/* New Password */}
+          <PasswordField
+            label="New Password"
+            name="newPassword"
+            value={formData.newPassword}
+            onChange={handleChange}
+            error={errors.newPassword}
+            show={showPasswords.new}
+            toggleShow={() => setShowPasswords((p) => ({ ...p, new: !p.new }))}
+          />
+
+          {/* Confirm Password */}
+          <PasswordField
+            label="Confirm Password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            error={errors.confirmPassword}
+            show={showPasswords.confirm}
+            toggleShow={() =>
+              setShowPasswords((p) => ({ ...p, confirm: !p.confirm }))
+            }
+          />
+
+          <div className="flex max-sm:flex-col-reverse gap-3 mt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 text-sm px-4 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-white"
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 text-sm px-4 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium flex items-center justify-center"
+            >
+              {loading ? (
+                <Loader size={16} className="animate-spin mr-2" />
+              ) : null}
+              {loading ? "Updating..." : "Update Password"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// --- Reusable password input field ---
+const PasswordField = ({
+  label,
+  name,
+  value,
+  onChange,
+  error,
+  show,
+  toggleShow,
+}) => (
+  <div>
+    <label className="text-sm font-medium text-zinc-300 mb-1 block">
+      {label}
+    </label>
+    <div className="relative">
+      <input
+        type={show ? "text" : "password"}
+        name={name}
+        value={value}
+        onChange={onChange}
+        className={`w-full pl-3 pr-10 py-2.5 rounded-lg bg-zinc-800 border ${
+          error ? "border-red-500" : "border-zinc-700"
+        } text-white focus:ring-2 focus:ring-primary outline-none`}
+      />
+      <button
+        type="button"
+        onClick={toggleShow}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white"
+      >
+        {show ? <EyeOff size={18} /> : <Eye size={18} />}
+      </button>
+    </div>
+    {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+  </div>
+);
+
 const ProfilePage = () => {
   const { admin, token, logout, updateProfile } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
@@ -215,6 +404,9 @@ const ProfilePage = () => {
   const [showApiKey, setShowApiKey] = useState(false);
   const [regeneratingKey, setRegeneratingKey] = useState(false);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  console.log(formData);
 
   // 🔹 Fetch profile
   useEffect(() => {
@@ -330,31 +522,6 @@ const ProfilePage = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently lost."
-      )
-    )
-      return;
-
-    try {
-      const { data } = await axios.delete(
-        `${import.meta.env.VITE_SERVER_URL}/api/admin/${admin.id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (data.success) {
-        toast.success("Account deleted successfully");
-        logout();
-      } else {
-        toast.error(data.message);
-      }
-    } catch (err) {
-      console.error("Delete error:", err);
-      toast.error("Delete failed");
-    }
-  };
-
   const handleCancelEdit = () => {
     setEditMode(false);
     // Reload original data
@@ -404,7 +571,7 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-10 pt-4">
       {/* Avatar Update Modal */}
       <AvatarUpdateModal
         isOpen={showAvatarModal}
@@ -412,6 +579,22 @@ const ProfilePage = () => {
         currentAvatar={formData.avatarUrl}
         onSave={handleAvatarUpdate}
       />
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
+      />
+
+      {/* Delete Modal */}
+      {showDeleteModal && (
+        <DeleteAdminModal
+          adminUser={admin}
+          appId={admin.appId}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={() => logout()}
+        />
+      )}
 
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row items-start  gap-3 md:gap-6 w-full justify-between">
@@ -443,35 +626,54 @@ const ProfilePage = () => {
           <p className="text-gray-400 mb-3">Administrator</p>
 
           <div className="flex flex-wrap gap-3">
-            <span
-              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                formData.isActive
-                  ? "bg-primary/5 text-primary"
-                  : "bg-red-500/5 text-red-500"
-              }`}
-            >
-              {formData.isActive ? (
-                <>
-                  <CheckCircle size={12} className="mr-1" />
-                  Active
-                </>
-              ) : (
-                <>
-                  <XCircle size={12} className="mr-1" />
-                  Inactive
-                </>
-              )}
-            </span>
+            {/* Email Verification Status */}
+            <div className="flex flex-wrap gap-3">
+              <span
+                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                  formData.isVerified
+                    ? "bg-green-500/10 text-green-500"
+                    : "bg-yellow-500/10 text-yellow-500"
+                }`}
+              >
+                {formData.isVerified ? (
+                  <>
+                    <ShieldCheck size={14} className="mr-1" />
+                    Verified
+                  </>
+                ) : (
+                  <>
+                    <XCircle size={14} className="mr-1" />
+                    Not Verified
+                  </>
+                )}
+              </span>
 
-            <span className="inline-flex items-center px-3 py-1 bg-blue-500/5 text-blue-500 rounded-full text-xs">
-              <Calendar size={12} className="mr-1" />
+              {!formData.isVerified && (
+                <button
+                  onClick={() => navigate("/verify-email")}
+                  className="px-3 py-1 bg-primary hover:bg-primary/90 text-white rounded-md text-sm"
+                >
+                  Verify Email
+                </button>
+              )}
+            </div>
+
+            <span className="inline-flex items-center px-3 py-1 bg-blue-500/5 text-blue-500 rounded-full text-sm">
+              <Calendar size={14} className="mr-1" />
               Joined {new Date(formData.createdAt).toLocaleDateString()}
             </span>
           </div>
         </div>
 
         {/* Header Actions */}
-        <div className="flex flex-row gap-3 text-sm">
+        <div className="flex flex-row flex-wrap gap-3 text-sm">
+          <button
+            onClick={() => setShowPasswordModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-white font-medium transition-colors"
+          >
+            <Key size={14} />
+            Change Password
+          </button>
           {editMode ? (
             <>
               <button
@@ -509,11 +711,11 @@ const ProfilePage = () => {
               </button>
 
               <button
-                onClick={handleDelete}
+                onClick={() => setShowDeleteModal(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-600/30 text-red-500 hover:text-red-300 rounded-lg font-medium transition-colors"
               >
                 <Trash2 size={14} />
-                Delete
+                Delete Account
               </button>
             </>
           )}

@@ -26,7 +26,7 @@ const navItems = [
     subItems: [
       { name: "Profile", path: "/dashboard/profile" },
       { name: "Api Management", path: "/dashboard/apikeys" },
-      { name: "Notifications", path: "/dashboard/settings/notifications" },
+      { name: "Change Password", path: "/dashboard/change-password" },
     ],
   },
   { name: "Support", path: "/dashboard/support", icon: HelpCircle },

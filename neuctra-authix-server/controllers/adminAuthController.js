@@ -116,6 +116,7 @@ export const loginAdmin = async (req, res) => {
           createdAt: admin.createdAt,
           apps: admin.apps,
           users: admin.users,
+          isVerified:admin.isVerified
         },
       },
     });
@@ -227,37 +228,67 @@ export const deleteAdmin = async (req, res) => {
 /**
  * @desc Send email verification OTP
  * @route POST /api/admin/send-verify-otp
+ * @access Private (Admin only)
  */
 export const sendVerifyOTP = async (req, res) => {
   try {
-    const { email } = req.body;
+    // ✅ Secure: Only logged-in admin can request
+    const adminId = req.admin?.id;
+    if (!adminId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: Admin ID missing",
+      });
+    }
 
-    const admin = await prisma.adminUser.findUnique({ where: { email } });
+    // ✅ Find user by ID, not by email from body
+    const admin = await prisma.adminUser.findUnique({
+      where: { id: adminId },
+    });
+
     if (!admin) {
       return res
         .status(404)
         .json({ success: false, message: "Admin not found" });
     }
 
+    // ✅ Already verified → don't send OTP
+    if (admin.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is already verified",
+      });
+    }
+
+    // ✅ Generate OTP securely
     const otp = crypto.randomInt(100000, 999999).toString();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
+    // ✅ Save OTP securely
     await prisma.adminUser.update({
-      where: { email },
+      where: { id: adminId },
       data: { otp, otpExpiry },
     });
 
-    await sendOTPEmail(email, otp);
+    // ✅ Send OTP email
+    const emailSent = await sendOTPEmail(admin.email, otp);
+    if (!emailSent) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send OTP email. Try again later.",
+      });
+    }
 
     return res.status(200).json({
       success: true,
-      message: "OTP sent to email",
+      message: "OTP sent to your registered email",
     });
   } catch (err) {
     console.error("SendVerifyOTP Error:", err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 
@@ -336,37 +367,64 @@ export const forgotPassword = async (req, res) => {
 };
 
 /**
- * @desc Reset password with OTP
- * @route POST /api/admin/reset-password
+ * @desc Change password (requires current password)
+ * @route POST /api/admin/change-password
+ * @access Private (Admin only)
  */
-export const resetPassword = async (req, res) => {
+export const changePassword = async (req, res) => {
   try {
-    const { email, otp, newPassword } = req.body;
+    const adminId = req.admin?.id;
+    const { currentPassword, newPassword } = req.body;
 
-    const admin = await prisma.adminUser.findUnique({ where: { email } });
-    if (!admin || admin.otp !== otp || new Date() > admin.otpExpiry) {
-      return res.status(400).json({
+    if (!adminId) {
+      return res.status(401).json({
         success: false,
-        message: "Invalid or expired OTP",
+        message: "Unauthorized: Admin ID missing",
       });
     }
 
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Both current and new passwords are required",
+      });
+    }
+
+    const admin = await prisma.adminUser.findUnique({ where: { id: adminId } });
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: "Admin not found",
+      });
+    }
+
+    // ✅ Check current password
+    const isMatch = await comparePassword(currentPassword, admin.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password is incorrect",
+      });
+    }
+
+    // ✅ Hash new password
     const hashedPassword = await hashPassword(newPassword);
 
     await prisma.adminUser.update({
-      where: { email },
-      data: { password: hashedPassword, otp: null, otpExpiry: null },
+      where: { id: adminId },
+      data: { password: hashedPassword },
     });
 
     return res.status(200).json({
       success: true,
-      message: "Password reset successfully",
+      message: "Password updated successfully",
     });
   } catch (err) {
-    console.error("ResetPassword Error:", err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    console.error("ChangePassword Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 
@@ -435,6 +493,7 @@ export const getAdminProfile = async (req, res) => {
         avatarUrl: true,
         apiKey: true,
         isActive: true,
+        isVerified:true,
         createdAt: true,
         _count: {
           select: { apps: true, users: true },

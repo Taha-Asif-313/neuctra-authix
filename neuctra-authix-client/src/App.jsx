@@ -27,6 +27,8 @@ import Introduction from "./pages/docs/Introduction";
 import NeuctraAuthixClientSdk from "./pages/docs/NeuctraAuthixClientSdk";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
+import VerifyEmailPage from "./pages/auth/VerifyEmailPage";
+import ChangePassword from "./pages/dashboard/ChangePassword";
 
 // ✅ Protected wrapper inside same file
 const ProtectedRoute = ({ Component }) => {
@@ -93,16 +95,6 @@ function AppContent() {
               )
             }
           />
-          <Route
-            path="reset-password/:token"
-            element={
-              isAuthenticated ? (
-                <Navigate to="/dashboard" replace />
-              ) : (
-                <ResetPasswordPage />
-              )
-            }
-          />
         </Route>
 
         {/* Protected dashboard */}
@@ -113,6 +105,7 @@ function AppContent() {
           <Route index element={<DashboardPage />} />
           <Route path="app/:id" element={<AppDetail />} />
           <Route path="profile" element={<ProfilePage />} />
+                    <Route path="change-password" element={<ChangePassword />} />
           <Route path="apikeys" element={<ApiKeysPage />} />
           <Route path="admin-report" element={<AdminReportPage />} />
           <Route path="apps" element={<ApplicationsPage />} />
@@ -128,6 +121,8 @@ function AppContent() {
           />
         </Route>
 
+        {/* SIngle Pages */}
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

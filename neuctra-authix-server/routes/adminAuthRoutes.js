@@ -14,7 +14,7 @@ import {
   sendVerifyOTP,
   verifyEmail,
   forgotPassword,
-  resetPassword,
+  changePassword,
 } from "../controllers/adminAuthController.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -26,12 +26,12 @@ router.post("/signup", signupAdmin);
 router.post("/login", loginAdmin);
 
 // ===== Email Verification =====
-router.post("/send-verify-otp", sendVerifyOTP);   // send OTP
-router.post("/verify-email", verifyEmail);        // verify email with OTP
+router.post("/send-verify-otp", authMiddleware, sendVerifyOTP); // send OTP
+router.post("/verify-email", verifyEmail); // verify email with OTP
 
 // ===== Password Reset =====
-router.post("/forgot-password", forgotPassword);  // send reset OTP
-router.post("/reset-password", resetPassword);    // reset with OTP
+router.post("/forgot-password", forgotPassword); // send reset OTP
+router.post("/change-password", authMiddleware, changePassword); // reset with OTP
 
 // ===== Admin Profile & Management =====
 router.get("/profile", authMiddleware, getAdminProfile);
