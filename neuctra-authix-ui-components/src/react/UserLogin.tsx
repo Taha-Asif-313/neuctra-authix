@@ -10,12 +10,9 @@ import {
   AlertCircle,
   Loader,
 } from "lucide-react";
+import { getSdkConfig } from "../sdk/config.js";
 
 interface LoginFormProps {
-  baseUrl: string;
-  apiKey: string;
-  appId: string;
-
   // Customization options
   logoUrl?: string;
   title?: string;
@@ -32,21 +29,19 @@ interface LoginFormProps {
 }
 
 export const UserLogin: React.FC<LoginFormProps> = ({
-  baseUrl,
-  apiKey,
-  appId,
   logoUrl,
   title = "Sign In to Your Account",
   subtitle = "Welcome back! Please enter your details",
-  footerText = "Secure authentication powered by our platform",
-  primaryColor = "#22c55e",
-  gradient = "linear-gradient(135deg, #10b981, #22c55e)",
+  footerText = "Secure authentication powered by Neuctra Authix",
+  primaryColor = "#00C214",
+  gradient = "linear-gradient(135deg, #22c55e, #00C214)",
   darkMode = true,
   signupUrl,
   forgotPasswordUrl,
   onSuccess,
   onError,
 }) => {
+  const { baseUrl, apiKey, appId } = getSdkConfig(); // ✅ Use global config
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -148,8 +143,8 @@ export const UserLogin: React.FC<LoginFormProps> = ({
           ) : (
             <div
               style={{
-                height: isMobile ? "48px" : "50px",
-                width: isMobile ? "48px" : "50px",
+                height: isMobile ? "48px" : "80px",
+                width: isMobile ? "48px" : "80px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -158,7 +153,7 @@ export const UserLogin: React.FC<LoginFormProps> = ({
                 marginBottom: isMobile ? "16px" : "20px",
               }}
             >
-              <User size={isMobile ? 24 : 32} color={primaryColor} />
+              <User size={isMobile ? 32 : 40} color={primaryColor} />
             </div>
           )}
 

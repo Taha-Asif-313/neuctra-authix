@@ -114,7 +114,7 @@ export const UserButton: React.FC<UserButtonProps> = ({
     wrapper: { position: "relative" as const },
     avatarButton: {
       width: "6vw", // responsive width
-      maxWidth: "60px", // optional max size
+      maxWidth: "42px", // optional max size
       minWidth: "40px", // optional min size
       aspectRatio: "1", // keeps it square
       borderRadius: "50%",

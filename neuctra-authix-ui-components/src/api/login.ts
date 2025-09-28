@@ -40,7 +40,7 @@ export const loginUser = async (
 
   try {
     const res = await axios.post(
-      `${baseUrl}/api/users/login`,
+      `${baseUrl}/users/login`,
       { email, password, appId },
       {
         headers: {

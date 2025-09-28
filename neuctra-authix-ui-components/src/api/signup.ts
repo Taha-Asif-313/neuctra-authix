@@ -53,7 +53,7 @@ export const signupUser = async (
 
   try {
     const res = await axios.post(
-      `${baseUrl}/api/users/signup`,
+      `${baseUrl}/users/signup`,
       { 
         name, 
         email, 

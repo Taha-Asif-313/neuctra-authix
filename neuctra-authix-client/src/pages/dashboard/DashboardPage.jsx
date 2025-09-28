@@ -298,7 +298,7 @@ const DashboardPage = () => {
               <LayoutGrid size={20} className="text-blue-400" />
             </div>
           </div>
-          <p className="text-green-400 text-sm mt-3 flex items-center">
+          <p className="text-blue-400 text-sm mt-3 flex items-center">
             <TrendingUp size={14} className="mr-1" />+
             {Math.floor(apps.length * 0.12)} from last month
           </p>
@@ -332,7 +332,7 @@ const DashboardPage = () => {
               <Activity size={20} className="text-amber-400" />
             </div>
           </div>
-          <p className="text-gray-400 text-sm mt-3 flex items-center">
+          <p className="text-amber-400 text-sm mt-3 flex items-center">
             {apps.length - activeApps > 0 ? (
               <>
                 <EyeOff size={14} className="mr-1 text-amber-400" />
@@ -340,7 +340,7 @@ const DashboardPage = () => {
               </>
             ) : (
               <>
-                <Eye size={14} className="mr-1 text-green-400" />
+                <Eye size={14} className="mr-1 text-amber-400" />
                 All active
               </>
             )}
@@ -357,7 +357,7 @@ const DashboardPage = () => {
               <Shield size={20} className="text-purple-400" />
             </div>
           </div>
-          <p className="text-green-400 text-sm mt-3 flex items-center">
+          <p className="text-purple-400 text-sm mt-3 flex items-center">
             <BarChart3 size={14} className="mr-1" />
             All systems secure
           </p>

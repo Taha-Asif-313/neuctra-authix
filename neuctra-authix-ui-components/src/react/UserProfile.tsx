@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { getStoredUserInfo, UserInfo } from "../api/login.js";
+import { UserInfo } from "../api/login.js";
 import {
   Edit3,
   Save,
@@ -15,11 +15,9 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
+import { getSdkConfig } from "../sdk/config.js";
 
 interface UserProfileProps {
-  baseUrl: string;
-  apiKey: string;
-  appId: string;
   token: string;
   user?: UserInfo | null; // ✅ accept user as prop
   darkMode?: boolean;
@@ -27,14 +25,12 @@ interface UserProfileProps {
 }
 
 export const UserProfile: React.FC<UserProfileProps> = ({
-  baseUrl,
-  apiKey,
-  appId,
   token,
   user: propUser = null, // ✅ default null
   darkMode = true,
-  primaryColor = "#3b82f6",
+  primaryColor = "#00C214",
 }) => {
+  const { baseUrl, apiKey, appId } = getSdkConfig();
   const [user, setUser] = useState<UserInfo | null>(propUser);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);

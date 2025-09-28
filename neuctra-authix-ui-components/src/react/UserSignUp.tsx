@@ -17,12 +17,9 @@ import {
   X,
   Plus,
 } from "lucide-react";
+import { getSdkConfig } from "../sdk/config.js";
 
 interface SignupFormProps {
-  baseUrl: string;
-  apiKey: string;
-  appId: string;
-
   // Customization options
   logoUrl?: string;
   title?: string;
@@ -58,15 +55,12 @@ interface FormData {
 }
 
 export const UserSignUp: React.FC<SignupFormProps> = ({
-  baseUrl,
-  apiKey,
-  appId,
   logoUrl,
   title = "Create Your Account",
   subtitle = "Join our platform today",
-  footerText = "Secure authentication powered by our platform",
-  primaryColor = "#22c55e",
-  gradient = "linear-gradient(135deg, #10b981, #22c55e)",
+  footerText = "Secure authentication powered by Neuctra Authix",
+  primaryColor = "#00C214",
+  gradient = "linear-gradient(135deg, #22c55e, #00C214)",
   darkMode = true,
 
   // Field visibility props - all optional, default to false
@@ -81,6 +75,7 @@ export const UserSignUp: React.FC<SignupFormProps> = ({
   onError,
   onClose,
 }) => {
+  const { baseUrl, apiKey, appId } = getSdkConfig();
   // Initialize form data with only the fields that will be shown
   const initialFormData: FormData = {
     name: "",

@@ -69,7 +69,7 @@ const AppDetail = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
- const handleCopy = (text) => {
+  const handleCopy = (text) => {
     try {
       // Create a hidden textarea
       const textarea = document.createElement("textarea");
@@ -115,7 +115,7 @@ const AppDetail = () => {
   return (
     <div className="max-w-7xl mx-auto space-y-4">
       {/* App Info */}
-      <div className="bg-gradient-to-br  from-zinc-900 to-zinc-950 border border-zinc-800 rounded-2xl p-6 shadow-2xl">
+      <div className="bg-gradient-to-r  from-zinc-900 to-zinc-950/5 rounded-2xl p-6 shadow-2xl">
         <div className="relative flex flex-col-reverse sm:flex-row sm:justify-between sm:items-start gap-6">
           {/* Left: App Details */}
           <div className="space-y-4">
@@ -129,7 +129,7 @@ const AppDetail = () => {
                 </h1>
                 {/* App ID */}
                 <div className="flex items-center gap-2 mt-1">
-                  <p className="text-xs text-gray-400">App ID:</p>
+                  <p className="text-xs max-sm:hidden text-gray-400">App ID:</p>
                   <span className="text-xs text-gray-200 truncate max-w-[200px]">
                     {app.id}
                   </span>
@@ -209,7 +209,7 @@ const AppDetail = () => {
 
       {/* Users */}
       <div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 mt-6 gap-4">
           <h2 className="text-xl sm:text-2xl font-semibold text-white">
             Manage Users
           </h2>

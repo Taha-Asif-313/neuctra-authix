@@ -80,12 +80,11 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
       >
         <div className="p-5 text-xl font-bold text-white flex items-center justify-between">
           <Link to={"/dashboard"} className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+            <div className="md:w-10 md:h-10 h-8 w-8 rounded-lg flex items-center justify-center">
               <img src="/logo.png" />
             </div>
-            <span className="text-sm">
-              Neuctra{" "}
-              <span className="text-primary font-black">Authix</span>
+            <span className="md:text-lg text-sm">
+              Neuctra <span className="text-primary font-black">Authix</span>
             </span>
           </Link>
           <button
