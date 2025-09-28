@@ -113,8 +113,10 @@ export const UserButton: React.FC<UserButtonProps> = ({
   const styles = {
     wrapper: { position: "relative" as const },
     avatarButton: {
-      width: "42px",
-      height: "42px",
+      width: "6vw", // responsive width
+      maxWidth: "60px", // optional max size
+      minWidth: "40px", // optional min size
+      aspectRatio: "1", // keeps it square
       borderRadius: "50%",
       overflow: "hidden",
       cursor: "pointer",
@@ -246,7 +248,11 @@ export const UserButton: React.FC<UserButtonProps> = ({
             style={styles.avatarImage}
           />
         ) : (
-          <img src="https://api.dicebear.com/9.x/glass/svg?seed=Wyatt"  alt="User avatar" style={styles.avatarImage} />
+          <img
+            src="https://api.dicebear.com/9.x/glass/svg?seed=Wyatt"
+            alt="User avatar"
+            style={styles.avatarImage}
+          />
         )}
       </div>
 
