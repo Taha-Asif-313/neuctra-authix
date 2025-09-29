@@ -100,9 +100,14 @@ export const UserLogin: React.FC<AuthFormProps> = ({
     setLoading(true);
     setMessage(null);
     try {
-      const res = await axios.post(`${baseUrl}/users/forgot-password`, {
-        email: formData.email,
-      });
+      const res = await axios.post(
+        `${baseUrl}/users/forgot-password`,
+        {
+          email: formData.email,
+          appId
+        },
+        { headers: { "x-api-key": apiKey } }
+      );
       if (res.data.success) {
         setStep(2);
         setMessage({ type: "success", text: "OTP sent to your email" });
@@ -147,9 +152,9 @@ export const UserLogin: React.FC<AuthFormProps> = ({
   };
 
   // Common Input Style
- const inputStyle: React.CSSProperties = {
+  const inputStyle: React.CSSProperties = {
     width: "100%",
-    padding: isMobile ? "14px 14px 14px 48px" : "16px 16px 16px 52px",
+    padding: isMobile ? "14px 14px 14px 44px" : "16px 16px 16px 44px",
     backgroundColor: inputBg,
     border: `1px solid ${inputBorder}`,
     borderRadius: "12px",
@@ -166,19 +171,19 @@ export const UserLogin: React.FC<AuthFormProps> = ({
         justifyContent: "center",
         alignItems: "center",
         margin: "auto",
-        borderRadius: "10px",
-        fontFamily:
-          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-        backgroundColor: darkMode ? "#000000" : "#ffffff",
-        padding: isMobile ? "20px" : "30px 28px",
       }}
     >
       <div
         style={{
-          width: "100%",
-          maxWidth: "440px",
+          width: "390px",
+          maxWidth: "390px",
           display: "flex",
           flexDirection: "column",
+          borderRadius: "10px",
+          fontFamily:
+            "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          backgroundColor: darkMode ? "#000000" : "#ffffff",
+          padding: isMobile ? "30px 24px" : "30px 28px",
         }}
       >
         {/* Header */}
@@ -230,282 +235,321 @@ export const UserLogin: React.FC<AuthFormProps> = ({
           </p>
         </div>
 
- {/* Login Form */}
-{mode === "login" && (
-  <form
-    onSubmit={handleLogin}
-    style={{ display: "flex", flexDirection: "column", gap: "14px" }}
-  >
-    {/* Email */}
-    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-      <label
-        htmlFor="login-email"
-        style={{ fontSize: "14px", fontWeight: 500, color: subTextColor }}
-      >
-        Email Address
-      </label>
-      <div style={{ position: "relative" }}>
-        <Mail
-          size={20}
-          style={{
-            position: "absolute",
-            left: "14px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            color: subTextColor,
-          }}
-        />
-        <input
-          id="login-email"
-          type="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={inputStyle}
-        />
-      </div>
-    </div>
-
-    {/* Password */}
-    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-      <label
-        htmlFor="login-password"
-        style={{ fontSize: "14px", fontWeight: 500, color: subTextColor }}
-      >
-        Password
-      </label>
-      <div style={{ position: "relative" }}>
-        <Lock
-          size={20}
-          style={{
-            position: "absolute",
-            left: "14px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            color: subTextColor,
-          }}
-        />
-        <input
-          id="login-password"
-          type={showPassword ? "text" : "password"}
-          placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={inputStyle}
-        />
-        <button
-          type="button"
-          onClick={() => setShowPassword(!showPassword)}
-          style={{
-            position: "absolute",
-            right: "14px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            background: "transparent",
-            border: "none",
-            color: subTextColor,
-            cursor: "pointer",
-          }}
-        >
-          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-        </button>
-      </div>
-    </div>
-
-    {/* Links */}
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        fontSize: "13px",
-      }}
-    >
-      {signupUrl && (
-        <a
-          href={signupUrl}
-          style={{
-            color: primaryColor,
-            textDecoration: "none",
-            fontWeight: 500,
-          }}
-        >
-          Create new account
-        </a>
-      )}
-      <button
-        type="button"
-        onClick={() => setMode("forgot")}
-        style={{
-          background: "none",
-          border: "none",
-          color: primaryColor,
-          fontWeight: 500,
-          cursor: "pointer",
-        }}
-      >
-        Forgot password?
-      </button>
-    </div>
-
-    {/* Submit */}
-    <button
-      type="submit"
-      disabled={loading}
-      style={{
-        padding: "12px",
-        background: gradient,
-        color: "#fff",
-        border: "none",
-        borderRadius: "10px",
-        fontWeight: 600,
-      }}
-    >
-      {loading ? "Signing In..." : "Sign In"}
-    </button>
-  </form>
-)}
-
-{/* Forgot / Reset Password */}
-{mode === "forgot" && (
-  <form
-    onSubmit={step === 1 ? handleSendOTP : handleResetPassword}
-    style={{ display: "flex", flexDirection: "column", gap: "14px" }}
-  >
-    {step === 1 ? (
-      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-        <label
-          htmlFor="forgot-email"
-          style={{ fontSize: "14px", fontWeight: 500, color: subTextColor }}
-        >
-          Email Address
-        </label>
-        <div style={{ position: "relative" }}>
-          <Mail
-            size={20}
-            style={{
-              position: "absolute",
-              left: "14px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              color: subTextColor,
-            }}
-          />
-          <input
-            id="forgot-email"
-            type="email"
-            name="email"
-            placeholder="Enter your email"
-            value={formData.email}
-            onChange={handleChange}
-            style={inputStyle}
-          />
-        </div>
-      </div>
-    ) : (
-      <>
-        {/* OTP */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-          <label
-            htmlFor="otp"
-            style={{ fontSize: "14px", fontWeight: 500, color: subTextColor }}
+        {/* Login Form */}
+        {mode === "login" && (
+          <form
+            onSubmit={handleLogin}
+            style={{ display: "flex", flexDirection: "column", gap: "14px" }}
           >
-            One-Time Password (OTP)
-          </label>
-          <div style={{ position: "relative" }}>
-            <KeyRound
-              size={20}
-              style={{
-                position: "absolute",
-                left: "14px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                color: subTextColor,
-              }}
-            />
-            <input
-              id="otp"
-              type="text"
-              name="otp"
-              placeholder="Enter OTP"
-              value={formData.otp}
-              onChange={handleChange}
-              style={inputStyle}
-            />
-          </div>
-        </div>
+            {/* Email */}
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+            >
+              <label
+                htmlFor="login-email"
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  color: "#ffffff",
+                }}
+              >
+                Email Address
+              </label>
+              <div style={{ position: "relative" }}>
+                <Mail
+                  size={20}
+                  style={{
+                    position: "absolute",
+                    left: "14px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: subTextColor,
+                  }}
+                />
+                <input
+                  id="login-email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={inputStyle}
+                />
+              </div>
+            </div>
 
-        {/* New Password */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-          <label
-            htmlFor="newPassword"
-            style={{ fontSize: "14px", fontWeight: 500, color: subTextColor }}
+            {/* Password */}
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+            >
+              <label
+                htmlFor="login-password"
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  color: "#ffffff",
+                }}
+              >
+                Password
+              </label>
+              <div style={{ position: "relative" }}>
+                <Lock
+                  size={20}
+                  style={{
+                    position: "absolute",
+                    left: "14px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: subTextColor,
+                  }}
+                />
+                <input
+                  id="login-password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={inputStyle}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: "absolute",
+                    right: "14px",
+                    padding: "4px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "transparent",
+                    border: "none",
+                    color: subTextColor,
+                    cursor: "pointer",
+                  }}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Links */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                fontSize: "13px",
+              }}
+            >
+              {signupUrl && (
+                <a
+                  href={signupUrl}
+                  style={{
+                    color: primaryColor,
+                    textDecoration: "none",
+                    fontWeight: 500,
+                  }}
+                >
+                  Create new account
+                </a>
+              )}
+              <button
+                type="button"
+                onClick={() => setMode("forgot")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: primaryColor,
+                  fontWeight: 500,
+                  cursor: "pointer",
+                }}
+              >
+                Forgot password?
+              </button>
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                padding: "12px",
+                background: gradient,
+                color: "#fff",
+                border: "none",
+                borderRadius: "10px",
+                fontWeight: 600,
+              }}
+            >
+              {loading ? "Signing In..." : "Sign In"}
+            </button>
+          </form>
+        )}
+
+        {/* Forgot / Reset Password */}
+        {mode === "forgot" && (
+          <form
+            onSubmit={step === 1 ? handleSendOTP : handleResetPassword}
+            style={{ display: "flex", flexDirection: "column", gap: "14px" }}
           >
-            New Password
-          </label>
-          <div style={{ position: "relative" }}>
-            <Lock
-              size={20}
+            {step === 1 ? (
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+              >
+                <label
+                  htmlFor="forgot-email"
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    color: "#ffffff",
+                  }}
+                >
+                  Email Address
+                </label>
+                <div style={{ position: "relative" }}>
+                  <Mail
+                    size={20}
+                    style={{
+                      position: "absolute",
+                      left: "14px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      color: subTextColor,
+                    }}
+                  />
+                  <input
+                    id="forgot-email"
+                    type="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* OTP */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                  }}
+                >
+                  <label
+                    htmlFor="otp"
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      color: "#ffffff",
+                    }}
+                  >
+                    One-Time Password (OTP)
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <KeyRound
+                      size={20}
+                      style={{
+                        position: "absolute",
+                        left: "14px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: subTextColor,
+                      }}
+                    />
+                    <input
+                      id="otp"
+                      type="text"
+                      name="otp"
+                      placeholder="Enter OTP"
+                      value={formData.otp}
+                      onChange={handleChange}
+                      style={inputStyle}
+                    />
+                  </div>
+                </div>
+
+                {/* New Password */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                  }}
+                >
+                  <label
+                    htmlFor="newPassword"
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      color: "#ffffff",
+                    }}
+                  >
+                    New Password
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <Lock
+                      size={20}
+                      style={{
+                        position: "absolute",
+                        left: "14px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: subTextColor,
+                      }}
+                    />
+                    <input
+                      id="newPassword"
+                      type="password"
+                      name="newPassword"
+                      placeholder="Enter new password"
+                      value={formData.newPassword}
+                      onChange={handleChange}
+                      style={inputStyle}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Reset Button */}
+            <button
+              type="submit"
+              disabled={loading}
               style={{
-                position: "absolute",
-                left: "14px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                color: subTextColor,
+                padding: "12px",
+                background: gradient,
+                color: "#fff",
+                border: "none",
+                fontSize: "15px",
+                borderRadius: "10px",
+                fontWeight: 600,
               }}
-            />
-            <input
-              id="newPassword"
-              type="password"
-              name="newPassword"
-              placeholder="Enter new password"
-              value={formData.newPassword}
-              onChange={handleChange}
-              style={inputStyle}
-            />
-          </div>
-        </div>
-      </>
-    )}
+            >
+              {loading
+                ? "Please wait..."
+                : step === 1
+                ? "Send Reset OTP"
+                : "Reset Password"}
+            </button>
 
-    {/* Reset Button */}
-    <button
-      type="submit"
-      disabled={loading}
-      style={{
-        padding: "12px",
-        background: gradient,
-        color: "#fff",
-        border: "none",
-        borderRadius: "10px",
-        fontWeight: 600,
-      }}
-    >
-      {loading
-        ? "Please wait..."
-        : step === 1
-        ? "Send Reset OTP"
-        : "Reset Password"}
-    </button>
-
-    <button
-      type="button"
-      onClick={() => {
-        setMode("login");
-        setStep(1);
-      }}
-      style={{
-        background: "none",
-        border: "none",
-        color: subTextColor,
-        marginTop: "6px",
-        cursor: "pointer",
-      }}
-    >
-      Back to Login
-    </button>
-  </form>
-)}
-
+            <button
+              type="button"
+              onClick={() => {
+                setMode("login");
+                setStep(1);
+              }}
+              style={{
+                background: "none",
+                border: "none",
+                color: subTextColor,
+                marginTop: "6px",
+                cursor: "pointer",
+              }}
+            >
+              Back to Login
+            </button>
+          </form>
+        )}
 
         {/* Messages */}
         {message && (
@@ -547,7 +591,10 @@ export const UserLogin: React.FC<AuthFormProps> = ({
             marginTop: "20px",
           }}
         >
-          {footerText}
+          Secure authentication powered by{" "}
+          <span style={{ color: primaryColor, fontWeight: 600 }}>
+            Neuctra Authix
+          </span>
         </div>
       </div>
     </div>

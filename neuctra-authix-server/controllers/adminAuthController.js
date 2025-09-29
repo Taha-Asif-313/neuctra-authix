@@ -367,6 +367,69 @@ export const forgotPassword = async (req, res) => {
 };
 
 /**
+ * @desc    Reset password using OTP (after forgotPassword)
+ * @route   POST /api/admin/reset-password
+ * @access  Public
+ */
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Email, OTP, and new password are required",
+      });
+    }
+
+    const admin = await prisma.adminUser.findUnique({ where: { email } });
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: "Admin not found",
+      });
+    }
+
+    // ✅ Validate OTP & expiry
+    if (
+      admin.otp !== otp ||
+      !admin.otpExpiry ||
+      new Date() > admin.otpExpiry
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired OTP",
+      });
+    }
+
+    // ✅ Hash the new password
+    const hashedPassword = await hashPassword(newPassword);
+
+    // ✅ Update password & clear OTP
+    await prisma.adminUser.update({
+      where: { email },
+      data: {
+        password: hashedPassword,
+        otp: null,
+        otpExpiry: null,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Password has been reset successfully",
+    });
+  } catch (err) {
+    console.error("ResetPassword Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+
+/**
  * @desc Change password (requires current password)
  * @route POST /api/admin/change-password
  * @access Private (Admin only)

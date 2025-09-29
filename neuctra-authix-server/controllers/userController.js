@@ -597,6 +597,74 @@ export const userForgotPassword = async (req, res) => {
 };
 
 /**
+ * @desc    Reset user password using OTP (after forgotPassword)
+ * @route   POST /api/users/reset-password
+ * @access  Public
+ */
+export const userResetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword, appId } = req.body;
+
+    if (!email || !otp || !newPassword || !appId) {
+      return res.status(400).json({
+        success: false,
+        message: "Email, OTP, new password, and appId are required",
+      });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { email: email.toLowerCase(), appId, isActive: true },
+    });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // ✅ Check OTP validity
+    if (!user.otp || !user.otpExpiry || new Date() > user.otpExpiry) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired or not set, request a new one",
+      });
+    }
+
+    const validOtp = await verifyHashedOTP(otp, user.otp);
+    if (!validOtp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP",
+      });
+    }
+
+    // ✅ Hash new password
+    const hashedPassword = await hashPassword(newPassword);
+
+    // ✅ Update password & clear OTP
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        otp: null,
+        otpExpiry: null,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Password has been reset successfully",
+    });
+  } catch (err) {
+    console.error("UserResetPassword Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/**
  * @desc Change password (requires current password)
  * @route POST /api/users/change-password
  * @access Private (User only)
