@@ -167,9 +167,13 @@ const DashboardPage = () => {
 
     return matchesSearch && matchesCategory;
   });
+  console.log(apps);
 
   const activeApps = apps.filter((app) => app.isActive).length;
-  const totalUsers = apps.reduce((acc, app) => acc + (app.users || 0), 0);
+  const totalUsers = apps.reduce(
+    (acc, app) => acc + (app._count.users || 0),
+    0
+  );
 
   // 🔹 Handle deletion (remove from state instantly)
   const handleAppDeleted = (deletedId) => {
@@ -307,7 +311,7 @@ const DashboardPage = () => {
         <div className="bg-green-900/30 rounded-2xl p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-sm">Active Users</p>
+              <p className="text-gray-400 text-sm">Total Users</p>
               <p className="text-2xl font-bold text-white mt-1">
                 {totalUsers.toLocaleString()}
               </p>
