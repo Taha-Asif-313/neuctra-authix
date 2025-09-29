@@ -409,6 +409,259 @@ export const deleteUser = async (req, res) => {
 };
 
 /**
+ * Helper to securely hash OTP before saving
+ */
+const hashOTP = async (otp) => {
+  return await bcrypt.hash(otp, 10);
+};
+
+const verifyHashedOTP = async (plainOtp, hashedOtp) => {
+  if (!plainOtp || !hashedOtp) return false;
+  return await bcrypt.compare(plainOtp, hashedOtp);
+};
+
+/**
+ * @desc Send email verification OTP for user
+ * @route POST /api/users/send-verify-otp
+ * @access Private (User must be logged in + valid apiKey)
+ */
+export const sendUserVerifyOTP = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    const appId = req.headers["x-app-id"]; // enforce app context
+
+    if (!userId || !appId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: Missing user or appId",
+      });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { id: userId, appId, isActive: true },
+    });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found or inactive",
+      });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is already verified",
+      });
+    }
+
+    // Generate OTP + expiry
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const otpHash = await hashOTP(otp);
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { otp: otpHash, otpExpiry },
+    });
+
+    const emailSent = await sendOTPEmail(user.email, otp);
+    if (!emailSent) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send OTP email. Try again later.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent to your registered email",
+    });
+  } catch (err) {
+    console.error("SendUserVerifyOTP Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/**
+ * @desc Verify user email with OTP
+ * @route POST /api/users/verify-email
+ * @access Public (OTP-based)
+ */
+export const verifyUserEmail = async (req, res) => {
+  try {
+    const { email, otp, appId } = req.body;
+    if (!email || !otp || !appId) {
+      return res.status(400).json({
+        success: false,
+        message: "Email, OTP and appId are required",
+      });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { email: email.toLowerCase(), appId, isActive: true },
+    });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (!user.otp || !user.otpExpiry || new Date() > user.otpExpiry) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired, request a new one",
+      });
+    }
+
+    const validOtp = await verifyHashedOTP(otp, user.otp);
+    if (!validOtp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP",
+      });
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { isVerified: true, otp: null, otpExpiry: null },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Email verified successfully",
+    });
+  } catch (err) {
+    console.error("VerifyUserEmail Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/**
+ * @desc Send reset password OTP for user
+ * @route POST /api/users/forgot-password
+ * @access Public
+ */
+export const userForgotPassword = async (req, res) => {
+  try {
+    const { email, appId } = req.body;
+    if (!email || !appId) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and appId are required",
+      });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { email: email.toLowerCase(), appId, isActive: true },
+    });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const otpHash = await hashOTP(otp);
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { otp: otpHash, otpExpiry },
+    });
+
+    await sendEmail({
+      to: email,
+      subject: "Password Reset OTP",
+      html: `<p>Your password reset OTP is: <b>${otp}</b></p>`,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset OTP sent",
+    });
+  } catch (err) {
+    console.error("UserForgotPassword Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/**
+ * @desc Change password (requires current password)
+ * @route POST /api/users/change-password
+ * @access Private (User only)
+ */
+export const changeUserPassword = async (req, res) => {
+  try {
+    const adminId = req.admin?.id;
+    const userId = req.params?.id;
+    const { currentPassword, newPassword, appId } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: User ID missing",
+      });
+    }
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Both current and new passwords are required",
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId, adminId: adminId, appId: appId },
+    });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // ✅ Verify old password
+    const isMatch = await comparePassword(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password is incorrect",
+      });
+    }
+
+    // ✅ Hash new password
+    const hashedPassword = await hashPassword(newPassword);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (err) {
+    console.error("ChangeUserPassword Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/**
  * @desc    Get all users under a specific app (must belong to logged-in admin)
  * @route   POST /api/users/list
  * @access  Private (Admin only)

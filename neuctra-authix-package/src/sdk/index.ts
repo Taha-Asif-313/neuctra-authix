@@ -53,6 +53,16 @@ interface UpdateUserParams {
 }
 
 /**
+ * Parameters for changing a user password (Admin action)
+ */
+interface ChangePasswordParams {
+  userId: string;
+  currentPassword: string;
+  newPassword: string;
+  appId?: string | null;
+}
+
+/**
  * Parameters for deleting a user
  */
 interface DeleteUserParams {
@@ -232,6 +242,27 @@ export class NeuctraAuthix {
 
     return this.request("PUT", `/users/update/${userId}`, {
       ...params,
+      appId: appId || this.appId,
+    });
+  }
+
+  /**
+   * Change a user's password (Admin only)
+   * @param params requires userId, currentPassword, newPassword
+   */
+  async changePassword(params: ChangePasswordParams) {
+    const { userId, currentPassword, newPassword, appId } = params;
+
+    if (!userId) throw new Error("changePassword: 'userId' is required");
+    if (!currentPassword || !newPassword) {
+      throw new Error(
+        "changePassword: both 'currentPassword' and 'newPassword' are required"
+      );
+    }
+
+    return this.request("PUT", `/users/change-password/${userId}`, {
+      currentPassword,
+      newPassword,
       appId: appId || this.appId,
     });
   }
