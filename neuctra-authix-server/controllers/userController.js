@@ -1,7 +1,10 @@
 import prisma from "../prisma.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import { generateId } from "../utils/crypto.js";
+import { sendEmail, sendOTPEmail } from "../utils/mailer.js";
+import { hashPassword } from "../utils/password.js";
 
 /**
  * @desc    User signup for a specific app

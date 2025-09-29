@@ -14,6 +14,7 @@ import {
   sendUserVerifyOTP,
   verifyUserEmail,
   userForgotPassword,
+  userResetPassword,
 } from "../controllers/userController.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -71,5 +72,8 @@ router.post("/verify-email", authMiddleware, verifyUserEmail);
 
 // Forgot password (public route)
 router.post("/forgot-password", authMiddleware, userForgotPassword);
+
+// Forgot password (public route)
+router.post("/reset-password", authMiddleware, userResetPassword);
 
 export default router;

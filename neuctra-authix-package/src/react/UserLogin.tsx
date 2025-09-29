@@ -60,6 +60,7 @@ export const UserLogin: React.FC<AuthFormProps> = ({
     email: "",
     otp: "",
     newPassword: "",
+    appId: appId,
   });
 
   // Theme
@@ -104,7 +105,7 @@ export const UserLogin: React.FC<AuthFormProps> = ({
         `${baseUrl}/users/forgot-password`,
         {
           email: formData.email,
-          appId
+          appId,
         },
         { headers: { "x-api-key": apiKey } }
       );
@@ -132,11 +133,15 @@ export const UserLogin: React.FC<AuthFormProps> = ({
     setLoading(true);
     setMessage(null);
     try {
-      const res = await axios.post(`${baseUrl}/users/reset-password`, formData);
+      const res = await axios.post(
+        `${baseUrl}/users/reset-password`,
+        formData,
+        { headers: { "x-api-key": apiKey } }
+      );
       if (res.data.success) {
         setMessage({ type: "success", text: "Password reset successfully!" });
         setStep(1);
-        setFormData({ email: "", otp: "", newPassword: "" });
+        setFormData({ email: "", otp: "", newPassword: "", appId: appId });
         setMode("login");
       } else {
         setMessage({ type: "error", text: res.data.message || "Reset failed" });
