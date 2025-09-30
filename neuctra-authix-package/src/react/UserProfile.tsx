@@ -30,10 +30,6 @@ import {
 } from "lucide-react";
 import { getSdkConfig } from "../sdk/config.js";
 
-const { baseUrl, apiKey, appId } = getSdkConfig();
-
-const isMobile = window.innerWidth < 768;
-
 interface UserProfileProps {
   token: string;
   user?: UserInfo | null;
@@ -57,6 +53,9 @@ interface ThemeColors {
 }
 
 interface ChangePasswordModalProps {
+  baseUrl: string;
+  apiKey: string;
+  appId: string;
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (msg: string) => void;
@@ -73,6 +72,9 @@ interface AvatarModalProps {
 }
 
 interface DeleteAccountModalProps {
+  baseUrl: string;
+  apiKey: string;
+  appId: string;
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (msg: string) => void;
@@ -1109,7 +1111,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
         setTimeout(() => {
           localStorage.removeItem("userInfo");
           localStorage.removeItem("userToken");
-          window.location.href = "/login";
+          window.location.href = "/";
         }, 2000);
       } else {
         onError(data.message || "Failed to delete account");
@@ -1915,6 +1917,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   darkMode = true,
   primaryColor = "#00C214",
 }) => {
+  const { baseUrl, apiKey, appId } = getSdkConfig();
   const [user, setUser] = useState<UserInfo | null>(propUser);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
@@ -1970,6 +1973,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
         user,
         { headers: { "x-api-key": apiKey } }
       );
+
       if (data.success) {
         setUser(data.user);
         setEditMode(false);
@@ -1986,31 +1990,6 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       showNotification("error", "Update failed");
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!user) return;
-    if (!window.confirm("Are you sure you want to delete your account?"))
-      return;
-    try {
-      const { data } = await axios.delete(
-        `${baseUrl}/users/delete/${user.id}`,
-        {
-          data: { appId },
-          headers: { "x-api-key": apiKey },
-        }
-      );
-      if (data.success) {
-        localStorage.removeItem("userInfo");
-        showNotification("success", "Account deleted successfully");
-        window.location.href = "/login";
-      } else {
-        showNotification("error", data.message);
-      }
-    } catch (err) {
-      console.error(err);
-      showNotification("error", "Delete failed");
     }
   };
 
@@ -2087,7 +2066,17 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   if (!user) {
     return (
       <div className="profile-container" style={{ color: colors.textPrimary }}>
-        <div className="loading-container">
+        <div
+          style={{
+            display: "flex",
+            gap:"12px",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: "400px",
+            textAlign: "center",
+          }}
+        >
           <AlertCircle size={40} color={colors.error} aria-hidden="true" />
           <p style={{ color: colors.textTertiary }}>
             No profile found. Please log in again.
@@ -2364,6 +2353,9 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       />
 
       <ChangePasswordModal
+        baseUrl={baseUrl}
+        apiKey={apiKey}
+        appId={appId}
         userId={user.id}
         isOpen={showChangePassword}
         onClose={() => setShowChangePassword(false)}
@@ -2373,6 +2365,9 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       />
 
       <DeleteAccountModal
+        baseUrl={baseUrl}
+        apiKey={apiKey}
+        appId={appId}
         userId={user.id}
         token={token}
         isOpen={showDeleteAccount}
@@ -2387,15 +2382,6 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           width: 100%;
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
           line-height: 1.5;
-        }
-
-        .loading-container {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          min-height: 400px;
-          text-align: center;
         }
 
         .notification {

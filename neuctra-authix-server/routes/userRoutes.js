@@ -15,10 +15,10 @@ import {
   verifyUserEmail,
   userForgotPassword,
   userResetPassword,
+  changeUserPassword,
 } from "../controllers/userController.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
-import { changePassword } from "../controllers/adminAuthController.js";
 
 const router = express.Router();
 
@@ -40,7 +40,7 @@ router.post("/list/:appId", authMiddleware, getUsers);
 router.put("/update/:id", authMiddleware, updateUser);
 
 // Update user (requires admin auth)
-router.put("/change-password/:id", authMiddleware, changePassword);
+router.put("/change-password/:id", authMiddleware, changeUserPassword);
 
 // Delete user (requires admin auth)
 router.delete("/delete/:id", authMiddleware, deleteUser);
