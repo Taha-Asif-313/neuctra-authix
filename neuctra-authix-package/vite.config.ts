@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import vue from "@vitejs/plugin-vue";
-import tailwindcss from '@tailwindcss/vite'
+import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -10,13 +10,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
-  plugins: [react(), vue(),tailwindcss()],
+  plugins: [
+    react(),       // React support
+    vue(),         // Vue support
+    tailwindcss()  // Tailwind (if you're on TailwindCSS v4+)
+  ],
   build: {
     lib: {
       entry: path.resolve(__dirname, "src/index.ts"),
-      name: "NeuctraAuthixUIComponents",
-      fileName: (format) => `neuctra-authix-ui-components.${format}.js`,
-      formats: ["es", "cjs"]
+      name: "NeuctraAuthix",
+      fileName: (format) => `neuctra-authix.${format}.js`,
+      formats: ["es", "umd"] // ES for modern, UMD for CDN/browser
     },
     rollupOptions: {
       external: ["react", "react-dom", "vue"],

@@ -1,21 +1,40 @@
 {
   "name": "neuctra-authix",
   "version": "1.0.0",
-  "description": "A UI components library for React and Vue built with TailwindCSS",
+  "description": "Authentication SDK and UI components library for React and Vue with TailwindCSS",
   "author": "Your Name",
   "license": "MIT",
   "type": "module",
-  "main": "dist/neuctra-authix-ui-components.cjs.js",
-  "module": "dist/neuctra-authix-ui-components.es.js",
+  "main": "dist/neuctra-authix.cjs.js",
+  "module": "dist/neuctra-authix.es.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/neuctra-authix.es.js",
+      "require": "./dist/neuctra-authix.cjs.js"
+    },
+    "./react": {
+      "import": "./dist/react/index.js",
+      "types": "./dist/react/index.d.ts"
+    },
+    "./vue": {
+      "import": "./dist/vue/index.js",
+      "types": "./dist/vue/index.d.ts"
+    },
+    "./sdk": {
+      "import": "./dist/sdk/index.js",
+      "types": "./dist/sdk/index.d.ts"
+    }
+  },
   "files": [
     "dist"
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && tsc --emitDeclarationOnly",
     "preview": "vite preview",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "release": "npm publish --access public"
   },
   "keywords": [
     "ui-components",
@@ -23,7 +42,11 @@
     "vue",
     "tailwind",
     "vite",
-    "library"
+    "library",
+    "authentication",
+    "sdk",
+    "jwt",
+    "otp"
   ],
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.13",
@@ -37,14 +60,12 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2",
-    "vite": "^7.1.7"
+    "vite": "^7.1.7",
+    "lucide-react": "^0.544.0"
   },
   "peerDependencies": {
     "react": ">=16",
     "react-dom": ">=16",
     "vue": ">=3"
-  },
-  "dependencies": {
-    "lucide-react": "^0.544.0"
   }
 }

@@ -1,12 +1,12 @@
 // components/Navigation.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Sun, Moon, Menu, X, Fingerprint, Key } from "lucide-react";
+import { Menu, X, Key } from "lucide-react";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   const [scrollPosition, setScrollPosition] = useState(0);
+
   useEffect(() => {
     const handleScroll = () => {
       setScrollPosition(window.scrollY);
@@ -54,7 +54,7 @@ const Navbar = () => {
               Pricing
             </a>
             <a
-              href="#"
+              href="/docs"
               className="text-gray-300 hover:text-white transition-colors"
             >
               Documentation
@@ -116,7 +116,7 @@ const Navbar = () => {
               Pricing
             </a>
             <a
-              href="#"
+              href="/docs"
               className="block text-gray-300 hover:text-white transition-colors"
             >
               Documentation
