@@ -296,6 +296,82 @@ export class NeuctraAuthix {
     );
   }
 
+
+  // ================= USERS SECURITY =================
+
+/**
+ * Send verification OTP (requires logged-in user token)
+ * @param params requires token
+ */
+async sendVerifyOTP(params: { token: string; appId?: string }) {
+  const { token, appId } = params;
+  if (!token) throw new Error("sendVerifyOTP: 'token' is required");
+
+  return this.request(
+    "POST",
+    "/users/send-verify-otp",
+    { appId: appId || this.appId },
+    { Authorization: `Bearer ${token}` }
+  );
+}
+
+/**
+ * Verify email with OTP (requires logged-in user token)
+ * @param params requires token + otp
+ */
+async verifyEmail(params: { token: string; otp: string; appId?: string }) {
+  const { token, otp, appId } = params;
+  if (!token) throw new Error("verifyEmail: 'token' is required");
+  if (!otp) throw new Error("verifyEmail: 'otp' is required");
+
+  return this.request(
+    "POST",
+    "/users/verify-email",
+    { otp, appId: appId || this.appId },
+    { Authorization: `Bearer ${token}` }
+  );
+}
+
+/**
+ * Forgot password (public route)
+ * @param params requires email
+ */
+async forgotPassword(params: { email: string; appId?: string }) {
+  const { email, appId } = params;
+  if (!email) throw new Error("forgotPassword: 'email' is required");
+
+  return this.request("POST", "/users/forgot-password", {
+    email,
+    appId: appId || this.appId,
+  });
+}
+
+/**
+ * Reset password (public route)
+ * @param params requires email, otp, newPassword
+ */
+async resetPassword(params: {
+  email: string;
+  otp: string;
+  newPassword: string;
+  appId?: string;
+}) {
+  const { email, otp, newPassword, appId } = params;
+  if (!email || !otp || !newPassword) {
+    throw new Error(
+      "resetPassword: 'email', 'otp' and 'newPassword' are required"
+    );
+  }
+
+  return this.request("POST", "/users/reset-password", {
+    email,
+    otp,
+    newPassword,
+    appId: appId || this.appId,
+  });
+}
+
+
   // ================= USER EXTRA DATA =================
 
   /**
