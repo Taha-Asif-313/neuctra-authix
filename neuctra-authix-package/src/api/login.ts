@@ -35,7 +35,7 @@ export const loginUser = async (
   const { baseUrl, apiKey } = options;
 
   if (!apiKey) {
-    throw new Error("❌ API key is required for login");
+    throw new Error("API key is required for login");
   }
 
   try {

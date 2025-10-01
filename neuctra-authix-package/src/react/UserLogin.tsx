@@ -175,7 +175,8 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        margin: "auto",
+        padding: isMobile ? '16px 12px' : '40px 20px',
+        boxSizing: 'border-box'
       }}
     >
       <div
@@ -188,7 +189,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
           fontFamily:
             "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           backgroundColor: darkMode ? "#000000" : "#ffffff",
-          padding: isMobile ? "30px 24px" : "30px 28px",
+          padding: isMobile ? "30px 24px" : "32px 28px",
         }}
       >
         {/* Header */}
@@ -204,7 +205,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
             <img
               src={logoUrl}
               alt="Logo"
-              style={{ height: "60px", width: "60px", marginBottom: "10px" }}
+              style={{ height: "50px", width: "50px", marginBottom: "10px" }}
             />
           ) : (
             <User
@@ -591,9 +592,10 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
         <div
           style={{
             textAlign: "center",
-            fontSize: "13px",
+            fontSize: "12px",
             color: subTextColor,
             marginTop: "20px",
+            padding:"0 4px"
           }}
         >
           Secure authentication powered by{" "}

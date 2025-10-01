@@ -44,11 +44,11 @@ export const signupUser = async (
   const { baseUrl, apiKey } = options;
 
   if (!apiKey) {
-    throw new Error("❌ API key is required for signup");
+    throw new Error("API key is required for signup");
   }
 
   if (!name || !email || !password || !appId) {
-    throw new Error("❌ Name, email, password, and appId are required");
+    throw new Error("Name, email, password, and appId are required");
   }
 
   try {
