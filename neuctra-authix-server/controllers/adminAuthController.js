@@ -1,23 +1,24 @@
-import prisma from "../prisma.js";
 import { hashPassword, comparePassword } from "../utils/password.js";
 import { generateToken } from "../utils/jwt.js";
 import { generateApiKey, generateId } from "../utils/crypto.js";
 import { sendEmail, sendOTPEmail } from "../utils/mailer.js";
 import { addMonths } from "date-fns";
-import crypto from "crypto";
 import { Parser } from "json2csv";
+import prisma from "../prisma.js";
+import crypto from "crypto";
 import ExcelJS from "exceljs";
 import PDFDocument from "pdfkit";
 
 /**
- * @desc    Signup new admin
- * @route   POST /api/admin/signup
- * @access  Public
+ * @desc Signup new admin
+ * @route POST /api/admin/signup
+ * @access Public
  */
 export const signupAdmin = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
+    // 🔍 Check if email is already registered
     const existingAdmin = await prisma.adminUser.findUnique({
       where: { email },
     });
@@ -29,8 +30,10 @@ export const signupAdmin = async (req, res) => {
       });
     }
 
+    // ✅ Hash password before saving
     const hashedPassword = await hashPassword(password);
 
+    // ✅ Create new admin
     const admin = await prisma.adminUser.create({
       data: {
         id: generateId(),
@@ -56,16 +59,17 @@ export const signupAdmin = async (req, res) => {
     });
   }
 };
+
 /**
- * @desc    Login admin
- * @route   POST /api/admin/login
- * @access  Public
+ * @desc Login admin
+ * @route POST /api/admin/login
+ * @access Public
  */
 export const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 1. Find admin by email
+    // 🔍 Find admin by email
     const admin = await prisma.adminUser.findUnique({
       where: { email },
       include: {
@@ -78,27 +82,23 @@ export const loginAdmin = async (req, res) => {
       },
     });
 
-    // 2. Check if admin exists
     if (!admin) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid credentials",
-      });
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
     }
 
-    // 3. Check password
+    // 🔑 Validate password
     const isMatch = await comparePassword(password, admin.password);
     if (!isMatch) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid credentials",
-      });
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
     }
 
-    // 4. Generate JWT token
+    // 🎟 Generate JWT
     const token = generateToken({ id: admin.id, email: admin.email });
 
-    // 5. Return response (exclude password)
     return res.status(200).json({
       success: true,
       message: "Login successful",
@@ -122,45 +122,40 @@ export const loginAdmin = async (req, res) => {
     });
   } catch (err) {
     console.error("LoginAdmin Error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: err.message,
-    });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 };
 
 /**
- * @desc    Update admin details
- * @route   PUT /api/admin/:id
- * @access  Private (Admin only)
+ * @desc Update admin details
+ * @route PUT /api/admin/:id
+ * @access Private
  */
 export const updateAdmin = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, email, phone, address, avatarUrl, password } = req.body;
 
-    const admin = await prisma.adminUser.findUnique({
-      where: { id },
-    });
+    // 🔍 Check if admin exists
+    const admin = await prisma.adminUser.findUnique({ where: { id } });
     if (!admin) {
-      return res.status(404).json({
-        success: false,
-        message: "Admin not found",
-      });
+      return res
+        .status(404)
+        .json({ success: false, message: "Admin not found" });
     }
 
+    // 📝 Prepare update data dynamically
     let updatedData = {};
-
     if (name) updatedData.name = name;
     if (email) updatedData.email = email;
     if (phone) updatedData.phone = phone;
     if (address) updatedData.address = address;
     if (avatarUrl) updatedData.avatarUrl = avatarUrl;
-    if (password) {
-      updatedData.password = await hashPassword(password);
-    }
+    if (password) updatedData.password = await hashPassword(password);
 
+    // ✅ Update admin
     const updatedAdmin = await prisma.adminUser.update({
       where: { id },
       data: updatedData,
@@ -182,58 +177,50 @@ export const updateAdmin = async (req, res) => {
     });
   } catch (err) {
     console.error("UpdateAdmin Error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: err.message,
-    });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 };
 
+/**
+ * @desc Delete admin (and cascade delete apps/users)
+ * @route DELETE /api/admin/:adminId
+ * @access Private
+ */
 export const deleteAdmin = async (req, res) => {
   try {
     const { adminId } = req.params;
-
     if (!adminId) {
-      return res.status(400).json({
-        success: false,
-        message: "Admin ID is required",
-      });
+      return res
+        .status(400)
+        .json({ success: false, message: "Admin ID is required" });
     }
 
-    // 🔎 fetch all apps of this admin
-    const apps = await prisma.app.findMany({ where: { adminId } });
-
-    // 1️⃣ delete all users directly linked to the admin (not through apps)
+    // ✅ Delete all users directly linked to admin
     await prisma.user.deleteMany({ where: { adminId } });
 
-    // 2️⃣ delete users + apps one by one
+    // ✅ Delete all apps (and their users)
+    const apps = await prisma.app.findMany({ where: { adminId } });
     for (const app of apps) {
       await prisma.user.deleteMany({ where: { appId: app.id } });
       await prisma.app.delete({ where: { id: app.id } });
     }
 
-    // 3️⃣ finally delete the admin
-    await prisma.adminUser.delete({
-      where: { id: adminId },
-    });
+    // ✅ Delete admin
+    await prisma.adminUser.delete({ where: { id: adminId } });
 
     return res.status(200).json({
       success: true,
-      message: "Admin, their apps, and all related users deleted successfully",
+      message: "Admin, their apps, and users deleted successfully",
     });
   } catch (err) {
     console.error("DeleteAdmin Error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: process.env.NODE_ENV === "development" ? err.message : undefined,
-    });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 };
-
-
-
 
 /**
  * @desc Send email verification OTP
