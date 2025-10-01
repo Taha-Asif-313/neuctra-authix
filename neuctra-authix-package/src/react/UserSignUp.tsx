@@ -553,7 +553,10 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
             padding: "0 4px"
           }}
         >
-          {footerText}
+       Secure authentication powered by{" "}
+          <span style={{ color: primaryColor, fontWeight: 600 }}>
+            Neuctra Authix
+          </span>
         </div>
       </div>
 
