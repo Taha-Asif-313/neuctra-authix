@@ -1,15 +1,17 @@
 import prisma from "../prisma.js";
 import { generateId } from "../utils/crypto.js";
 
-/**
- * @desc    Create new App under logged-in Admin
- * @route   POST /api/apps
- * @access  Private (Admin only)
- */
+/* =====================================================
+   📱 CREATE A NEW APP
+   @route   POST /api/apps
+   @access  Private (Admin only)
+   @desc    Create a new application under the logged-in admin account
+   ===================================================== */
 export const createApp = async (req, res) => {
   try {
     const { applicationName, category, description, platform } = req.body;
 
+    // 🔎 Validate required fields
     if (!applicationName || !category || !description || !platform) {
       return res.status(400).json({
         success: false,
@@ -17,9 +19,10 @@ export const createApp = async (req, res) => {
       });
     }
 
-    // generate a unique secret for the app (override Prisma default if needed)
-    const appSecret = generateId(); // or use `uuidv4()`
+    // 🔑 Generate a unique app secret (used for SDK/API auth)
+    const appSecret = generateId();
 
+    // 📁 Create the new app record
     const app = await prisma.app.create({
       data: {
         id: generateId(),
@@ -28,7 +31,7 @@ export const createApp = async (req, res) => {
         description,
         platform,
         adminId: req.admin.id,
-        appSecret, // 👈 explicitly set app secret
+        appSecret,
       },
       select: {
         id: true,
@@ -36,11 +39,9 @@ export const createApp = async (req, res) => {
         category: true,
         description: true,
         platform: true,
-        appSecret: true, // 👈 return secret so admin can use it
+        appSecret: true,
         createdAt: true,
-        _count: {
-          select: { users: true },
-        },
+        _count: { select: { users: true } },
       },
     });
 
@@ -59,11 +60,12 @@ export const createApp = async (req, res) => {
   }
 };
 
-/**
- * @desc    Get all Apps of logged-in Admin
- * @route   GET /api/apps
- * @access  Private (Admin only)
- */
+/* =====================================================
+   📂 GET ALL APPS
+   @route   GET /api/apps
+   @access  Private (Admin only)
+   @desc    Fetch all applications owned by the logged-in admin
+   ===================================================== */
 export const getApps = async (req, res) => {
   try {
     const apps = await prisma.app.findMany({
@@ -77,9 +79,7 @@ export const getApps = async (req, res) => {
         platform: true,
         updatedAt: true,
         createdAt: true,
-        _count: {
-          select: { users: true }, // 👈 only return number of users
-        },
+        _count: { select: { users: true } },
       },
     });
 
@@ -98,17 +98,18 @@ export const getApps = async (req, res) => {
   }
 };
 
-/**
- * @desc    Get single App by ID
- * @route   GET /api/apps/:id
- * @access  Private (Admin only)
- */
+/* =====================================================
+   📄 GET SINGLE APP BY ID
+   @route   GET /api/apps/:id
+   @access  Private (Admin only)
+   @desc    Retrieve details of a specific app
+   ===================================================== */
 export const getAppById = async (req, res) => {
   try {
     const { id } = req.params;
 
     const app = await prisma.app.findFirst({
-      where: { id: id, adminId: req.admin.id },
+      where: { id, adminId: req.admin.id },
       select: {
         id: true,
         applicationName: true,
@@ -144,18 +145,20 @@ export const getAppById = async (req, res) => {
   }
 };
 
-/**
- * @desc    Update App details
- * @route   PUT /api/apps/edit/:id
- * @access  Private (Admin only)
- */
+/* =====================================================
+   ✏️ UPDATE APP DETAILS
+   @route   PUT /api/apps/edit/:id
+   @access  Private (Admin only)
+   @desc    Update application information
+   ===================================================== */
 export const updateApp = async (req, res) => {
   try {
     const { id } = req.params;
     const { applicationName, category, description, platform } = req.body;
 
+    // 🔎 Validate app ownership
     const app = await prisma.app.findFirst({
-      where: { id: id, adminId: req.admin.id },
+      where: { id, adminId: req.admin.id },
     });
 
     if (!app) {
@@ -165,6 +168,7 @@ export const updateApp = async (req, res) => {
       });
     }
 
+    // 🛠️ Update app
     const updatedApp = await prisma.app.update({
       where: { id: app.id },
       data: { applicationName, category, description, platform },
@@ -175,16 +179,14 @@ export const updateApp = async (req, res) => {
         description: true,
         platform: true,
         createdAt: true,
-        _count: {
-          select: { users: true }, // 👈 only return number of users
-        },
+        _count: { select: { users: true } },
       },
     });
 
     return res.status(200).json({
       success: true,
       message: "App updated successfully",
-      updatedApp: updatedApp,
+      updatedApp,
     });
   } catch (err) {
     console.error("UpdateApp Error:", err);
@@ -196,18 +198,20 @@ export const updateApp = async (req, res) => {
   }
 };
 
-/**
- * @desc    Delete App
- * @route   DELETE /api/apps/delete/:id
- * @access  Private (Admin only)
- */
+/* =====================================================
+   🗑️ DELETE APP
+   @route   DELETE /api/apps/delete/:id
+   @access  Private (Admin only)
+   @desc    Delete an application and all related users
+   ===================================================== */
 export const deleteApp = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // 🔎 Validate app ownership
     const app = await prisma.app.findFirst({
       where: { id, adminId: req.admin.id },
-      include: { users: true }, // get related users
+      include: { users: true },
     });
 
     if (!app) {
@@ -217,14 +221,12 @@ export const deleteApp = async (req, res) => {
       });
     }
 
-    // Delete related users first
+    // 🧹 Delete related users before deleting the app
     if (app.users?.length > 0) {
-      await prisma.user.deleteMany({
-        where: { appId: app.id },
-      });
+      await prisma.user.deleteMany({ where: { appId: app.id } });
     }
 
-    // Delete the app
+    // 🗑️ Delete the app itself
     await prisma.app.delete({ where: { id: app.id } });
 
     return res.status(200).json({
@@ -241,18 +243,19 @@ export const deleteApp = async (req, res) => {
   }
 };
 
-/**
- * @desc    Toggle App status (active/inactive)
- * @route   PATCH /api/apps/status/:id
- * @access  Private (Admin only)
- */
+/* =====================================================
+   🔄 TOGGLE APP STATUS
+   @route   PATCH /api/apps/status/:id
+   @access  Private (Admin only)
+   @desc    Activate or deactivate an app
+   ===================================================== */
 export const toggleAppStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Find the app belonging to the logged-in admin
+    // 🔎 Validate app ownership
     const app = await prisma.app.findFirst({
-      where: { id: id, adminId: req.admin.id },
+      where: { id, adminId: req.admin.id },
     });
 
     if (!app) {
@@ -262,7 +265,7 @@ export const toggleAppStatus = async (req, res) => {
       });
     }
 
-    // Toggle the current status
+    // 🔁 Toggle isActive
     const updatedApp = await prisma.app.update({
       where: { id: app.id },
       data: { isActive: !app.isActive },
@@ -274,9 +277,7 @@ export const toggleAppStatus = async (req, res) => {
         description: true,
         platform: true,
         createdAt: true,
-        _count: {
-          select: { users: true }, // 👈 only return number of users
-        },
+        _count: { select: { users: true } },
       },
     });
 
@@ -285,7 +286,7 @@ export const toggleAppStatus = async (req, res) => {
       message: `App status updated to ${
         updatedApp.isActive ? "Active" : "Inactive"
       }`,
-      updatedApp: updatedApp,
+      updatedApp,
     });
   } catch (err) {
     console.error("ToggleAppStatus Error:", err);
@@ -297,11 +298,12 @@ export const toggleAppStatus = async (req, res) => {
   }
 };
 
-/**
- * @desc    Get App status (isActive + name)
- * @route   GET /api/apps/:id/status
- * @access  Private (Admin only)
- */
+/* =====================================================
+   📊 GET APP STATUS
+   @route   GET /api/apps/:id/status
+   @access  Private (Admin only)
+   @desc    Return an app’s name and whether it's active
+   ===================================================== */
 export const getAppStatus = async (req, res) => {
   try {
     const { id } = req.params;

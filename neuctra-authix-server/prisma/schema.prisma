@@ -39,7 +39,6 @@ model AdminUser {
   users         User[]
 }
 
-
 model App {
   id              String   @id @default(cuid()) // crypto-generated ID
   applicationName String
@@ -53,7 +52,7 @@ model App {
 
   // Relation: each App belongs to one Admin
   adminId   String
-  admin     AdminUser @relation(fields: [adminId], references: [id])
+  admin   AdminUser @relation(fields: [adminId], references: [id])
 
   // Relation: one App can have many Users
   users     User[]

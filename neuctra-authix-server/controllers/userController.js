@@ -2,7 +2,7 @@ import prisma from "../prisma.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { generateId } from "../utils/crypto.js";
+import { generateId, hashOTP, verifyHashedOTP } from "../utils/crypto.js";
 import { sendEmail, sendOTPEmail } from "../utils/mailer.js";
 import { comparePassword, hashPassword } from "../utils/password.js";
 
@@ -409,18 +409,6 @@ export const deleteUser = async (req, res) => {
       error: process.env.NODE_ENV === "development" ? err.message : undefined,
     });
   }
-};
-
-/**
- * Helper to securely hash OTP before saving
- */
-const hashOTP = async (otp) => {
-  return await bcrypt.hash(otp, 10);
-};
-
-const verifyHashedOTP = async (plainOtp, hashedOtp) => {
-  if (!plainOtp || !hashedOtp) return false;
-  return await bcrypt.compare(plainOtp, hashedOtp);
 };
 
 /**

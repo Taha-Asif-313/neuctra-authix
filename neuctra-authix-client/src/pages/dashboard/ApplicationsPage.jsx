@@ -239,8 +239,8 @@ const ApplicationsPage = () => {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div className="flex items-center mb-4 md:mb-0">
-          <div className="p-2 bg-primary/10 rounded-lg mr-3">
-            <Box className="text-primary" size={24} />
+          <div className="p-3 bg-primary/10 rounded-lg mr-3">
+            <Box className="text-primary" size={30} />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-white">Applications</h2>

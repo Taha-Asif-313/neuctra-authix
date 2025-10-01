@@ -19,6 +19,7 @@ import {
   Globe,
   Server,
   Box,
+  Layers,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
@@ -243,11 +244,16 @@ const DashboardPage = () => {
 
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Overview</h1>
-          <p className="text-gray-200 text-sm">
-            Monitor and manage all your applications
-          </p>
+        <div className="flex items-center mb-4 md:mb-0">
+          <div className="p-3 bg-primary/10 rounded-lg mr-3">
+            <Box className="text-primary" size={30} />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-white">Overview</h2>
+            <p className="text-sm max-md:text-xs text-gray-400">
+              Monitor and manage all your applications
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">

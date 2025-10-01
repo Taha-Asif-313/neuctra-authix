@@ -116,7 +116,7 @@ export const loginAdmin = async (req, res) => {
           createdAt: admin.createdAt,
           apps: admin.apps,
           users: admin.users,
-          isVerified:admin.isVerified
+          isVerified: admin.isVerified,
         },
       },
     });
@@ -190,40 +190,50 @@ export const updateAdmin = async (req, res) => {
   }
 };
 
-/**
- * @desc    Delete admin
- * @route   DELETE /api/admin/:id
- * @access  Private (Admin only)
- */
 export const deleteAdmin = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { adminId } = req.params;
 
-    const admin = await prisma.adminUser.findUnique({
-      where: { id: id },
-    });
-    if (!admin) {
-      return res.status(404).json({
+    if (!adminId) {
+      return res.status(400).json({
         success: false,
-        message: "Admin not found",
+        message: "Admin ID is required",
       });
     }
 
-    await prisma.adminUser.delete({ where: { id: id } });
+    // 🔎 fetch all apps of this admin
+    const apps = await prisma.app.findMany({ where: { adminId } });
+
+    // 1️⃣ delete all users directly linked to the admin (not through apps)
+    await prisma.user.deleteMany({ where: { adminId } });
+
+    // 2️⃣ delete users + apps one by one
+    for (const app of apps) {
+      await prisma.user.deleteMany({ where: { appId: app.id } });
+      await prisma.app.delete({ where: { id: app.id } });
+    }
+
+    // 3️⃣ finally delete the admin
+    await prisma.adminUser.delete({
+      where: { id: adminId },
+    });
 
     return res.status(200).json({
       success: true,
-      message: "Admin deleted successfully",
+      message: "Admin, their apps, and all related users deleted successfully",
     });
   } catch (err) {
     console.error("DeleteAdmin Error:", err);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
-      error: err.message,
+      error: process.env.NODE_ENV === "development" ? err.message : undefined,
     });
   }
 };
+
+
+
 
 /**
  * @desc Send email verification OTP
@@ -391,11 +401,7 @@ export const resetPassword = async (req, res) => {
     }
 
     // ✅ Validate OTP & expiry
-    if (
-      admin.otp !== otp ||
-      !admin.otpExpiry ||
-      new Date() > admin.otpExpiry
-    ) {
+    if (admin.otp !== otp || !admin.otpExpiry || new Date() > admin.otpExpiry) {
       return res.status(400).json({
         success: false,
         message: "Invalid or expired OTP",
@@ -427,7 +433,6 @@ export const resetPassword = async (req, res) => {
     });
   }
 };
-
 
 /**
  * @desc Change password (requires current password)
@@ -491,7 +496,6 @@ export const changePassword = async (req, res) => {
   }
 };
 
-
 export const upgradePackage = async (req, res) => {
   try {
     const { id } = req.params; // admin id
@@ -517,7 +521,9 @@ export const upgradePackage = async (req, res) => {
     });
   } catch (err) {
     console.error("UpgradePackage Error:", err);
-    return res.status(500).json({ success: false, message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -556,7 +562,7 @@ export const getAdminProfile = async (req, res) => {
         avatarUrl: true,
         apiKey: true,
         isActive: true,
-        isVerified:true,
+        isVerified: true,
         createdAt: true,
         _count: {
           select: { apps: true, users: true },
