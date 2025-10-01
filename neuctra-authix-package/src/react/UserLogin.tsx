@@ -27,7 +27,7 @@ interface AuthFormProps {
   onError?: (error: any) => void;
 }
 
-export const UserLogin: React.FC<AuthFormProps> = ({
+export const ReactUserLogin: React.FC<AuthFormProps> = ({
   logoUrl,
   title = "Sign In to Your Account",
   subtitle = "Welcome back! Please enter your details",

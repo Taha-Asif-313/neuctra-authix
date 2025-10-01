@@ -1,9 +1,3 @@
-Got it ✅ — you want a **professional `README.md`** for your **Neuctra Authix SDK + UI package** that explains installation, setup, usage, and examples for all the SDK methods you defined.
-
-Here’s a **complete README.md** draft:
-
----
-
 # Neuctra Authix SDK & UI Components
 
 **Neuctra Authix** is an authentication SDK and UI component library for **React** and **Vue**.
@@ -239,6 +233,3 @@ import { LoginForm } from "neuctra-authix/vue";
 
 [MIT](./LICENSE) © 2025 Neuctra
 
----
-
-👉 With this README, anyone installing your SDK will immediately know **how to configure, authenticate, and use all features**.

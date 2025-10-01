@@ -54,7 +54,7 @@ interface FormData {
   avatarUrl?: string;
 }
 
-export const UserSignUp: React.FC<SignupFormProps> = ({
+export const ReactUserSignUp: React.FC<SignupFormProps> = ({
   logoUrl,
   title = "Create Your Account",
   subtitle = "Join our platform today",

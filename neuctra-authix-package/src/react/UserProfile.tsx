@@ -1911,7 +1911,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
   );
 };
 
-export const UserProfile: React.FC<UserProfileProps> = ({
+export const ReactUserProfile: React.FC<UserProfileProps> = ({
   token,
   user: propUser = null,
   darkMode = true,

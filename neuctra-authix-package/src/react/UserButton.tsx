@@ -17,7 +17,7 @@ interface UserButtonProps {
   profileUrl?: string; // Profile link override (takes priority over localStorage)
 }
 
-export const UserButton: React.FC<UserButtonProps> = ({
+export const ReactUserButton: React.FC<UserButtonProps> = ({
   darkMode = true,
   primaryColor = "#3b82f6",
   onLogout,
