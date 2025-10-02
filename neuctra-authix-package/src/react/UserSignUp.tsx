@@ -56,7 +56,7 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
   onError,
 }) => {
   const { baseUrl, apiKey, appId } = getSdkConfig();
-  
+
   // Initialize form data with only essential fields
   const initialFormData: FormData = {
     name: "",
@@ -78,7 +78,8 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
     password?: string;
   }>({});
 
-  const isMobile = typeof window !== "undefined" ? window.innerWidth < 768 : false;
+  const isMobile =
+    typeof window !== "undefined" ? window.innerWidth < 768 : false;
 
   // Dynamic colors based on darkMode prop
   const textColor = darkMode ? "#ffffff" : "#111827";
@@ -91,7 +92,7 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
     setFormData((prev: FormData) => ({ ...prev, [name]: value }));
     // Clear error when user starts typing
     if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
@@ -157,13 +158,11 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        padding: isMobile ? '16px 12px' : '40px 20px',
-        boxSizing: 'border-box'
       }}
     >
       <div
         style={{
-          width: "390px",
+          minWidth: "320px",
           maxWidth: "390px",
           display: "flex",
           flexDirection: "column",
@@ -250,9 +249,7 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
           style={{ display: "flex", flexDirection: "column", gap: "14px" }}
         >
           {/* Name */}
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "4px" }}
-          >
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
             <label
               htmlFor="signup-name"
               style={{
@@ -301,9 +298,7 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
           </div>
 
           {/* Email */}
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "4px" }}
-          >
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
             <label
               htmlFor="signup-email"
               style={{
@@ -352,9 +347,7 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
           </div>
 
           {/* Password */}
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "4px" }}
-          >
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
             <label
               htmlFor="signup-password"
               style={{
@@ -503,7 +496,10 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
           >
             {loading ? (
               <>
-                <Loader size={18} style={{ animation: "spin 1s linear infinite" }} />
+                <Loader
+                  size={18}
+                  style={{ animation: "spin 1s linear infinite" }}
+                />
                 Creating Account...
               </>
             ) : (
@@ -550,10 +546,10 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
             fontSize: "12px",
             color: subTextColor,
             marginTop: "20px",
-            padding: "0 4px"
+            padding: "0 4px",
           }}
         >
-       Secure authentication powered by{" "}
+          Secure authentication powered by{" "}
           <span style={{ color: primaryColor, fontWeight: 600 }}>
             Neuctra Authix
           </span>

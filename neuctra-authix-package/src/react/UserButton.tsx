@@ -1,20 +1,24 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Info, LogOut, Mail, User } from "lucide-react";
+import axios from "axios";
 
-// Shape of user info stored in localStorage
 interface UserInfo {
+  id: string;
   name: string;
   email: string;
   avatarUrl?: string;
-  profileUrl?: string; // Optional profile link
+  profileUrl?: string;
 }
 
-// Props accepted by UserButton component
 interface UserButtonProps {
-  darkMode?: boolean; // Switch for dark/light mode
-  primaryColor?: string; // Accent color (brand theme)
-  onLogout: () => void; // Callback when logout button is clicked
-  profileUrl?: string; // Profile link override (takes priority over localStorage)
+  darkMode?: boolean;
+  primaryColor?: string;
+  onLogout: () => void;
+  profileUrl?: string;
+  propUser?: UserInfo | null;
+  baseUrl: string;
+  appId: string;
+  apiKey: string;
 }
 
 export const ReactUserButton: React.FC<UserButtonProps> = ({
@@ -22,57 +26,91 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
   primaryColor = "#3b82f6",
   onLogout,
   profileUrl,
+  propUser,
+  baseUrl,
+  appId,
+  apiKey,
 }) => {
-  const [open, setOpen] = useState(false); // Tracks dropdown open/close state
-  const [user, setUser] = useState<UserInfo | null>(null); // Stores user info
-  const [error, setError] = useState<string | null>(null); // Error message if data load fails
-  const dropdownRef = useRef<HTMLDivElement>(null); // Ref to detect clicks outside dropdown
+  const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<UserInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLDivElement>(null);
+  const [alignRight, setAlignRight] = useState(false);
 
-  /**
-   * Close dropdown when clicking outside of it
-   */
+  // 🔹 Check position when dropdown opens
+  useEffect(() => {
+    if (open && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const windowWidth = window.innerWidth;
+      setAlignRight(rect.left < windowWidth / 2); // if avatar is on left half → open right
+    }
+  }, [open]);
+
+  const validateUser = async (userId: string) => {
+    try {
+      const { data } = await axios.get(
+        `${baseUrl}/users/check-user/${userId}?appId=${appId}`,
+        { headers: { "x-api-key": apiKey } }
+      );
+console.log(data);
+
+      if (!data.success || !data.exists) {
+        localStorage.removeItem("userInfo");
+        setUser(null);
+      }
+    } catch {
+      localStorage.removeItem("userInfo");
+      setUser(null);
+    }
+  };
+
+useEffect(() => {
+  const initUser = async () => {
+    try {
+      if (propUser) {
+        setUser(propUser);
+        setLoading(false);
+        // validate in background, don't await here
+        validateUser(propUser.id);
+      } else {
+        const stored = localStorage.getItem("userInfo");
+        if (stored) {
+          const parsed: UserInfo = JSON.parse(stored);
+          setUser({ ...parsed, profileUrl: profileUrl || parsed.profileUrl });
+          setLoading(false);
+          // validate in background
+          validateUser(parsed.id);
+        } else {
+          setError("No user session found.");
+          setLoading(false);
+        }
+      }
+    } catch {
+      setLoading(false);
+      setError("Error loading user data.");
+    }
+  };
+
+  initUser();
+}, [propUser, profileUrl]);
+
+
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
+        !dropdownRef.current.contains(e.target as Node) &&
+        !buttonRef.current?.contains(e.target as Node)
       ) {
         setOpen(false);
       }
     };
-
     if (open) document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
-  /**
-   * Load user info from localStorage, and merge with props (profileUrl override if passed).
-   */
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("userInfo");
-      if (stored) {
-        const parsed: UserInfo = JSON.parse(stored);
-
-        if (parsed?.name && parsed?.email) {
-          // Merge profileUrl from props if available
-          setUser({ ...parsed, profileUrl: profileUrl || parsed.profileUrl });
-        } else {
-          setError("Invalid user data format.");
-        }
-      } else {
-        setError("No user session found. Please log in to continue.");
-      }
-    } catch (err) {
-      console.error("Failed to parse userInfo:", err);
-      setError("Error loading user data.");
-    }
-  }, [profileUrl]);
-
-  /**
-   * Utility to darken/lighten a hex color
-   * Example: adjustColor("#3b82f6", -30) → darker blue
-   */
   const adjustColor = (hex: string, percent: number) => {
     let num = parseInt(hex.replace("#", ""), 16);
     let r = (num >> 16) + percent;
@@ -84,12 +122,8 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
     return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, "0")}`;
   };
 
-  /**
-   * Theme styles depending on darkMode
-   */
   const colors = darkMode
     ? {
-        background: "#09090B",
         surface: "#09090B",
         border: "#27272a",
         textPrimary: "#ffffff",
@@ -98,7 +132,6 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
         accentHover: adjustColor(primaryColor, -30),
       }
     : {
-        background: "#ffffff",
         surface: "#f9fafb",
         border: "#e4e4e7",
         textPrimary: "#111827",
@@ -107,16 +140,11 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
         accentHover: adjustColor(primaryColor, -30),
       };
 
-  /**
-   * Inline style objects for different UI parts
-   */
   const styles = {
     wrapper: { position: "relative" as const },
     avatarButton: {
-      width: "6vw", // responsive width
-      maxWidth: "42px", // optional max size
-      minWidth: "40px", // optional min size
-      aspectRatio: "1", // keeps it square
+      width: "42px",
+      height: "42px",
       borderRadius: "50%",
       overflow: "hidden",
       cursor: "pointer",
@@ -126,15 +154,11 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
       transition: "transform 0.2s ease, box-shadow 0.2s ease",
       backgroundColor: colors.surface,
     },
-    avatarImage: {
-      width: "100%",
-      height: "100%",
-      objectFit: "cover" as const,
-    },
+    avatarImage: { width: "100%", height: "100%", objectFit: "cover" as const },
     dropdown: {
       position: "absolute" as const,
       top: "56px",
-      right: "0",
+      [alignRight ? "left" : "right"]: "0",
       backgroundColor: colors.surface,
       border: `1px solid ${colors.border}`,
       borderRadius: "14px",
@@ -144,16 +168,17 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
       zIndex: 100,
       fontFamily: "'Inter', sans-serif",
       opacity: open ? 1 : 0,
-      transform: open ? "translateY(0)" : "translateY(-10px)",
       pointerEvents: (open
         ? "auto"
-        : "none") as React.CSSProperties["pointerEvents"],
+        : "none") as React.CSSProperties["pointerEvents"], // ✅ fixed
       transition: "opacity 0.2s ease, transform 0.2s ease",
+      transform: open ? "translateY(0)" : "translateY(-10px)",
     },
+
     arrow: {
       position: "absolute" as const,
       top: "44px",
-      right: "14px",
+      [alignRight ? "left" : "right"]: "20px", // 👈 arrow aligns with side
       width: "0",
       height: "0",
       borderLeft: "8px solid transparent",
@@ -161,75 +186,13 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
       borderBottom: `8px solid ${colors.surface}`,
       filter: "drop-shadow(0 -1px 1px rgba(0,0,0,0.2))",
     },
-    userInfo: {
-      display: "flex",
-      flexDirection: "column" as const,
-      alignItems: "flex-start",
-      marginBottom: "16px",
-    },
-    userName: {
-      fontSize: "16px",
-      fontWeight: 600,
-      color: colors.textPrimary,
-      display: "flex",
-      alignItems: "center",
-      gap: "6px",
-    },
-    userEmail: {
-      fontSize: "14px",
-      color: colors.textSecondary,
-      display: "flex",
-      alignItems: "center",
-      gap: "6px",
-      marginTop: "4px",
-    },
-    profileLink: {
-      fontSize: "14px",
-      marginTop: "8px",
-      color: colors.accent,
-      cursor: "pointer",
-      textDecoration: "none",
-      fontWeight: 500,
-    },
-    logoutButton: {
-      marginTop: "12px",
-      width: "100%",
-      background: `linear-gradient(to right, ${colors.accent}, ${colors.accentHover})`,
-      border: "none",
-      borderRadius: "6px",
-      padding: "8px 16px",
-      color: "white",
-      fontSize: "12px",
-      fontWeight: 500,
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: "8px",
-      transition: "opacity 0.2s ease, transform 0.1s ease",
-    },
-    logoutButtonHover: {
-      opacity: 0.9,
-      transform: "scale(1.02)",
-    },
-    // ✅ Styles
-    errorText: {
-      fontSize: "12px",
-      color: "#ef4444", // red tone for errors
-      display: "flex",
-      alignItems: "start",
-      gap: "6px",
-      padding: "6px 8px",
-      backgroundColor: "rgba(239, 68, 68, 0.1)", // subtle red background
-      borderRadius: "6px",
-      fontWeight: 500,
-    },
   };
 
   return (
     <div style={styles.wrapper} ref={dropdownRef}>
-      {/* === Avatar button (toggle dropdown) === */}
+      {/* Avatar Button */}
       <div
+        ref={buttonRef}
         style={styles.avatarButton}
         onClick={() => setOpen((prev) => !prev)}
         onMouseOver={(e) => {
@@ -256,25 +219,23 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
         )}
       </div>
 
-      {/* === Dropdown Menu with Arrow === */}
+      {/* Dropdown */}
       <div style={styles.arrow} hidden={!open}></div>
       <div style={styles.dropdown}>
-        {user ? (
+        {loading ? (
+          <p>Loading...</p>
+        ) : user ? (
           <>
-            {/* User name + email */}
-            <div style={styles.userInfo}>
-              <div style={styles.userName}>
+            <div>
+              <div>
                 <User size={16} /> {user.name}
               </div>
-              <div style={styles.userEmail}>
+              <div>
                 <Mail size={16} /> {user.email}
               </div>
-
-              {/* Profile link (if provided) */}
               {user.profileUrl && (
                 <a
                   href={user.profileUrl}
-                  style={styles.profileLink}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -282,22 +243,12 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
                 </a>
               )}
             </div>
-
-            {/* Logout button */}
-            <button
-              style={styles.logoutButton}
-              onMouseOver={(e) =>
-                Object.assign(e.currentTarget.style, styles.logoutButtonHover)
-              }
-              onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
-              onClick={onLogout}
-            >
+            <button onClick={onLogout}>
               <LogOut size={16} /> Logout
             </button>
           </>
         ) : (
-          // Error state if user not loaded
-          <p style={styles.errorText}>
+          <p>
             <Info size={18} /> {error || "Not logged in"}
           </p>
         )}

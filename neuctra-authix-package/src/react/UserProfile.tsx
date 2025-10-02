@@ -1918,6 +1918,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   primaryColor = "#00C214",
 }) => {
   const { baseUrl, apiKey, appId } = getSdkConfig();
+
   const [user, setUser] = useState<UserInfo | null>(propUser);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
@@ -1930,11 +1931,13 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
     message: string;
   } | null>(null);
 
+  // ✅ Notification helper
   const showNotification = (type: "success" | "error", message: string) => {
     setNotification({ type, message });
     setTimeout(() => setNotification(null), 3000);
   };
 
+  // ✅ Avatar update
   const handleAvatarUpdate = async (newAvatarUrl: string) => {
     if (!user) return false;
     try {
@@ -1947,10 +1950,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
 
       if (data.success) {
         setUser(updateData);
-        localStorage.setItem(
-          "userInfo",
-          JSON.stringify({ ...updateData, token })
-        );
+        localStorage.setItem("userInfo", JSON.stringify({ ...updateData, token }));
         showNotification("success", "Avatar updated successfully!");
         return true;
       } else {
@@ -1964,6 +1964,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
     }
   };
 
+  // ✅ Save profile
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
@@ -1977,10 +1978,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
       if (data.success) {
         setUser(data.user);
         setEditMode(false);
-        localStorage.setItem(
-          "userInfo",
-          JSON.stringify({ ...data.user, token })
-        );
+        localStorage.setItem("userInfo", JSON.stringify({ ...data.user, token }));
         showNotification("success", "Profile updated successfully");
       } else {
         showNotification("error", data.message);
@@ -1993,18 +1991,50 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
     }
   };
 
-  useEffect(() => {
-    if (propUser) {
-      setUser(propUser);
-      setLoading(false);
-    } else {
-      const stored = localStorage.getItem("userInfo");
-      if (stored) {
-        setUser(JSON.parse(stored));
+  // ✅ Validate user with backend
+  const validateUser = async (userId: string) => {
+    try {
+      const { data } = await axios.get(
+        `${baseUrl}/users/check-user/${userId}?appId=${appId}`,
+        { headers: { "x-api-key": apiKey } }
+      );
+
+      if (!data.success || !data.exists) {
+        console.warn("User not found, clearing session...");
+        localStorage.removeItem("userInfo");
+        setUser(null);
       }
-      setLoading(false);
+    } catch (err) {
+      console.error("User check failed:", err);
+      // optional clear
+      localStorage.removeItem("userInfo");
+      setUser(null);
     }
+  };
+
+  // ✅ Init user ONCE
+  useEffect(() => {
+    const initUser = () => {
+      if (propUser) {
+        setUser(propUser);
+        setLoading(false);
+        validateUser(propUser.id); // 🔹 no await
+      } else {
+        const stored = localStorage.getItem("userInfo");
+        if (stored) {
+          const parsed: UserInfo = JSON.parse(stored);
+          setUser(parsed);
+          setLoading(false);
+          validateUser(parsed.id); // 🔹 background validation
+        } else {
+          setLoading(false);
+        }
+      }
+    };
+
+    initUser();
   }, [propUser]);
+
 
   const adjustColor = (hex: string, percent: number) => {
     let num = parseInt(hex.replace("#", ""), 16);

@@ -175,13 +175,11 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        padding: isMobile ? '16px 12px' : '40px 20px',
-        boxSizing: 'border-box'
       }}
     >
       <div
         style={{
-          width: "390px",
+          minWidth: "320px",
           maxWidth: "390px",
           display: "flex",
           flexDirection: "column",
@@ -595,7 +593,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
             fontSize: "12px",
             color: subTextColor,
             marginTop: "20px",
-            padding:"0 4px"
+            padding: "0 4px",
           }}
         >
           Secure authentication powered by{" "}

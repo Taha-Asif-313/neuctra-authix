@@ -412,6 +412,83 @@ export const deleteUser = async (req, res) => {
 };
 
 /**
+ * @desc    Check if a user exists (only if belongs to logged-in admin & app)
+ * @route   GET /api/users/:id/check
+ * @access  Private (Admin only)
+ */
+export const checkUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { appId } = req.query; // safer for GET requests
+
+    // Ensure admin exists in request (set by auth middleware)
+    if (!req.admin || !req.admin.id) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized. Admin not found.",
+      });
+    }
+
+    if (!appId) {
+      return res.status(400).json({
+        success: false,
+        message: "App ID is required",
+      });
+    }
+
+    // Verify that app belongs to logged-in admin
+    const app = await prisma.app.findFirst({
+      where: { id: appId, adminId: req.admin.id },
+    });
+    if (!app) {
+      return res.status(404).json({
+        success: false,
+        message: "App not found or does not belong to you",
+      });
+    }
+
+    // Find user under this admin + app
+    const user = await prisma.user.findFirst({
+      where: { id: userId, adminId: req.admin.id, appId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        isActive: true,
+        appId: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        exists: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      exists: true,
+      message: "User exists",
+      user,
+    });
+  } catch (err) {
+    console.error("CheckUser Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? err.message : undefined,
+    });
+  }
+};
+
+
+
+/**
  * @desc Send email verification OTP for user
  * @route POST /api/users/send-verify-otp
  * @access Private (User must be logged in + valid apiKey)

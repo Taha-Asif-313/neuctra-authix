@@ -16,6 +16,7 @@ import {
   userForgotPassword,
   userResetPassword,
   changeUserPassword,
+  checkUser,
 } from "../controllers/userController.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -46,6 +47,9 @@ router.put("/change-password/:id", authMiddleware, changeUserPassword);
 
 // 🔹 Delete user (requires admin auth)
 router.delete("/delete/:id", authMiddleware, deleteUser);
+
+// 🔹 Check user (requires admin auth)
+router.get("/check-user/:id", authMiddleware, checkUser);
 
 /* ===================================================
    📂 USER EXTRA DATA ROUTES
