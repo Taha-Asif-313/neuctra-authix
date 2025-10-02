@@ -486,8 +486,6 @@ export const checkUser = async (req, res) => {
   }
 };
 
-
-
 /**
  * @desc Send email verification OTP for user
  * @route POST /api/users/send-verify-otp

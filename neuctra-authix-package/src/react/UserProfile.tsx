@@ -1950,7 +1950,10 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
 
       if (data.success) {
         setUser(updateData);
-        localStorage.setItem("userInfo", JSON.stringify({ ...updateData, token }));
+        localStorage.setItem(
+          "userInfo",
+          JSON.stringify({ ...updateData, token })
+        );
         showNotification("success", "Avatar updated successfully!");
         return true;
       } else {
@@ -1978,7 +1981,10 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
       if (data.success) {
         setUser(data.user);
         setEditMode(false);
-        localStorage.setItem("userInfo", JSON.stringify({ ...data.user, token }));
+        localStorage.setItem(
+          "userInfo",
+          JSON.stringify({ ...data.user, token })
+        );
         showNotification("success", "Profile updated successfully");
       } else {
         showNotification("error", data.message);
@@ -2034,7 +2040,6 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
 
     initUser();
   }, [propUser]);
-
 
   const adjustColor = (hex: string, percent: number) => {
     let num = parseInt(hex.replace("#", ""), 16);
@@ -2099,7 +2104,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
         <div
           style={{
             display: "flex",
-            gap:"12px",
+            gap: "12px",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
