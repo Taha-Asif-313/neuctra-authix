@@ -232,7 +232,7 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
   const colors = darkMode
     ? {
         surface: "#000000",
-        surfaceElevated: "#1a1a1a",
+        surfaceElevated: "#000000",
         surfaceHover: "#262626",
         border: "#262626",
         borderLight: "#404040",
@@ -332,7 +332,7 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
       boxShadow: "0 20px 40px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.1)",
       width: "min(280px, 90vw)",
       maxWidth: "calc(100vw - 20px)",
-      padding: "6px",
+      padding: "6px 6px 16px 6px",
       zIndex: 1000,
       fontFamily:
         "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -345,8 +345,7 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
       overflow: "hidden",
     },
     dropdownSection: {
-      padding: isMobile ? "10px 12px" : "12px 16px",
-      borderBottom: `1px solid ${colors.borderLight}`,
+      padding: isMobile ? "10px 12px" : "0px 16px",
       "&:last-child": {
         borderBottom: "none",
       },
@@ -493,14 +492,14 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
   const handleProfileClick = () => {
     const url = getProfileUrl();
     if (url) {
-      window.open(url, '_blank', 'noopener,noreferrer');
+      window.open(url, "_blank", "noopener,noreferrer");
     }
   };
 
   // Handle settings click - navigate to URL if provided
   const handleSettingsClick = () => {
     if (settingsUrl) {
-      window.open(settingsUrl, '_blank', 'noopener,noreferrer');
+      window.open(settingsUrl, "_blank", "noopener,noreferrer");
     }
   };
 
@@ -626,7 +625,8 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
                     style={styles.menuItem}
                     onClick={handleProfileClick}
                     onMouseOver={(e) => {
-                      e.currentTarget.style.backgroundColor = colors.surfaceHover;
+                      e.currentTarget.style.backgroundColor =
+                        colors.surfaceHover;
                     }}
                     onMouseOut={(e) => {
                       e.currentTarget.style.backgroundColor = "transparent";
@@ -646,7 +646,8 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
                     style={styles.menuItem}
                     onClick={handleSettingsClick}
                     onMouseOver={(e) => {
-                      e.currentTarget.style.backgroundColor = colors.surfaceHover;
+                      e.currentTarget.style.backgroundColor =
+                        colors.surfaceHover;
                     }}
                     onMouseOut={(e) => {
                       e.currentTarget.style.backgroundColor = "transparent";
