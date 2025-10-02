@@ -16,23 +16,65 @@
           :style="userIconStyle"
         />
         <h2 :style="titleStyle">
-          {{ mode === 'login' ? title : step === 1 ? 'Forgot Password' : 'Reset Password' }}
+          {{ title }}
         </h2>
         <p :style="subtitleStyle">
-          {{ mode === 'login' ? subtitle : 'Follow the steps to reset your password' }}
+          {{ subtitle }}
         </p>
       </div>
 
-      <!-- Login Form -->
+      <!-- Avatar Preview -->
+      <div
+        v-if="showAvatar && formData.avatarUrl"
+        :style="avatarPreviewStyle"
+      >
+        <img
+          :src="formData.avatarUrl"
+          alt="Avatar Preview"
+          :style="avatarImageStyle"
+          @error="handleAvatarError"
+        />
+      </div>
+
+      <!-- Signup Form -->
       <form
-        v-if="mode === 'login'"
-        @submit.prevent="handleLogin"
+        @submit.prevent="handleSignup"
         :style="formStyle"
       >
+        <!-- Name -->
+        <div :style="fieldStyle">
+          <label
+            for="signup-name"
+            :style="labelStyle"
+          >
+            Full Name
+          </label>
+          <div :style="inputWrapperStyle">
+            <User
+              :size="20"
+              :style="inputIconStyle"
+            />
+            <input
+              id="signup-name"
+              type="text"
+              placeholder="Enter your full name"
+              v-model="formData.name"
+              @input="clearError('name')"
+              :style="getNameInputStyle"
+            />
+          </div>
+          <span
+            v-if="errors.name"
+            :style="errorTextStyle"
+          >
+            {{ errors.name }}
+          </span>
+        </div>
+
         <!-- Email -->
         <div :style="fieldStyle">
           <label
-            for="login-email"
+            for="signup-email"
             :style="labelStyle"
           >
             Email Address
@@ -43,19 +85,26 @@
               :style="inputIconStyle"
             />
             <input
-              id="login-email"
+              id="signup-email"
               type="email"
-              placeholder="Enter your email"
-              v-model="email"
-              :style="inputStyle"
+              placeholder="Enter your email address"
+              v-model="formData.email"
+              @input="clearError('email')"
+              :style="getEmailInputStyle"
             />
           </div>
+          <span
+            v-if="errors.email"
+            :style="errorTextStyle"
+          >
+            {{ errors.email }}
+          </span>
         </div>
 
         <!-- Password -->
         <div :style="fieldStyle">
           <label
-            for="login-password"
+            for="signup-password"
             :style="labelStyle"
           >
             Password
@@ -66,11 +115,12 @@
               :style="inputIconStyle"
             />
             <input
-              id="login-password"
+              id="signup-password"
               :type="showPassword ? 'text' : 'password'"
-              placeholder="Enter your password"
-              v-model="password"
-              :style="inputStyle"
+              placeholder="Create a secure password"
+              v-model="formData.password"
+              @input="clearError('password')"
+              :style="getPasswordInputStyle"
             />
             <button
               type="button"
@@ -81,24 +131,49 @@
               <Eye v-else :size="20" />
             </button>
           </div>
+          <span
+            v-if="errors.password"
+            :style="errorTextStyle"
+          >
+            {{ errors.password }}
+          </span>
+        </div>
+
+        <!-- Avatar URL - Optional -->
+        <div
+          v-if="showAvatar"
+          :style="fieldStyle"
+        >
+          <label
+            for="signup-avatar"
+            :style="labelStyle"
+          >
+            Avatar URL (Optional)
+          </label>
+          <div :style="inputWrapperStyle">
+            <Image
+              :size="20"
+              :style="inputIconStyle"
+            />
+            <input
+              id="signup-avatar"
+              type="url"
+              placeholder="Paste your avatar image URL"
+              v-model="formData.avatarUrl"
+              :style="inputStyle"
+            />
+          </div>
         </div>
 
         <!-- Links -->
         <div :style="linksStyle">
           <a
-            v-if="signupUrl"
-            :href="signupUrl"
+            v-if="loginUrl"
+            :href="loginUrl"
             :style="linkStyle"
           >
-            Create new account
+            Already have an account?
           </a>
-          <button
-            type="button"
-            @click="mode = 'forgot'"
-            :style="forgotButtonStyle"
-          >
-            Forgot password?
-          </button>
         </div>
 
         <!-- Submit -->
@@ -107,107 +182,12 @@
           :disabled="loading"
           :style="submitButtonStyle"
         >
-          {{ loading ? 'Signing In...' : 'Sign In' }}
-        </button>
-      </form>
-
-      <!-- Forgot / Reset Password -->
-      <form
-        v-if="mode === 'forgot'"
-        @submit.prevent="step === 1 ? handleSendOTP : handleResetPassword"
-        :style="formStyle"
-      >
-        <div v-if="step === 1" :style="fieldStyle">
-          <label
-            for="forgot-email"
-            :style="labelStyle"
-          >
-            Email Address
-          </label>
-          <div :style="inputWrapperStyle">
-            <Mail
-              :size="20"
-              :style="inputIconStyle"
-            />
-            <input
-              id="forgot-email"
-              type="email"
-              placeholder="Enter your email"
-              v-model="formData.email"
-              :style="inputStyle"
-            />
-          </div>
-        </div>
-
-        <template v-else>
-          <!-- OTP -->
-          <div :style="otpFieldStyle">
-            <label
-              for="otp"
-              :style="labelStyle"
-            >
-              One-Time Password (OTP)
-            </label>
-            <div :style="inputWrapperStyle">
-              <KeyRound
-                :size="20"
-                :style="inputIconStyle"
-              />
-              <input
-                id="otp"
-                type="text"
-                placeholder="Enter OTP"
-                v-model="formData.otp"
-                :style="inputStyle"
-              />
-            </div>
-          </div>
-
-          <!-- New Password -->
-          <div :style="passwordFieldStyle">
-            <label
-              for="newPassword"
-              :style="labelStyle"
-            >
-              New Password
-            </label>
-            <div :style="inputWrapperStyle">
-              <Lock
-                :size="20"
-                :style="inputIconStyle"
-              />
-              <input
-                id="newPassword"
-                type="password"
-                placeholder="Enter new password"
-                v-model="formData.newPassword"
-                :style="inputStyle"
-              />
-            </div>
-          </div>
-        </template>
-
-        <!-- Reset Button -->
-        <button
-          type="submit"
-          :disabled="loading"
-          :style="resetButtonStyle"
-        >
-          {{
-            loading
-              ? 'Please wait...'
-              : step === 1
-              ? 'Send Reset OTP'
-              : 'Reset Password'
-          }}
-        </button>
-
-        <button
-          type="button"
-          @click="handleBackToLogin"
-          :style="backButtonStyle"
-        >
-          Back to Login
+          <Loader
+            v-if="loading"
+            :size="18"
+            :style="loaderStyle"
+          />
+          {{ loading ? 'Creating Account...' : 'Create Account' }}
         </button>
       </form>
 
@@ -243,15 +223,16 @@ import {
   Mail,
   Lock,
   User,
-  KeyRound,
   CheckCircle,
   AlertCircle,
+  Loader,
+  Image,
 } from 'lucide-vue-next'
-import { loginUser } from '../api/login.js'
+import { signupUser } from '../api/signup.js'
 import { getSdkConfig } from '../sdk/config.js'
-import axios from 'axios'
 
-interface AuthFormProps {
+interface SignupFormProps {
+  // Customization options
   logoUrl?: string
   title?: string
   subtitle?: string
@@ -259,43 +240,52 @@ interface AuthFormProps {
   primaryColor?: string
   gradient?: string
   darkMode?: boolean
-  signupUrl?: string
+
+  // Only avatar is optional
+  showAvatar?: boolean
+
+  loginUrl?: string
   onSuccess?: (user: any) => void
   onError?: (error: any) => void
 }
 
-const props = withDefaults(defineProps<AuthFormProps>(), {
-  title: 'Sign In to Your Account',
-  subtitle: 'Welcome back! Please enter your details',
+interface FormData {
+  name: string
+  email: string
+  password: string
+  avatarUrl?: string
+}
+
+const props = withDefaults(defineProps<SignupFormProps>(), {
+  title: 'Create Your Account',
+  subtitle: 'Join our platform today',
   footerText: 'Secure authentication powered by Neuctra Authix',
   primaryColor: '#00C214',
   gradient: 'linear-gradient(135deg, #22c55e, #00C214)',
   darkMode: true,
+  showAvatar: false,
 })
 
 const { baseUrl, apiKey, appId } = getSdkConfig()
 
 // State
-const mode = ref<'login' | 'forgot'>('login')
-const step = ref(1) // forgot-password step: 1=email, 2=otp+new pass
+const formData = ref<FormData>({
+  name: '',
+  email: '',
+  password: '',
+  ...(props.showAvatar && { avatarUrl: '' }),
+})
 const showPassword = ref(false)
 const loading = ref(false)
 const message = ref<{
   type: 'success' | 'error'
   text: string
 } | null>(null)
-
-// Login states
-const email = ref('')
-const password = ref('')
-
-// Forgot/reset states
-const formData = ref({
-  email: '',
-  otp: '',
-  newPassword: '',
-  appId: appId,
-})
+const errors = ref<{
+  name?: string
+  email?: string
+  password?: string
+}>({})
 
 // Responsive
 const isMobile = ref(false)
@@ -320,20 +310,53 @@ const inputBg = computed(() => (props.darkMode ? 'rgba(255,255,255,0.05)' : 'rgb
 const inputBorder = computed(() => (props.darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'))
 
 // Handlers
-const handleLogin = async (e: Event) => {
+const clearError = (field: keyof typeof errors.value) => {
+  if (errors.value[field]) {
+    errors.value = { ...errors.value, [field]: undefined }
+  }
+}
+
+const validateForm = () => {
+  const newErrors: { name?: string; email?: string; password?: string } = {}
+  
+  if (!formData.value.name.trim()) {
+    newErrors.name = 'Name is required'
+  }
+  
+  if (!formData.value.email.trim()) {
+    newErrors.email = 'Email is required'
+  } else if (!/\S+@\S+\.\S+/.test(formData.value.email)) {
+    newErrors.email = 'Invalid email address'
+  }
+  
+  if (!formData.value.password) {
+    newErrors.password = 'Password is required'
+  } else if (formData.value.password.length < 6) {
+    newErrors.password = 'Password must be at least 6 characters'
+  }
+  
+  errors.value = newErrors
+  return Object.keys(newErrors).length === 0
+}
+
+const handleSignup = async (e: Event) => {
   e.preventDefault()
+  if (!validateForm()) return
+
   loading.value = true
   message.value = null
 
   try {
-    const user = await loginUser(
-      { email: email.value, password: password.value, appId },
-      { baseUrl, apiKey }
-    )
-    message.value = { type: 'success', text: `Welcome ${user.name}` }
+    const userData = {
+      ...formData.value,
+      appId: appId,
+    }
+
+    const user = await signupUser(userData, { baseUrl, apiKey })
+    message.value = { type: 'success', text: 'Account created successfully!' }
     props.onSuccess?.(user)
   } catch (err: any) {
-    const errorMsg = err.message || 'Login failed'
+    const errorMsg = err.message || 'Signup failed. Please try again.'
     message.value = { type: 'error', text: errorMsg }
     props.onError?.(err)
   } finally {
@@ -341,69 +364,9 @@ const handleLogin = async (e: Event) => {
   }
 }
 
-const handleSendOTP = async (e: Event) => {
-  e.preventDefault()
-  loading.value = true
-  message.value = null
-  try {
-    const res = await axios.post(
-      `${baseUrl}/users/forgot-password`,
-      {
-        email: formData.value.email,
-        appId,
-      },
-      { headers: { 'x-api-key': apiKey } }
-    )
-    if (res.data.success) {
-      step.value = 2
-      message.value = { type: 'success', text: 'OTP sent to your email' }
-    } else {
-      message.value = {
-        type: 'error',
-        text: res.data.message || 'Failed to send OTP',
-      }
-    }
-  } catch (err: any) {
-    message.value = {
-      type: 'error',
-      text: err.response?.data?.message || 'Something went wrong',
-    }
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleResetPassword = async (e: Event) => {
-  e.preventDefault()
-  loading.value = true
-  message.value = null
-  try {
-    const res = await axios.post(
-      `${baseUrl}/users/reset-password`,
-      formData.value,
-      { headers: { 'x-api-key': apiKey } }
-    )
-    if (res.data.success) {
-      message.value = { type: 'success', text: 'Password reset successfully!' }
-      step.value = 1
-      formData.value = { email: '', otp: '', newPassword: '', appId: appId }
-      mode.value = 'login'
-    } else {
-      message.value = { type: 'error', text: res.data.message || 'Reset failed' }
-    }
-  } catch (err: any) {
-    message.value = {
-      type: 'error',
-      text: err.response?.data?.message || 'Something went wrong',
-    }
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleBackToLogin = () => {
-  mode.value = 'login'
-  step.value = 1
+const handleAvatarError = (e: Event) => {
+  const target = e.target as HTMLImageElement
+  target.style.display = 'none'
 }
 
 const getMessageStyle = (type: 'success' | 'error'): CSSProperties => ({
@@ -432,8 +395,8 @@ const containerStyle: CSSProperties = {
 
 const cardStyle = computed((): CSSProperties => ({
   minWidth: isMobile.value ? '320px' : '340px',
-  maxWidth: '390px',
   width: '100%',
+  maxWidth: '390px',
   display: 'flex',
   flexDirection: 'column',
   borderRadius: '10px',
@@ -472,6 +435,20 @@ const subtitleStyle = computed((): CSSProperties => ({
   margin: '6px 0 0 0',
 }))
 
+const avatarPreviewStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'center',
+  marginBottom: '16px',
+}
+
+const avatarImageStyle: CSSProperties = {
+  width: '60px',
+  height: '60px',
+  borderRadius: '50%',
+  objectFit: 'cover',
+  border: `2px solid ${props.primaryColor}30`,
+}
+
 const formStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
@@ -506,38 +483,47 @@ const inputStyle = computed((): CSSProperties => ({
   fontSize: isMobile.value ? '15px' : '15px',
   outline: 'none',
   transition: 'all 0.2s ease',
+  boxSizing: 'border-box',
+}))
+
+const getNameInputStyle = computed((): CSSProperties => ({
+  ...inputStyle.value,
+  borderColor: errors.value.name ? '#ef4444' : inputBorder.value,
+}))
+
+const getEmailInputStyle = computed((): CSSProperties => ({
+  ...inputStyle.value,
+  borderColor: errors.value.email ? '#ef4444' : inputBorder.value,
+}))
+
+const getPasswordInputStyle = computed((): CSSProperties => ({
+  ...inputStyle.value,
+  borderColor: errors.value.password ? '#ef4444' : inputBorder.value,
 }))
 
 const toggleButtonStyle: CSSProperties = {
   position: 'absolute',
   right: '14px',
-  padding: '4px',
   top: '50%',
   transform: 'translateY(-50%)',
   background: 'transparent',
   border: 'none',
   color: subTextColor.value,
   cursor: 'pointer',
+  padding: '4px',
 }
 
 const linksStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'space-between',
   fontSize: '13px',
+  marginTop: '6px',
 }
 
 const linkStyle = computed((): CSSProperties => ({
   color: props.primaryColor,
   textDecoration: 'none',
   fontWeight: 500,
-}))
-
-const forgotButtonStyle = computed((): CSSProperties => ({
-  background: 'none',
-  border: 'none',
-  color: props.primaryColor,
-  fontWeight: 500,
-  cursor: 'pointer',
 }))
 
 const submitButtonStyle = computed((): CSSProperties => ({
@@ -549,45 +535,28 @@ const submitButtonStyle = computed((): CSSProperties => ({
   fontWeight: 600,
   cursor: loading.value ? 'not-allowed' : 'pointer',
   opacity: loading.value ? 0.7 : 1,
+  marginTop: '8px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '8px',
 }))
 
-const resetButtonStyle = computed((): CSSProperties => ({
-  padding: '12px',
-  background: props.gradient,
-  color: '#fff',
-  border: 'none',
-  fontSize: '15px',
-  borderRadius: '10px',
-  fontWeight: 600,
-  cursor: loading.value ? 'not-allowed' : 'pointer',
-  opacity: loading.value ? 0.7 : 1,
-}))
-
-const backButtonStyle: CSSProperties = {
-  background: 'none',
-  border: 'none',
-  color: subTextColor.value,
-  marginTop: '6px',
-  cursor: 'pointer',
-}
-
-const otpFieldStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '6px',
-}
-
-const passwordFieldStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '6px',
+const loaderStyle: CSSProperties = {
+  animation: 'spin 1s linear infinite',
 }
 
 const labelStyle = computed((): CSSProperties => ({
   fontSize: '14px',
   fontWeight: 500,
-  color: props.darkMode ? '#ffffff' : '#000000',
+  color: textColor.value,
 }))
+
+const errorTextStyle: CSSProperties = {
+  color: '#ef4444',
+  fontSize: '12px',
+  marginTop: '2px',
+}
 
 const footerStyle = computed((): CSSProperties => ({
   textAlign: 'center',
@@ -597,3 +566,10 @@ const footerStyle = computed((): CSSProperties => ({
   padding: '0 4px',
 }))
 </script>
+
+<style>
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+</style>
