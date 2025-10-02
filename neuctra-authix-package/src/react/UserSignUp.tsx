@@ -162,7 +162,8 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
     >
       <div
         style={{
-          minWidth: "320px",
+          minWidth: isMobile ? "320px" : "340px",
+          width: "100%",
           maxWidth: "390px",
           display: "flex",
           flexDirection: "column",

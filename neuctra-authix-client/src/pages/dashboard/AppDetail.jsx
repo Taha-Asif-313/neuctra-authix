@@ -9,6 +9,7 @@ import {
   Edit,
   MoreVertical,
   Copy,
+  Search,
 } from "lucide-react";
 import AddNewUser from "../../components/dashboard/AddNewUser";
 import EditApp from "../../components/dashboard/EditApp";
@@ -22,6 +23,7 @@ const AppDetail = () => {
   const { id } = useParams();
   const { admin } = useAuth();
   const token = localStorage.getItem("token");
+    const [searchQuery, setSearchQuery] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [deleteAppModalOpen, setDeleteAppModalOpen] = useState(false);
   const [editAppModalOpen, setEditAppModalOpen] = useState(false);
@@ -95,6 +97,16 @@ const AppDetail = () => {
       toast.error("Failed to copy App ID");
     }
   };
+
+    // Filter users by ID or Email
+  const filteredUsers = users.filter((u) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      u.id.toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q)
+    );
+  });
 
   if (loading) {
     return (
@@ -208,22 +220,37 @@ const AppDetail = () => {
       </div>
 
       {/* Users */}
-      <div>
+           <div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 mt-6 gap-4">
           <h2 className="text-xl sm:text-2xl font-semibold text-white">
             Manage Users
           </h2>
-          <button
-            onClick={() => setAddModalOpen(true)}
-            className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md text-sm transition font-medium shadow-md"
-          >
-            <UserPlus className="w-4 h-4" /> Add User
-          </button>
+
+          <div className="flex items-center gap-3">
+            {/* 🔍 Search Input */}
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search by ID or Email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 pr-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+
+            <button
+              onClick={() => setAddModalOpen(true)}
+              className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md text-sm transition font-medium shadow-md"
+            >
+              <UserPlus className="w-4 h-4" /> Add User
+            </button>
+          </div>
         </div>
 
-        {users.length === 0 ? (
+        {filteredUsers.length === 0 ? (
           <p className="py-16 text-center text-sm text-gray-400">
-            No users added yet.
+            No matching users found.
           </p>
         ) : (
           <div className="overflow-x-auto rounded-xl border border-zinc-800">
@@ -237,7 +264,7 @@ const AppDetail = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800">
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <UserRow
                     key={user.id}
                     user={user}
@@ -291,7 +318,10 @@ const AppDetail = () => {
           appId={app.id}
           onClose={() => setEditUser(null)}
           onSave={(updatedUser) => {
-            // update local state (users list)
+            if (!updatedUser?.id) {
+              console.error("Updated user missing ID:", updatedUser);
+              return;
+            }
             setUsers((prev) =>
               prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
             );

@@ -157,6 +157,7 @@ export const loginUser = async (req, res) => {
     const { email, password, appId } = req.body;
     const adminId = req.admin?.id || null;
 
+    // Validate input
     if (!email || !password || !appId) {
       return res.status(400).json({
         success: false,
@@ -164,7 +165,7 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // 1. Verify app
+    // 1. Verify app is active
     const app = await prisma.app.findFirst({
       where: { id: appId, isActive: true },
     });
@@ -175,19 +176,19 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // 2. Find user in this app (and admin if provided)
+    // 2. Find active user in this app (and admin if provided)
     const user = await prisma.user.findFirst({
       where: {
         email: email.toLowerCase(),
         appId,
-        isActive: true,
-        ...(adminId ? { adminId } : {}), // only restrict to admin if req.admin exists
+        isActive: true, // ensure user is active
+        ...(adminId ? { adminId } : {}),
       },
     });
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials",
+        message: "Invalid credentials or inactive account",
       });
     }
 
@@ -200,17 +201,23 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // 4. Always issue a fresh token
+    // 4. Issue a fresh token
     const newToken = jwt.sign(
       { id: user.id, email: user.email, appId: user.appId, role: user.role },
       app.appSecret,
       { expiresIn: "7d" }
     );
 
-    // 5. Save token to user record
-    await prisma.user.update({
+    // 5. Save token & update last login
+    const updatedUser = await prisma.user.update({
       where: { id: user.id },
-      data: { token: newToken },
+      data: { 
+        token: newToken,
+        updatedAt: new Date(), // auto by @updatedAt, but explicit is fine
+        // optional tracking:
+        // lastLogin: new Date(),
+        // isOnline: true
+      },
     });
 
     // 6. Return user with token
@@ -218,19 +225,19 @@ export const loginUser = async (req, res) => {
       success: true,
       message: "Login successful",
       user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        address: user.address,
-        avatarUrl: user.avatarUrl,
-        isActive: user.isActive,
-        role: user.role,
-        appId: user.appId,
-        adminId: user.adminId,
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        address: updatedUser.address,
+        avatarUrl: updatedUser.avatarUrl,
+        isActive: updatedUser.isActive,
+        role: updatedUser.role,
+        appId: updatedUser.appId,
+        adminId: updatedUser.adminId,
         token: newToken,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt,
       },
     });
   } catch (err) {

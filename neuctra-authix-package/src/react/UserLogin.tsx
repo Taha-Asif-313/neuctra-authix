@@ -179,8 +179,9 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
     >
       <div
         style={{
-          minWidth: "320px",
+          minWidth: isMobile ? "320px" : "340px",
           maxWidth: "390px",
+          width:"100%",
           display: "flex",
           flexDirection: "column",
           borderRadius: "10px",
