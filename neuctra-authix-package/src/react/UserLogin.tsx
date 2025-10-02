@@ -254,7 +254,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
                 style={{
                   fontSize: "14px",
                   fontWeight: 500,
-                  color: "#ffffff",
+                  color: darkMode ? "#ffffff" : "#000000",
                 }}
               >
                 Email Address
@@ -290,7 +290,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
                 style={{
                   fontSize: "14px",
                   fontWeight: 500,
-                  color: "#ffffff",
+                  color: darkMode ? "#ffffff" : "#000000",
                 }}
               >
                 Password
@@ -402,7 +402,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
                   style={{
                     fontSize: "14px",
                     fontWeight: 500,
-                    color: "#ffffff",
+                    color: darkMode ? "#ffffff" : "#000000",
                   }}
                 >
                   Email Address
@@ -444,7 +444,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
                     style={{
                       fontSize: "14px",
                       fontWeight: 500,
-                      color: "#ffffff",
+                      color: darkMode ? "#ffffff" : "#000000",
                     }}
                   >
                     One-Time Password (OTP)
@@ -485,7 +485,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
                     style={{
                       fontSize: "14px",
                       fontWeight: 500,
-                      color: "#ffffff",
+                      color: darkMode ? "#ffffff" : "#000000",
                     }}
                   >
                     New Password
