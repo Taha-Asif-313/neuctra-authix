@@ -22,6 +22,7 @@ const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [appState, setAppState] = useState(app || {});
+console.log(appState);
 
   // Sync local state when prop changes
   useEffect(() => {

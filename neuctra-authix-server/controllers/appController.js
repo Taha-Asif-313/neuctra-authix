@@ -41,6 +41,7 @@ export const createApp = async (req, res) => {
         platform: true,
         appSecret: true,
         createdAt: true,
+        isActive:true,
         _count: { select: { users: true } },
       },
     });

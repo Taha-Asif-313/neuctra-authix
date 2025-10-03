@@ -46,7 +46,7 @@ model App {
   description     String
   platform        String
   appSecret       String   @default(cuid())     // 👈 unique secret for each app
-  isActive        Boolean  @default(false)
+  isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
