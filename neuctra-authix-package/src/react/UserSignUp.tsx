@@ -129,6 +129,7 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
       const user = await signupUser(userData, { baseUrl, apiKey });
       setMessage({ type: "success", text: "Account created successfully!" });
       if (onSuccess) onSuccess(user);
+      window.location.reload()
     } catch (err: any) {
       const errorMsg = err.message || "Signup failed. Please try again.";
       setMessage({ type: "error", text: errorMsg });

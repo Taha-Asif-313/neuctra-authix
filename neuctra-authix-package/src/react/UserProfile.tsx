@@ -1478,7 +1478,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
               style={{
                 display: "flex",
                 gap: "12px",
-                flexDirection: isMobile ? "column-reverse" : "row",
+                flexDirection: "column-reverse",
                 justifyContent: "flex-end",
                 alignItems: "stretch",
               }}

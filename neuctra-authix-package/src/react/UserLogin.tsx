@@ -83,6 +83,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
       );
       setMessage({ type: "success", text: `Welcome ${user.name}` });
       onSuccess?.(user);
+      window.location.reload();
     } catch (err: any) {
       const errorMsg = err.message || "Login failed";
       setMessage({ type: "error", text: errorMsg });
@@ -181,7 +182,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
         style={{
           minWidth: isMobile ? "320px" : "340px",
           maxWidth: "390px",
-          width:"100%",
+          width: "100%",
           display: "flex",
           flexDirection: "column",
           borderRadius: "10px",
