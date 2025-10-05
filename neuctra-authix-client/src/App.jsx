@@ -45,6 +45,7 @@ import ReactUserProfileDocs from "./pages/docs/react-ui-components/ReactUserProf
 import ReactUserButtonDocs from "./pages/docs/react-ui-components/ReactUserButtonDocs";
 import ReactSignedOutDocs from "./pages/docs/react-ui-components/ReactSignedOutDocs";
 import ReactSignedInDocs from "./pages/docs/react-ui-components/ReactSignedInDocs";
+import ReactSetupDocs from "./pages/docs/react-ui-components/ReactSetupDocs";
 
 // ✅ Protected wrapper inside same file
 const ProtectedRoute = ({ Component }) => {
@@ -149,6 +150,10 @@ function AppContent() {
             element={<AuthUserManagement />}
           />
           <Route path="user-data-management" element={<UserDataManagement />} />
+           <Route
+            path="react-setup-docs"
+            element={<ReactSetupDocs />}
+          />
           <Route
             path="react-user-login-docs"
             element={<ReactUserLoginDocs />}

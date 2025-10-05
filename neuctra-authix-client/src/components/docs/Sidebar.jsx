@@ -34,19 +34,6 @@ const Sidebar = () => {
       items: [
         { title: "Introduction", path: "/docs/introduction", badge: "New" },
         { title: "Installation", path: "/docs/installation", badge: "Updated" },
-        { title: "Quickstart Guide", path: "/docs/quickstart" },
-        { title: "Migration Guide", path: "/docs/migration" },
-      ],
-    },
-    {
-      category: "Authentication",
-      icon: Shield,
-      items: [
-        { title: "Signup & Registration", path: "/docs/signup" },
-        { title: "Login Flow", path: "/docs/login" },
-        { title: "Password Reset", path: "/docs/password-reset" },
-        { title: "Email Verification", path: "/docs/email-verification" },
-        { title: "Social Auth", path: "/docs/social-auth" },
       ],
     },
     {
@@ -69,12 +56,19 @@ const Sidebar = () => {
       category: "React Ui Components",
       icon: Atom,
       items: [
+        { title: "React Setup", path: "/docs/react-setup-docs" },
         { title: "User Login", path: "/docs/react-user-login-docs" },
         { title: "User Signup", path: "/docs/react-user-signup-docs" },
         { title: "User Profile", path: "/docs/react-user-profile-docs" },
-            { title: "User Button", path: "/docs/react-user-button-docs" },
-              { title: "SignIn Component", path: "/docs/react-signin-component-docs" },
-               { title: "SignOut Component", path: "/docs/react-signout-component-docs" },
+        { title: "User Button", path: "/docs/react-user-button-docs" },
+        {
+          title: "SignIn Component",
+          path: "/docs/react-signin-component-docs",
+        },
+        {
+          title: "SignOut Component",
+          path: "/docs/react-signout-component-docs",
+        },
       ],
     },
     {
@@ -149,15 +143,15 @@ const Sidebar = () => {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-6 border-b border-gray-800">
+          <div className="pt-6 px-4">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-[#00c420] to-green-400 rounded-xl">
-                  <BookOpen size={24} className="text-white" />
+                <div>
+                  <img src="/logo.png" width={40} height={40} alt="logo" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                    Neuctra Docs
+                  <h2 className="text-md font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                    Neuctra Authix Docs
                   </h2>
                   <p className="text-sm text-gray-400">v2.1.0</p>
                 </div>
@@ -181,7 +175,7 @@ const Sidebar = () => {
                 placeholder="Search documentation..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 text-sm rounded-xl bg-gray-800/50 border border-gray-700 focus:ring-2 focus:ring-[#00c420] focus:border-[#00c420] outline-none backdrop-blur-sm transition-all"
+                className="w-full pl-10 pr-4 py-3 text-sm rounded-xl bg-gray-800/50 border border-gray-700 focus:ring-2 focus:ring-[#00c420] focus:border-[#00c420] outline-none transition-all"
               />
             </div>
           </div>
@@ -301,10 +295,10 @@ const Sidebar = () => {
                               <div className="flex items-center gap-2">
                                 {item.badge && (
                                   <span
-                                    className={`px-1.5 py-0.5 text-xs rounded-full ${
+                                    className={`px-2 py-0.5 text-xs rounded-full ${
                                       item.badge === "New"
                                         ? "bg-green-500/20 text-green-400"
-                                        : "bg-[#00c420]/20 text-[#00c420]"
+                                        : "bg-primary/10 text-primary"
                                     }`}
                                   >
                                     {item.badge}
@@ -324,8 +318,6 @@ const Sidebar = () => {
               })}
             </nav>
           </div>
-
-         
         </div>
       </aside>
 
