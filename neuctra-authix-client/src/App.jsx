@@ -45,6 +45,8 @@ import ReactSignedOutDocs from "./pages/docs/react-ui-components/ReactSignedOutD
 import ReactSignedInDocs from "./pages/docs/react-ui-components/ReactSignedInDocs";
 import ReactSetupDocs from "./pages/docs/react-ui-components/ReactSetupDocs";
 import Installation from "./pages/docs/installation";
+import ScrollToTop from "./components/ScrollToTop";
+import About from "./pages/public/About";
 
 // ✅ Protected wrapper inside same file
 const ProtectedRoute = ({ Component }) => {
@@ -72,7 +74,9 @@ function AppContent() {
 
   return (
     <div className="App min-h-screen bg-black transition-colors duration-200">
+      <ScrollToTop/>
       <Routes>
+        
         {/* ===== Public Routes ===== */}
         <Route path="/" element={<AuthLayout />}>
           <Route
@@ -115,6 +119,7 @@ function AppContent() {
           <Route path="/features" element={<Features />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/contact" element={<Contact />} />
+              <Route path="/about" element={<About />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         </Route>
 

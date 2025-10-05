@@ -27,6 +27,7 @@ import {
   Fingerprint,
   CpuIcon,
 } from "lucide-react";
+import { Link } from 'react-router-dom'
 
 const Home = () => {
   const [activeFeature, setActiveFeature] = useState(0);
@@ -433,7 +434,7 @@ setSdkConfig({
                 className={`group relative bg-gradient-to-br ${
                   feature.color
                 } backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-white/10 hover:border-white/20 transition-all duration-500 hover:scale-[1.02] ${
-                  activeFeature === i ? "ring-2 ring-[#00c420]/50" : ""
+                  activeFeature === i ? "ring-2 ring-primary" : ""
                 }`}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-2xl sm:rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -628,23 +629,23 @@ setSdkConfig({
               </p>
 
               <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-                <a
-                  href="/docs/installation"
+                <Link
+                  to="/docs/installation"
                   className="group w-full sm:w-auto px-8 py-4 sm:px-10 sm:py-5 bg-white text-black rounded-xl font-bold text-base sm:text-lg shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3"
                 >
                   Get Started Free
                   <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 sm:group-hover:translate-x-2 transition-transform" />
-                </a>
+                </Link>
 
-                <a
-                  href="https://github.com/neuctra/authix"
+                <Link
+                  to="https://github.com/neuctra/authix"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group w-full sm:w-auto px-8 py-4 sm:px-10 sm:py-5 bg-white/5 backdrop-blur-xl rounded-xl font-semibold text-base sm:text-lg border border-white/20 hover:bg-white/10 transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3"
                 >
                   <Github className="w-4 h-4 sm:w-5 sm:h-5" />
                   View on GitHub
-                </a>
+                </Link>
               </div>
 
               <p className="text-gray-400 text-xs sm:text-sm">
@@ -657,35 +658,34 @@ setSdkConfig({
 
       {/* Add custom CSS for floating animation */}
       <style jsx>{`
-       @keyframes float {
-  0% {
-    transform: translateY(0px) rotate(0deg) scale(1);
-    filter: brightness(1);
-  }
-  25% {
-    transform: translateY(-12px) rotate(3deg) scale(1.05);
-    filter: brightness(1.1);
-  }
-  50% {
-    transform: translateY(-20px) rotate(-2deg) scale(1.1);
-    filter: brightness(1.15);
-  }
-  75% {
-    transform: translateY(-10px) rotate(2deg) scale(1.05);
-    filter: brightness(1.05);
-  }
-  100% {
-    transform: translateY(0px) rotate(0deg) scale(1);
-    filter: brightness(1);
-  }
-}
+        @keyframes float {
+          0% {
+            transform: translateY(0px) rotate(0deg) scale(1);
+            filter: brightness(1);
+          }
+          25% {
+            transform: translateY(-12px) rotate(3deg) scale(1.05);
+            filter: brightness(1.1);
+          }
+          50% {
+            transform: translateY(-20px) rotate(-2deg) scale(1.1);
+            filter: brightness(1.15);
+          }
+          75% {
+            transform: translateY(-10px) rotate(2deg) scale(1.05);
+            filter: brightness(1.05);
+          }
+          100% {
+            transform: translateY(0px) rotate(0deg) scale(1);
+            filter: brightness(1);
+          }
+        }
 
-.animate-float {
-  animation: float 3.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-  transform-origin: center;
-  will-change: transform, filter;
-}
-
+        .animate-float {
+          animation: float 3.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+          transform-origin: center;
+          will-change: transform, filter;
+        }
       `}</style>
     </div>
   );

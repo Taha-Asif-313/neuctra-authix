@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, Zap, Star, Building2 } from "lucide-react";
+import { Check, Zap, Star, Building2, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
@@ -19,6 +19,7 @@ const plans = [
     buttonText: "Get Started",
     buttonLink: "/register",
     highlight: false,
+    popular: false,
   },
   {
     name: "Pro",
@@ -31,10 +32,13 @@ const plans = [
       "OAuth & social logins",
       "Custom branding",
       "Priority email support",
+      "Advanced analytics",
+      "99.5% uptime SLA",
     ],
     buttonText: "Start Free Trial",
     buttonLink: "/register",
     highlight: true,
+    popular: true,
   },
   {
     name: "Enterprise",
@@ -47,106 +51,264 @@ const plans = [
       "Advanced SSO & RBAC",
       "99.9% uptime SLA",
       "Dedicated account manager",
+      "Custom contracts",
+      "24/7 phone support",
     ],
     buttonText: "Contact Sales",
     buttonLink: "/contact",
     highlight: false,
+    popular: false,
   },
 ];
 
 const Pricing = () => {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        duration: 0.8
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 60, scale: 0.9 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 20,
+        duration: 0.8
+      }
+    },
+    hover: {
+      y: -12,
+      scale: 1.02,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 25
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.5
+      }
+    }
+  };
+
   return (
-    <section className="relative min-h-screen bg-gradient-to-b from-black via-zinc-950 to-black text-gray-300 py-20 px-4 sm:px-8 overflow-hidden">
-      {/* Glow Effects */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-[400px] h-[400px] bg-[#00c420]/20 blur-3xl rounded-full" />
-        <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-[#00c420]/10 blur-3xl rounded-full" />
+    <section className="relative min-h-screen bg-gradient-to-b from-black via-zinc-950 to-black text-gray-300 py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      {/* Enhanced Glow Effects */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.5 }}
+          className="absolute top-10 left-10 w-80 h-80 bg-[#00c420]/20 blur-3xl rounded-full"
+        />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+          className="absolute bottom-10 right-10 w-96 h-96 bg-[#00c420]/10 blur-3xl rounded-full"
+        />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 2, delay: 0.6 }}
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#00c420]/5 blur-3xl rounded-full"
+        />
       </div>
 
-      {/* Header */}
-      <div className="relative text-center max-w-3xl mx-auto mb-16 px-4">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
-          Simple, Transparent{" "}
-          <span className="text-[#00c420]">Pricing</span>
+      {/* Header Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="relative text-center max-w-4xl mx-auto mb-16 lg:mb-20 px-4"
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 mb-6 rounded-full bg-[#00c420]/10 border border-[#00c420]/30 text-[#00c420] text-sm font-semibold"
+        >
+          <Sparkles className="w-4 h-4" />
+          <span>Transparent Pricing</span>
+        </motion.div>
+
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+          Simple,{" "}
+          <span className="bg-gradient-to-r from-[#00c420] to-green-400 bg-clip-text text-transparent">
+            Transparent
+          </span>{" "}
+          Pricing
         </h1>
-        <p className="mt-4 text-gray-400 text-base sm:text-lg">
-          Choose a plan that fits your scale — upgrade anytime.
+        <p className="text-gray-400 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
+          Choose a plan that fits your scale — upgrade or downgrade anytime. 
+          <span className="font-medium"> No hidden fees.</span>
         </p>
-      </div>
+      </motion.div>
 
-      {/* Pricing Cards */}
-      <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto px-4">
-        {plans.map((plan, i) => (
+      {/* Pricing Cards Grid */}
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+        className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-7xl mx-auto px-4 sm:px-6"
+      >
+        {plans.map((plan, index) => (
           <motion.div
-            key={i}
-            whileHover={{ scale: 1.05, y: -8 }}
-            transition={{ type: "spring", stiffness: 200, damping: 20 }}
-            className={`relative rounded-2xl p-6 sm:p-8 flex flex-col items-start justify-between shadow-lg backdrop-blur-lg border transition-all duration-500 ${
+            key={plan.name}
+            variants={cardVariants}
+            whileHover="hover"
+            className={`relative rounded-2xl p-6 sm:p-8 flex flex-col h-full backdrop-blur-lg border-2 transition-all duration-500 ${
               plan.highlight
-                ? "bg-[#00c420]/10 border-[#00c420]/40 shadow-[#00c420]/30"
-                : "bg-white/5 border-gray-800"
+                ? "bg-gradient-to-br from-[#00c420]/10 via-[#00c420]/5 to-transparent border-[#00c420]/40 shadow-2xl shadow-[#00c420]/20"
+                : "bg-white/5 border-gray-800/50 hover:border-gray-700/80"
             }`}
           >
-            {/* Header */}
-            <div>
+            {/* Popular Badge */}
+            {plan.popular && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0, y: -20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
+                className="absolute -top-3 left-1/2 transform -translate-x-1/2"
+              >
+                <div className="bg-gradient-to-r from-[#00c420] to-green-500 text-black px-4 py-1 rounded-full text-sm font-bold shadow-lg">
+                  Most Popular
+                </div>
+              </motion.div>
+            )}
+
+            {/* Header Content */}
+            <div className="flex-1">
               <div className="flex items-center gap-3 mb-4">
-                {plan.icon}
-                <h2 className="text-xl font-semibold text-white">{plan.name}</h2>
+                <motion.div
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  {plan.icon}
+                </motion.div>
+                <h2 className="text-2xl font-bold text-white">{plan.name}</h2>
               </div>
-              <p className="text-gray-400 mb-6 text-sm sm:text-base">
+              
+              <p className="text-gray-400 mb-6 text-base leading-relaxed">
                 {plan.description}
               </p>
-              <div className="flex items-end gap-1 mb-6">
-                <span className="text-3xl sm:text-4xl font-bold text-white">
+              
+              <div className="flex items-end gap-2 mb-8">
+                <span className="text-4xl sm:text-5xl font-bold text-white">
                   {plan.price}
                 </span>
-                <span className="text-gray-400 text-sm sm:text-base">
+                <span className="text-gray-400 text-lg mb-1">
                   {plan.period}
                 </span>
               </div>
+
+              {/* Features List */}
+              <motion.ul 
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="space-y-4 mb-8"
+              >
+                {plan.features.map((feature, featureIndex) => (
+                  <motion.li
+                    key={feature}
+                    variants={itemVariants}
+                    className="flex items-start gap-3 text-gray-300 text-base"
+                  >
+                    <Check className="w-5 h-5 text-[#00c420] flex-shrink-0 mt-0.5" />
+                    <span>{feature}</span>
+                  </motion.li>
+                ))}
+              </motion.ul>
             </div>
 
-            {/* Features */}
-            <ul className="space-y-3 mb-8 flex-1 w-full">
-              {plan.features.map((f, idx) => (
-                <li
-                  key={idx}
-                  className="flex items-center gap-3 text-gray-300 text-sm sm:text-base"
-                >
-                  <Check className="w-4 h-4 text-[#00c420] flex-shrink-0" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-
-            {/* Button */}
-            <Link
-              to={plan.buttonLink}
-              className={`w-full text-center py-3 rounded-lg font-medium transition-all duration-300 ${
-                plan.highlight
-                  ? "bg-[#00c420] text-black hover:shadow-lg hover:shadow-[#00c420]/30 hover:scale-[1.03]"
-                  : "border border-gray-700 text-gray-300 hover:border-[#00c420] hover:text-[#00c420]"
-              }`}
+            {/* CTA Button */}
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              {plan.buttonText}
-            </Link>
+              <Link
+                to={plan.buttonLink}
+                className={`w-full text-center py-4 px-6 rounded-xl font-semibold transition-all duration-300 block ${
+                  plan.highlight
+                    ? "bg-gradient-to-r from-[#00c420] to-green-500 text-black hover:shadow-2xl hover:shadow-[#00c420]/40 hover:scale-105"
+                    : "border-2 border-gray-700 text-gray-300 hover:border-[#00c420] hover:text-[#00c420] hover:bg-[#00c420]/5"
+                }`}
+              >
+                {plan.buttonText}
+              </Link>
+            </motion.div>
           </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      {/* Footer Note */}
-      <div className="relative text-center mt-20 text-gray-500 text-sm sm:text-base px-4">
-        <p>
+      {/* Additional Info Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, delay: 0.4 }}
+        className="relative text-center mt-16 lg:mt-20 px-4"
+      >
+        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 sm:p-10 border border-gray-800/50 max-w-4xl mx-auto">
+          <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">
+            All plans include
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-gray-300 text-sm sm:text-base">
+            {["30-day free trial", "No credit card required", "Cancel anytime", "24/7 support"].map((item, idx) => (
+              <motion.div
+                key={item}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.6 + idx * 0.1 }}
+                className="flex items-center justify-center gap-2 py-2"
+              >
+                <Check className="w-4 h-4 text-[#00c420]" />
+                <span>{item}</span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer Note */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 1 }}
+          className="text-gray-500 text-base mt-8"
+        >
           Need a custom plan?{" "}
           <Link
             to="/contact"
-            className="text-[#00c420] hover:underline"
+            className="text-[#00c420] hover:underline font-medium"
           >
             Get in touch with our team
           </Link>
-          .
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
     </section>
   );
 };
