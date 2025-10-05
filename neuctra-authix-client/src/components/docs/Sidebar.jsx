@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { 
-  BookOpen, 
-  Search, 
-  Menu, 
-  X, 
-  Lock, 
-  Code, 
-  HelpCircle, 
+import {
+  BookOpen,
+  Search,
+  Menu,
+  X,
+  Lock,
+  Code,
+  HelpCircle,
   ChevronRight,
   ChevronDown,
   Home,
@@ -16,7 +16,7 @@ import {
   Sparkles,
   Zap,
   Shield,
-  Users
+  Users,
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -52,11 +52,16 @@ const Sidebar = () => {
       category: "SDK Integration",
       icon: Code,
       items: [
-        { title: "Neuctra Authix SDK", path: "/docs/neuctra-authix-sdk" },
-        { title: "Frontend Integration", path: "/docs/frontend-integration" },
-        { title: "Backend Integration", path: "/docs/backend-integration" },
-        { title: "API Reference", path: "/docs/api-reference" },
-        { title: "Webhooks", path: "/docs/webhooks" },
+        { title: "Introduction", path: "/docs/authix-sdk-introduction" },
+        { title: "Installation", path: "/docs/authix-sdk-installation" },
+        {
+          title: "Authentication & User Management",
+          path: "/docs/auth-and-user-management",
+        },
+        {
+          title: "User Data & Advanced Features",
+          path: "/docs/user-data-management",
+        },
       ],
     },
     {
@@ -92,21 +97,22 @@ const Sidebar = () => {
   // Filter categories based on search
   const filteredCategories = categories.map((section) => ({
     ...section,
-    items: section.items.filter((item) =>
-      item.title.toLowerCase().includes(query.toLowerCase()) ||
-      item.path.toLowerCase().includes(query.toLowerCase())
+    items: section.items.filter(
+      (item) =>
+        item.title.toLowerCase().includes(query.toLowerCase()) ||
+        item.path.toLowerCase().includes(query.toLowerCase())
     ),
   }));
 
   const toggleSection = (category) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
-      [category]: !prev[category]
+      [category]: !prev[category],
     }));
   };
 
   const isSectionActive = (items) => {
-    return items.some(item => location.pathname === item.path);
+    return items.some((item) => location.pathname === item.path);
   };
 
   return (
@@ -183,8 +189,13 @@ const Sidebar = () => {
                 to="/"
                 className="flex items-center gap-2 p-3 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors text-sm group"
               >
-                <Home size={16} className="text-gray-400 group-hover:text-white" />
-                <span className="text-gray-300 group-hover:text-white">Home</span>
+                <Home
+                  size={16}
+                  className="text-gray-400 group-hover:text-white"
+                />
+                <span className="text-gray-300 group-hover:text-white">
+                  Home
+                </span>
               </NavLink>
               <a
                 href="https://github.com/neuctra"
@@ -192,8 +203,13 @@ const Sidebar = () => {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 p-3 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors text-sm group"
               >
-                <Github size={16} className="text-gray-400 group-hover:text-white" />
-                <span className="text-gray-300 group-hover:text-white">GitHub</span>
+                <Github
+                  size={16}
+                  className="text-gray-400 group-hover:text-white"
+                />
+                <span className="text-gray-300 group-hover:text-white">
+                  GitHub
+                </span>
               </a>
             </div>
           </div>
@@ -203,7 +219,7 @@ const Sidebar = () => {
             <nav className="p-4">
               {filteredCategories.map(({ category, icon: Icon, items }) => {
                 if (items.length === 0) return null;
-                
+
                 const isActive = isSectionActive(items);
                 const isExpanded = expandedSections[category];
 
@@ -212,42 +228,54 @@ const Sidebar = () => {
                     <button
                       onClick={() => toggleSection(category)}
                       className={`flex items-center justify-between w-full p-3 rounded-xl transition-all duration-200 group ${
-                        isActive ? 'bg-[#00c420]/10 border border-[#00c420]/20' : 'hover:bg-gray-800/50'
+                        isActive
+                          ? "bg-[#00c420]/10 border border-[#00c420]/20"
+                          : "hover:bg-gray-800/50"
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <Icon 
-                          size={18} 
+                        <Icon
+                          size={18}
                           className={`${
-                            isActive ? 'text-[#00c420]' : 'text-gray-400 group-hover:text-gray-300'
-                          }`} 
+                            isActive
+                              ? "text-[#00c420]"
+                              : "text-gray-400 group-hover:text-gray-300"
+                          }`}
                         />
-                        <span className={`font-semibold text-sm ${
-                          isActive ? 'text-[#00c420]' : 'text-gray-300 group-hover:text-white'
-                        }`}>
+                        <span
+                          className={`font-semibold text-sm ${
+                            isActive
+                              ? "text-[#00c420]"
+                              : "text-gray-300 group-hover:text-white"
+                          }`}
+                        >
                           {category}
                         </span>
                       </div>
                       {isExpanded ? (
-                        <ChevronDown 
-                          size={16} 
+                        <ChevronDown
+                          size={16}
                           className={`transition-transform ${
-                            isActive ? 'text-[#00c420]' : 'text-gray-400'
-                          }`} 
+                            isActive ? "text-[#00c420]" : "text-gray-400"
+                          }`}
                         />
                       ) : (
-                        <ChevronRight 
-                          size={16} 
+                        <ChevronRight
+                          size={16}
                           className={`transition-transform ${
-                            isActive ? 'text-[#00c420]' : 'text-gray-400'
-                          }`} 
+                            isActive ? "text-[#00c420]" : "text-gray-400"
+                          }`}
                         />
                       )}
                     </button>
 
-                    <div className={`space-y-1 ml-4 transition-all duration-300 ${
-                      isExpanded ? 'opacity-100 max-h-96' : 'opacity-0 max-h-0 overflow-hidden'
-                    }`}>
+                    <div
+                      className={`space-y-1 ml-4 transition-all duration-300 ${
+                        isExpanded
+                          ? "opacity-100 max-h-96"
+                          : "opacity-0 max-h-0 overflow-hidden"
+                      }`}
+                    >
                       {items.map((item) => (
                         <NavLink
                           key={item.path}
@@ -256,26 +284,30 @@ const Sidebar = () => {
                           className={({ isActive }) =>
                             `flex items-center justify-between group relative pl-3 pr-2 py-2 rounded-lg transition-all duration-200 ${
                               isActive
-                                ? "bg-[#00c420]/20 text-[#00c420] border-l-2 border-[#00c420]"
+                                ? " text-[#00c420] "
                                 : "hover:bg-gray-800/30 text-gray-400 hover:text-gray-300"
                             }`
                           }
                         >
                           {({ isActive }) => (
                             <>
-                              <span className="text-sm font-medium">{item.title}</span>
+                              <span className="text-sm font-medium">
+                                {item.title}
+                              </span>
                               <div className="flex items-center gap-2">
                                 {item.badge && (
-                                  <span className={`px-1.5 py-0.5 text-xs rounded-full ${
-                                    item.badge === "New" 
-                                      ? "bg-green-500/20 text-green-400" 
-                                      : "bg-[#00c420]/20 text-[#00c420]"
-                                  }`}>
+                                  <span
+                                    className={`px-1.5 py-0.5 text-xs rounded-full ${
+                                      item.badge === "New"
+                                        ? "bg-green-500/20 text-green-400"
+                                        : "bg-[#00c420]/20 text-[#00c420]"
+                                    }`}
+                                  >
                                     {item.badge}
                                   </span>
                                 )}
                                 {isActive && (
-                                  <div className="w-1 h-1 bg-[#00c420] rounded-full animate-pulse" />
+                                  <div className="w-2 h-2 bg-[#00c420] rounded-full animate-pulse" />
                                 )}
                               </div>
                             </>
@@ -289,22 +321,7 @@ const Sidebar = () => {
             </nav>
           </div>
 
-          {/* Footer */}
-          <div className="p-4 border-t border-gray-800">
-            <div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <Zap size={20} className="text-[#00c420]" />
-                <span className="text-sm font-semibold text-white">Pro Tip</span>
-              </div>
-              <p className="text-xs text-gray-400 mb-3">
-                Use our interactive examples to test API endpoints directly in the documentation.
-              </p>
-              <button className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-[#00c420] hover:bg-green-600 rounded-lg transition-colors text-sm font-medium text-white">
-                <ExternalLink size={14} />
-                Try Live Examples
-              </button>
-            </div>
-          </div>
+         
         </div>
       </aside>
 

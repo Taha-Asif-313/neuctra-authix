@@ -1,8 +1,9 @@
 // src/pages/docs/Authentication.jsx
 import React from "react";
-import CodeBlock from "../../components/docs/CodeBlock";
+import CodeBlock from "../../../components/docs/CodeBlock";
 
-const NeuctraAuthixSdk = () => {
+
+const AuthUserManagement = () => {
   const setupCode = `import { NeuctraAuthix } from "@neuctra/authix";
 
 // Initialize the SDK with your credentials
@@ -201,4 +202,4 @@ console.log("User account deleted");`;
   );
 };
 
-export default NeuctraAuthixSdk;
+export default AuthUserManagement;

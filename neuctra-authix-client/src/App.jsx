@@ -30,6 +30,15 @@ import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import VerifyEmailPage from "./pages/auth/VerifyEmailPage";
 import ChangePassword from "./pages/dashboard/ChangePassword";
 import NeuctraAuthixSdk from "./pages/docs/neuctra-authix-sdk";
+import Pricing from "./pages/public/Pricing";
+import Features from "./pages/public/Features";
+import TermsOfService from "./pages/public/TermsOfService";
+import Contact from "./pages/public/Contact";
+import PrivacyPolicy from "./pages/public/PrivacyPolicy";
+import AuthixSdkIntroduction from "./pages/docs/sdk/AuthixSdkIntroduction";
+import AuthixSdkInstallation from "./pages/docs/sdk/AuthixSdkInstallation";
+import AuthUserManagement from "./pages/docs/sdk/AuthUserManagement";
+import UserDataManagement from "./pages/docs/sdk/UserDataManagement";
 
 // ✅ Protected wrapper inside same file
 const ProtectedRoute = ({ Component }) => {
@@ -96,6 +105,11 @@ function AppContent() {
               )
             }
           />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/features" element={<Features />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         </Route>
 
         {/* Protected dashboard */}
@@ -117,13 +131,23 @@ function AppContent() {
         <Route path="/docs" element={<DocsLayout />}>
           <Route index element={<Introduction />} />
           <Route
-            path="neuctra-authix-sdk"
-            element={<NeuctraAuthixSdk />}
+            path="authix-sdk-introduction"
+            element={<AuthixSdkIntroduction />}
           />
+          <Route
+            path="authix-sdk-installation"
+            element={<AuthixSdkInstallation />}
+          />
+          <Route
+            path="auth-and-user-management"
+            element={<AuthUserManagement />}
+          />
+          <Route path="user-data-management" element={<UserDataManagement />} />
         </Route>
 
         {/* SIngle Pages */}
         <Route path="/verify-email" element={<VerifyEmailPage />} />
+
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

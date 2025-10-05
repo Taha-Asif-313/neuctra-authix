@@ -40,7 +40,7 @@ const Home = () => {
       description:
         "Drop-in SignIn, SignUp, Profile, and OAuth components. Fully customizable, accessible, and production-ready out of the box.",
       stats: "Install & ship in minutes",
-      color: "from-primary/20 to-emerald-600/20",
+      color: "from-white/5 to-white/0",
     },
     {
       icon: <Shield className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />,
@@ -48,7 +48,7 @@ const Home = () => {
       description:
         "JWT tokens, httpOnly cookies, OTP verification, password reset flows, and role-based access control built-in.",
       stats: "Bank-level encryption",
-      color: "from-primary/20 to-green-500/20",
+      color: "from-white/5 to-white/0",
     },
     {
       icon: <Users className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />,
@@ -56,7 +56,7 @@ const Home = () => {
       description:
         "Full CRUD operations, user profiles, extra data storage, and admin controls. Everything you need to manage users at scale.",
       stats: "Unlimited users",
-      color: "from-green-500/20 to-primary/20",
+      color: "from-white/5 to-white/0",
     },
     {
       icon: <Code2 className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />,
@@ -64,7 +64,7 @@ const Home = () => {
       description:
         "Type-safe TypeScript SDK with intuitive API design. Works seamlessly with React, Next.js, Node.js, and any JavaScript framework.",
       stats: "npm install @neuctra/authix",
-      color: "from-emerald-600/20 to-green-600/20",
+      color: "from-white/5 to-white/0",
     },
   ];
 
@@ -151,16 +151,6 @@ const profile = await authix.getProfile({ token });`,
 
   const testimonials = [
     {
-      name: "Sarah Chen",
-      role: "Lead Developer at TechFlow",
-      content:
-        "Integrated @neuctra/authix in under 30 minutes. The pre-built components saved us weeks of development time.",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
-      rating: 5,
-      company: "TechFlow",
-    },
-    {
       name: "Marcus Rodriguez",
       role: "CTO at StartupHub",
       content:
@@ -171,14 +161,24 @@ const profile = await authix.getProfile({ token });`,
       company: "StartupHub",
     },
     {
-      name: "Emily Zhang",
-      role: "Full Stack Engineer at Innovate",
+      name: "Daniel Carter",
+      role: "Software Architect at CloudLink",
       content:
-        "Best auth solution I've used. Clean API, great docs, and the extra data storage feature is a game-changer.",
+        "Authix helped us unify login flows across multiple platforms effortlessly. The developer experience is top-notch.",
       avatar:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
+        "https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
       rating: 5,
-      company: "Innovate",
+      company: "CloudLink",
+    },
+    {
+      name: "Ahmed Khan",
+      role: "Engineering Manager at DevCore",
+      content:
+        "Authentication and user management have never been easier. Authix cut our setup time in half while improving security.",
+      avatar:
+        "https://images.unsplash.com/photo-1624561172888-ac93c696e10c?auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
+      rating: 5,
+      company: "DevCore",
     },
   ];
 
@@ -348,9 +348,7 @@ const profile = await authix.getProfile({ token });`,
                 key={i}
                 className="bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10 hover:border-primary/50 transition-all duration-300 hover:scale-105"
               >
-                <div className="text-primary mb-3 sm:mb-4">
-                  {feature.icon}
-                </div>
+                <div className="text-primary mb-3 sm:mb-4">{feature.icon}</div>
                 <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">
                   {feature.title}
                 </h3>
@@ -456,9 +454,7 @@ const profile = await authix.getProfile({ token });`,
               </h2>
               <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-8 sm:mb-10 max-w-3xl mx-auto px-4">
                 Join thousands of developers using{" "}
-                <span className="text-primary font-bold">
-                  @neuctra/authix
-                </span>{" "}
+                <span className="text-primary font-bold">@neuctra/authix</span>{" "}
                 to power their authentication.
               </p>
 

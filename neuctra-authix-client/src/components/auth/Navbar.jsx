@@ -44,13 +44,13 @@ const Navbar = () => {
             {/* Center Nav (Desktop Only) */}
             <div className="hidden md:flex items-center gap-8">
               {["Features", "Testimonials", "Pricing", "Docs"].map((item) => (
-                <a
+                <Link
                   key={item}
-                  href={`#${item.toLowerCase()}`}
+                  to={`${item.toLowerCase()}`}
                   className="text-gray-300 hover:text-emerald-400 text-sm transition-colors duration-300"
                 >
                   {item}
-                </a>
+                </Link>
               ))}
             </div>
 
