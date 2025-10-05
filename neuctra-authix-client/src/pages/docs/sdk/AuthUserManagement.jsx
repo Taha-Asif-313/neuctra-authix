@@ -1,7 +1,20 @@
 // src/pages/docs/Authentication.jsx
 import React from "react";
 import CodeBlock from "../../../components/docs/CodeBlock";
-
+import {
+  Shield,
+  Settings,
+  UserPlus,
+  LogIn,
+  User,
+  Key,
+  Lock,
+  Trash2,
+  Mail,
+  CheckCircle,
+  AlertCircle,
+  ArrowRight
+} from "lucide-react";
 
 const AuthUserManagement = () => {
   const setupCode = `import { NeuctraAuthix } from "@neuctra/authix";
@@ -87,113 +100,182 @@ await authix.deleteUser({
 console.log("User account deleted");`;
 
   return (
-    <div className="p-8 space-y-8 text-gray-300">
-      <h1 className="text-3xl font-bold text-white">🔐 Authentication & User Management</h1>
-      
-      <p className="text-gray-400 leading-relaxed">
-        Learn how to handle user authentication, manage profiles, and implement security features in your app.
-      </p>
+    <div className="space-y-6 sm:space-y-8 text-gray-300">
+      {/* Header Section */}
+      <div className="space-y-4">
+        <h1 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-3xl lg:text-4xl font-bold text-white">
+          <Shield className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-blue-400 flex-shrink-0" />
+          Auth & User Management
+        </h1>
+        
+        <p className="text-base sm:text-lg text-gray-400 leading-relaxed max-w-4xl">
+          Learn how to handle user authentication, manage profiles, and implement security features in your app.
+        </p>
+      </div>
 
-      <div className="space-y-12">
+      <div className="space-y-8 sm:space-y-12">
         {/* Setup Section */}
-        <section>
-          <h2 className="text-2xl font-semibold text-white mb-4">1. SDK Setup</h2>
-          <p className="text-gray-400 mb-4">
+        <section className="space-y-3 sm:space-y-4">
+          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white">
+            <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400 flex-shrink-0" />
+            1. SDK Setup
+          </h2>
+          <p className="text-sm sm:text-base text-gray-400">
             First, initialize the SDK with your app credentials. You'll get these from your Authix dashboard.
           </p>
           <CodeBlock code={setupCode} language="typescript" />
         </section>
 
         {/* Signup Section */}
-        <section>
-          <h2 className="text-2xl font-semibold text-white mb-4">2. User Signup</h2>
-          <p className="text-gray-400 mb-4">
-            Create new user accounts. Only <code>name</code>, <code>email</code>, and <code>password</code> are required.
+        <section className="space-y-3 sm:space-y-4">
+          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white">
+            <UserPlus className="w-5 h-5 sm:w-6 sm:h-6 text-green-400 flex-shrink-0" />
+            2. User Signup
+          </h2>
+          <p className="text-sm sm:text-base text-gray-400">
+            Create new user accounts. Only <code className="text-sm">name</code>, <code className="text-sm">email</code>, and <code className="text-sm">password</code> are required.
           </p>
           <CodeBlock code={signupCode} language="typescript" />
         </section>
 
         {/* Login Section */}
-        <section>
-          <h2 className="text-2xl font-semibold text-white mb-4">3. User Login</h2>
-          <p className="text-gray-400 mb-4">
+        <section className="space-y-3 sm:space-y-4">
+          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white">
+            <LogIn className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400 flex-shrink-0" />
+            3. User Login
+          </h2>
+          <p className="text-sm sm:text-base text-gray-400">
             Authenticate users and get a JWT token for secure API calls.
           </p>
           <CodeBlock code={loginCode} language="typescript" />
           
-          <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 mt-4">
-            <h4 className="text-green-400 font-semibold mb-2">💡 Important</h4>
-            <p className="text-sm text-gray-300">
+          <div className="bg-green-500/10 border border-green-500/20 rounded-lg sm:rounded-xl p-3 sm:p-4 mt-3 sm:mt-4">
+            <h4 className="flex items-center gap-2 text-green-400 font-semibold mb-2 text-sm sm:text-base">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              Important
+            </h4>
+            <p className="text-xs sm:text-sm text-gray-300">
               Save the JWT token from login response! You'll need it for all protected API calls.
             </p>
           </div>
         </section>
 
         {/* Profile Section */}
-        <section>
-          <h2 className="text-2xl font-semibold text-white mb-4">4. Get User Profile</h2>
-          <p className="text-gray-400 mb-4">
+        <section className="space-y-3 sm:space-y-4">
+          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white">
+            <User className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400 flex-shrink-0" />
+            4. Get User Profile
+          </h2>
+          <p className="text-sm sm:text-base text-gray-400">
             Fetch the current user's profile using their JWT token.
           </p>
           <CodeBlock code={profileCode} language="typescript" />
         </section>
 
         {/* Update Section */}
-        <section>
-          <h2 className="text-2xl font-semibold text-white mb-4">5. Update User Information</h2>
-          <p className="text-gray-400 mb-4">
+        <section className="space-y-3 sm:space-y-4">
+          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white">
+            <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400 flex-shrink-0" />
+            5. Update User Information
+          </h2>
+          <p className="text-sm sm:text-base text-gray-400">
             Allow users to update their profile information.
           </p>
           <CodeBlock code={updateCode} language="typescript" />
         </section>
 
         {/* Password Management */}
-        <section>
-          <h2 className="text-2xl font-semibold text-white mb-4">6. Password Management</h2>
+        <section className="space-y-6 sm:space-y-8">
+          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white">
+            <Key className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400 flex-shrink-0" />
+            6. Password Management
+          </h2>
           
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-3">Change Password</h3>
-              <p className="text-gray-400 mb-3">Users can change their password when logged in.</p>
+          <div className="space-y-6 sm:space-y-8">
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-semibold text-white">
+                <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 flex-shrink-0" />
+                Change Password
+              </h3>
+              <p className="text-sm sm:text-base text-gray-400">Users can change their password when logged in.</p>
               <CodeBlock code={changePasswordCode} language="typescript" />
             </div>
 
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-3">Forgot Password Flow</h3>
-              <p className="text-gray-400 mb-3">Two-step process for password recovery.</p>
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-semibold text-white">
+                <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400 flex-shrink-0" />
+                Forgot Password Flow
+              </h3>
+              <p className="text-sm sm:text-base text-gray-400">Two-step process for password recovery.</p>
               <CodeBlock code={forgotPasswordCode} language="typescript" />
             </div>
           </div>
         </section>
 
         {/* Delete Account */}
-        <section>
-          <h2 className="text-2xl font-semibold text-white mb-4">7. Delete User Account</h2>
-          <p className="text-gray-400 mb-4">
+        <section className="space-y-3 sm:space-y-4">
+          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white">
+            <Trash2 className="w-5 h-5 sm:w-6 sm:h-6 text-red-400 flex-shrink-0" />
+            7. Delete User Account
+          </h2>
+          <p className="text-sm sm:text-base text-gray-400">
             Permanently delete a user account.
           </p>
           <CodeBlock code={deleteCode} language="typescript" />
         </section>
 
         {/* Complete Flow Example */}
-        <section className="bg-purple-500/10 border border-purple-500/20 rounded-2xl p-6">
-          <h2 className="text-2xl font-semibold text-white mb-4">🎯 Complete Authentication Flow</h2>
-          <div className="space-y-3 text-sm text-gray-300">
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-xs">1</div>
-              <span>User signs up with email and password</span>
+        <section className="bg-purple-500/10 border border-purple-500/20 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-6">
+            <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400 flex-shrink-0" />
+            Complete Authentication Flow
+          </h2>
+          <div className="space-y-3 sm:space-y-4 text-xs sm:text-sm text-gray-300">
+            {/* Step 1 */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <UserPlus className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+              </div>
+              <span className="flex-1">User signs up with email and password</span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-xs">2</div>
-              <span>User logs in and receives JWT token</span>
+            
+            {/* Arrow 1 */}
+            <div className="flex justify-center sm:justify-start">
+              <ArrowRight className="w-4 h-4 text-purple-400 transform rotate-90 ml-0 sm:ml-2" />
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-xs">3</div>
-              <span>Use token to access protected routes and user data</span>
+
+            {/* Step 2 */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <LogIn className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+              </div>
+              <span className="flex-1">User logs in and receives JWT token</span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-xs">4</div>
-              <span>User can update profile, change password, or delete account</span>
+            
+            {/* Arrow 2 */}
+            <div className="flex justify-center sm:justify-start">
+              <ArrowRight className="w-4 h-4 text-purple-400 transform rotate-90 ml-0 sm:ml-2" />
+            </div>
+
+            {/* Step 3 */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <Shield className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+              </div>
+              <span className="flex-1">Use token to access protected routes and user data</span>
+            </div>
+            
+            {/* Arrow 3 */}
+            <div className="flex justify-center sm:justify-start">
+              <ArrowRight className="w-4 h-4 text-purple-400 transform rotate-90 ml-0 sm:ml-2" />
+            </div>
+
+            {/* Step 4 */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <Settings className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+              </div>
+              <span className="flex-1">User can update profile, change password, or delete account</span>
             </div>
           </div>
         </section>

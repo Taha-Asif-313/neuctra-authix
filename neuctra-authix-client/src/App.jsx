@@ -39,6 +39,12 @@ import AuthixSdkIntroduction from "./pages/docs/sdk/AuthixSdkIntroduction";
 import AuthixSdkInstallation from "./pages/docs/sdk/AuthixSdkInstallation";
 import AuthUserManagement from "./pages/docs/sdk/AuthUserManagement";
 import UserDataManagement from "./pages/docs/sdk/UserDataManagement";
+import ReactUserLoginDocs from "./pages/docs/react-ui-components/ReactUserLoginDocs";
+import ReactUserSignUpDocs from "./pages/docs/react-ui-components/ReactUserSignUpDocs";
+import ReactUserProfileDocs from "./pages/docs/react-ui-components/ReactUserProfileDocs";
+import ReactUserButtonDocs from "./pages/docs/react-ui-components/ReactUserButtonDocs";
+import ReactSignInComponentDocs from "./pages/docs/react-ui-components/ReactSignInComponentDocs";
+import ReactSignOutComponentDocs from "./pages/docs/react-ui-components/ReactSignOutComponentDocs";
 
 // ✅ Protected wrapper inside same file
 const ProtectedRoute = ({ Component }) => {
@@ -143,6 +149,30 @@ function AppContent() {
             element={<AuthUserManagement />}
           />
           <Route path="user-data-management" element={<UserDataManagement />} />
+          <Route
+            path="react-user-login-docs"
+            element={<ReactUserLoginDocs />}
+          />
+          <Route
+            path="react-user-signup-docs"
+            element={<ReactUserSignUpDocs />}
+          />
+          <Route
+            path="react-user-profile-docs"
+            element={<ReactUserProfileDocs />}
+          />
+          <Route
+            path="react-user-button-docs"
+            element={<ReactUserButtonDocs />}
+          />
+          <Route
+            path="react-signin-component-docs"
+            element={<ReactSignInComponentDocs />}
+          />
+          <Route
+            path="react-signout-component-docs"
+            element={<ReactSignOutComponentDocs />}
+          />
         </Route>
 
         {/* SIngle Pages */}

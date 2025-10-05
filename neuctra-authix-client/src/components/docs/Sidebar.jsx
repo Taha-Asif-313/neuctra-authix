@@ -17,6 +17,7 @@ import {
   Zap,
   Shield,
   Users,
+  Atom,
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -55,22 +56,25 @@ const Sidebar = () => {
         { title: "Introduction", path: "/docs/authix-sdk-introduction" },
         { title: "Installation", path: "/docs/authix-sdk-installation" },
         {
-          title: "Authentication & User Management",
+          title: "Auth & User Management",
           path: "/docs/auth-and-user-management",
         },
         {
-          title: "User Data & Advanced Features",
+          title: "User Data & Features",
           path: "/docs/user-data-management",
         },
       ],
     },
     {
-      category: "User Management",
-      icon: Users,
+      category: "React Ui Components",
+      icon: Atom,
       items: [
-        { title: "User Profiles", path: "/docs/user-profiles" },
-        { title: "Session Management", path: "/docs/session-management" },
-        { title: "Role-Based Access", path: "/docs/rbac" },
+        { title: "User Login", path: "/docs/react-user-login-docs" },
+        { title: "User Signup", path: "/docs/react-user-signup-docs" },
+        { title: "User Profile", path: "/docs/react-user-profile-docs" },
+            { title: "User Button", path: "/docs/react-user-button-docs" },
+              { title: "SignIn Component", path: "/docs/react-signin-component-docs" },
+               { title: "SignOut Component", path: "/docs/react-signout-component-docs" },
       ],
     },
     {

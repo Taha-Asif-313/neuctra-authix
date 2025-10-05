@@ -15,7 +15,7 @@ interface SignInComponentProps {
 }
 
 // SignInComponent - only renders if userInfo exists
-export const ReactSignInComponent: React.FC<SignInComponentProps> = ({
+export const ReactSignedIn: React.FC<SignInComponentProps> = ({
   children,
 }) => {
   if (!checkAuth()) return null;

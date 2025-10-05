@@ -15,7 +15,7 @@ interface SignOutComponentProps {
 }
 
 // SignOutComponent - only renders if userInfo doesn't exist
-export const ReactSignOutComponent: React.FC<SignOutComponentProps> = ({ children }) => {
+export const ReactSignedOut: React.FC<SignOutComponentProps> = ({ children }) => {
   if (checkAuth()) return null; // Don't render if authenticated
 
   return (

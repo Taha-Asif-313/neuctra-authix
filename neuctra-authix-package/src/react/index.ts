@@ -9,10 +9,10 @@ export { ReactUserSignUp } from "./UserSignUp.js";
 export { ReactUserLogin } from "./UserLogin.js";
 
 // ✅ Conditional wrapper that only renders when a user is signed in
-export { ReactSignInComponent } from "./SignInComponent.js";
+export { ReactSignedIn } from "./SignedIn.js";
 
 // 🚪 Conditional wrapper that only renders when a user is signed out
-export { ReactSignOutComponent } from "./SignOutComponent.js";
+export { ReactSignedOut } from "./SignedOut.js";
 
 // 👤 Displays authenticated user's profile info
 export { ReactUserProfile } from "./UserProfile.js";

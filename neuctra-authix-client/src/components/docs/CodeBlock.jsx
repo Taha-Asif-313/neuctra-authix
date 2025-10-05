@@ -91,7 +91,7 @@ const CodeBlock = ({
                   onClick={() => setActiveTab(index)}
                   className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                     activeTab === index
-                      ? "bg-[#00c420]/10 text-[#00c420] border border-[#00c420]/20"
+                      ? "text-[#00c420] "
                       : "text-gray-400 hover:text-gray-300 hover:bg-gray-800/40"
                   }`}
                 >
@@ -168,7 +168,7 @@ const CodeBlock = ({
       </div>
 
       {/* Hover border animation */}
-      <div className="absolute inset-0 pointer-events-none border-2 border-transparent group-hover:border-[#00c420]/20 rounded-xl transition-all duration-300"></div>
+      <div className="absolute inset-0 pointer-events-none border-2 border-transparent  rounded-xl transition-all duration-300"></div>
     </div>
   );
 };

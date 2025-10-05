@@ -21,7 +21,7 @@ const Navbar = () => {
       <nav
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
           isScrolled
-            ? "bg-black/90 backdrop-blur-md py-3 shadow-lg border-b border-primary/20"
+            ? "bg-black/90 backdrop-blur-md py-3 shadow-lg"
             : "bg-transparent py-4"
         }`}
       >
@@ -47,7 +47,7 @@ const Navbar = () => {
                 <Link
                   key={item}
                   to={`${item.toLowerCase()}`}
-                  className="text-gray-300 hover:text-emerald-400 text-sm transition-colors duration-300"
+                  className="text-gray-300 hover:text-primary text-sm transition-colors duration-300"
                 >
                   {item}
                 </Link>
@@ -60,7 +60,7 @@ const Navbar = () => {
               <div className="hidden md:flex items-center gap-3">
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-gray-300 hover:text-emerald-400 rounded-lg transition-all"
+                  className="px-4 py-2 text-gray-300 hover:text-primary rounded-lg transition-all"
                 >
                   Sign In
                 </Link>
@@ -123,7 +123,7 @@ const Navbar = () => {
                 key={item}
                 href={`#${item.toLowerCase()}`}
                 onClick={() => setMobileMenuOpen(false)}
-                className="block text-gray-300 hover:text-emerald-400 text-lg py-2 border-b border-gray-800/50"
+                className="block text-gray-300 hover:text-primary text-lg py-2 border-b border-gray-800/50"
               >
                 {item}
               </a>
@@ -134,7 +134,7 @@ const Navbar = () => {
             <Link
               to="/login"
               onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-center text-gray-300 hover:text-emerald-400 py-3 rounded-lg border border-gray-700 hover:border-primary/50 transition-all"
+              className="block w-full text-center text-gray-300 hover:text-primary py-3 rounded-lg border border-gray-700 hover:border-primary/50 transition-all"
             >
               Sign In
             </Link>

@@ -1,7 +1,29 @@
 // src/pages/docs/UserData.jsx
 import React from "react";
 import CodeBlock from "../../../components/docs/CodeBlock";
-
+import {
+  Database,
+  FileText,
+  BookOpen,
+  Settings,
+  ShoppingCart,
+  BarChart3,
+  Zap,
+  Rocket,
+  Shield,
+  Mail,
+  Key,
+  CheckCircle,
+  AlertCircle,
+  Download,
+  Upload,
+  Edit3,
+  Trash2,
+  Eye,
+  Search,
+  Lock,
+  UserCheck,
+} from "lucide-react";
 
 const UserDataManagement = () => {
   const introText = `Authix isn't just about authentication! You can also store custom data for each user - perfect for notes, blog posts, user preferences, shopping carts, or any other user-specific information.`;
@@ -148,81 +170,121 @@ const profile = await authix.getProfile({
 });`;
 
   return (
-    <div className="p-8 space-y-8 text-gray-300">
-      <h1 className="text-3xl font-bold text-white">
-        💾 User Data & Advanced Features
-      </h1>
+    <div className="space-y-6 sm:space-y-8 text-gray-300">
+      {/* Header Section */}
+      <div className="space-y-4">
+        <h1 className="flex items-center gap-2 sm:gap-3 text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
+          <Database className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-purple-400 flex-shrink-0" />
+          User Data & Features
+        </h1>
 
-      <p className="text-gray-400 leading-relaxed text-lg">{introText}</p>
+        <p className="text-base sm:text-lg text-gray-400 leading-relaxed max-w-4xl">
+          {introText}
+        </p>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-8">
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
-          <div className="text-2xl mb-2">📝</div>
-          <h3 className="font-semibold text-white">Notes App</h3>
+      {/* Use Cases Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 my-6 sm:my-8">
+        <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4 text-center hover:bg-white/10 transition-colors">
+          <div className="flex justify-center mb-2">
+            <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
+          </div>
+          <h3 className="font-semibold text-white text-sm sm:text-base">
+            Notes App
+          </h3>
           <p className="text-xs text-gray-400 mt-1">
             Store user notes with categories
           </p>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
-          <div className="text-2xl mb-2">📰</div>
-          <h3 className="font-semibold text-white">Blog Platform</h3>
+
+        <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4 text-center hover:bg-white/10 transition-colors">
+          <div className="flex justify-center mb-2">
+            <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
+          </div>
+          <h3 className="font-semibold text-white text-sm sm:text-base">
+            Blog Platform
+          </h3>
           <p className="text-xs text-gray-400 mt-1">
             User blog posts with tags
           </p>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
-          <div className="text-2xl mb-2">⚙️</div>
-          <h3 className="font-semibold text-white">Preferences</h3>
+
+        <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4 text-center hover:bg-white/10 transition-colors">
+          <div className="flex justify-center mb-2">
+            <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400" />
+          </div>
+          <h3 className="font-semibold text-white text-sm sm:text-base">
+            Preferences
+          </h3>
           <p className="text-xs text-gray-400 mt-1">
             User settings and preferences
           </p>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
-          <div className="text-2xl mb-2">🛒</div>
-          <h3 className="font-semibold text-white">Shopping Cart</h3>
+
+        <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4 text-center hover:bg-white/10 transition-colors">
+          <div className="flex justify-center mb-2">
+            <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-red-400" />
+          </div>
+          <h3 className="font-semibold text-white text-sm sm:text-base">
+            Shopping Cart
+          </h3>
           <p className="text-xs text-gray-400 mt-1">
             User cart items and orders
           </p>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
-          <div className="text-2xl mb-2">📊</div>
-          <h3 className="font-semibold text-white">Analytics</h3>
+
+        <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4 text-center hover:bg-white/10 transition-colors">
+          <div className="flex justify-center mb-2">
+            <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400" />
+          </div>
+          <h3 className="font-semibold text-white text-sm sm:text-base">
+            Analytics
+          </h3>
           <p className="text-xs text-gray-400 mt-1">User behavior data</p>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
-          <div className="text-2xl mb-2">🎯</div>
-          <h3 className="font-semibold text-white">Custom Data</h3>
+
+        <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-4 text-center hover:bg-white/10 transition-colors">
+          <div className="flex justify-center mb-2">
+            <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
+          </div>
+          <h3 className="font-semibold text-white text-sm sm:text-base">
+            Custom Data
+          </h3>
           <p className="text-xs text-gray-400 mt-1">
             Anything you can imagine!
           </p>
         </div>
       </div>
 
-      <div className="space-y-12">
+      <div className="space-y-8 sm:space-y-12">
         {/* Storing Data Examples */}
-        <section>
-          <h2 className="text-2xl font-semibold text-white mb-6">
+        <section className="space-y-6 sm:space-y-8">
+          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white">
+            <Download className="w-5 h-5 sm:w-6 sm:h-6 text-green-400 flex-shrink-0" />
             1. Storing User Data
           </h2>
 
-          <div className="space-y-8">
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-3">
-                📝 Notes Application
+          <div className="space-y-6 sm:space-y-8">
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-semibold text-white">
+                <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400 flex-shrink-0" />
+                Notes Application
               </h3>
               <CodeBlock code={storeNotesCode} language="typescript" />
             </div>
 
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-3">
-                📰 Blog Posts
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-semibold text-white">
+                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 flex-shrink-0" />
+                Blog Posts
               </h3>
               <CodeBlock code={storeBlogCode} language="typescript" />
             </div>
 
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-3">
-                ⚙️ User Preferences
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-semibold text-white">
+                <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400 flex-shrink-0" />
+                User Preferences
               </h3>
               <CodeBlock code={storePreferencesCode} language="typescript" />
             </div>
@@ -230,21 +292,24 @@ const profile = await authix.getProfile({
         </section>
 
         {/* Retrieving Data */}
-        <section>
-          <h2 className="text-2xl font-semibold text-white mb-6">
+        <section className="space-y-6 sm:space-y-8">
+          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white">
+            <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400 flex-shrink-0" />
             2. Retrieving User Data
           </h2>
 
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-3">
+          <div className="space-y-6 sm:space-y-8">
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-semibold text-white">
+                <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400 flex-shrink-0" />
                 Get All Data
               </h3>
               <CodeBlock code={getAllDataCode} language="typescript" />
             </div>
 
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-3">
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-semibold text-white">
+                <Search className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 flex-shrink-0" />
                 Get Specific Item
               </h3>
               <CodeBlock code={getSingleDataCode} language="typescript" />
@@ -253,21 +318,24 @@ const profile = await authix.getProfile({
         </section>
 
         {/* Updating & Deleting */}
-        <section>
-          <h2 className="text-2xl font-semibold text-white mb-6">
+        <section className="space-y-6 sm:space-y-8">
+          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white">
+            <Edit3 className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400 flex-shrink-0" />
             3. Managing Data
           </h2>
 
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-3">
+          <div className="space-y-6 sm:space-y-8">
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-semibold text-white">
+                <Edit3 className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400 flex-shrink-0" />
                 Update Data
               </h3>
               <CodeBlock code={updateDataCode} language="typescript" />
             </div>
 
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-3">
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-semibold text-white">
+                <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 text-red-400 flex-shrink-0" />
                 Delete Data
               </h3>
               <CodeBlock code={deleteDataCode} language="typescript" />
@@ -276,11 +344,12 @@ const profile = await authix.getProfile({
         </section>
 
         {/* Complete Example */}
-        <section className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-2xl p-6">
-          <h2 className="text-2xl font-semibold text-white mb-4">
-            🚀 Complete Blog App Example
+        <section className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white mb-3 sm:mb-4">
+            <Rocket className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400 flex-shrink-0" />
+            Complete Blog App Example
           </h2>
-          <p className="text-gray-400 mb-4">
+          <p className="text-sm sm:text-base text-gray-400 mb-3 sm:mb-4">
             Here's how you could build a simple blog platform using Authix user
             data:
           </p>
@@ -288,26 +357,30 @@ const profile = await authix.getProfile({
         </section>
 
         {/* Security Features */}
-        <section>
-          <h2 className="text-2xl font-semibold text-white mb-6">
+        <section className="space-y-6 sm:space-y-8">
+          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white">
+            <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-green-400 flex-shrink-0" />
             4. Security Features
           </h2>
+
           <CodeBlock code={securityFeaturesCode} language="typescript" />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-            <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
-              <h4 className="text-green-400 font-semibold mb-2">
-                ✅ Email Verification
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-6">
+            <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 sm:p-4">
+              <h4 className="flex items-center gap-2 text-green-400 font-semibold mb-2 text-sm sm:text-base">
+                <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                Email Verification
               </h4>
-              <p className="text-sm text-gray-300">
+              <p className="text-xs sm:text-sm text-gray-300">
                 Verify user emails with OTP codes for added security
               </p>
             </div>
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-              <h4 className="text-blue-400 font-semibold mb-2">
-                ✅ Password Reset
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 sm:p-4">
+              <h4 className="flex items-center gap-2 text-blue-400 font-semibold mb-2 text-sm sm:text-base">
+                <Key className="w-4 h-4 flex-shrink-0" />
+                Password Reset
               </h4>
-              <p className="text-sm text-gray-300">
+              <p className="text-xs sm:text-sm text-gray-300">
                 Secure password recovery with OTP verification
               </p>
             </div>
@@ -315,37 +388,41 @@ const profile = await authix.getProfile({
         </section>
 
         {/* Best Practices */}
-        <section className="bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-6">
-          <h2 className="text-2xl font-semibold text-white mb-4">
-            💡 Best Practices
+        <section className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white mb-3 sm:mb-4">
+            <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400 flex-shrink-0" />
+            Best Practices
           </h2>
-          <ul className="space-y-3 text-gray-300">
-            <li className="flex items-start gap-3">
-              <span className="text-yellow-400 mt-1">•</span>
+          <ul className="space-y-2 sm:space-y-3 text-sm sm:text-base text-gray-300">
+            <li className="flex items-start gap-2 sm:gap-3">
+              <Lock className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
               <span>Always store the JWT token securely after login</span>
             </li>
-            <li className="flex items-start gap-3">
-              <span className="text-yellow-400 mt-1">•</span>
+            <li className="flex items-start gap-2 sm:gap-3">
+              <Database className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
               <span>
-                Include a <code>type</code> field in your data objects for easy
-                filtering
+                Include a{" "}
+                <code className="bg-black/30 px-1 py-0.5 rounded text-xs">
+                  type
+                </code>{" "}
+                field in your data objects for easy filtering
               </span>
             </li>
-            <li className="flex items-start gap-3">
-              <span className="text-yellow-400 mt-1">•</span>
+            <li className="flex items-start gap-2 sm:gap-3">
+              <FileText className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
               <span>
                 Use consistent data structures for similar items (notes, blogs,
                 etc.)
               </span>
             </li>
-            <li className="flex items-start gap-3">
-              <span className="text-yellow-400 mt-1">•</span>
+            <li className="flex items-start gap-2 sm:gap-3">
+              <UserCheck className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
               <span>
                 Implement email verification for important applications
               </span>
             </li>
-            <li className="flex items-start gap-3">
-              <span className="text-yellow-400 mt-1">•</span>
+            <li className="flex items-start gap-2 sm:gap-3">
+              <Shield className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
               <span>
                 Handle errors gracefully - use try/catch blocks in production
               </span>
