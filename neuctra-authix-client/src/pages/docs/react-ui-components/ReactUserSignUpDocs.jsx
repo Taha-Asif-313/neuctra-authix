@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 
 const ReactUserSignUpDocs = () => {
-  const basicUsageCode = `import { ReactUserSignUp } from "@neuctra/authix-react";
+  const basicUsageCode = `import { ReactUserSignUp } from "@neuctra/authix";
 
 // Basic usage
 function SignupPage() {
@@ -39,7 +39,7 @@ function SignupPage() {
   );
 }`;
 
-  const fullPropsCode = `import { ReactUserSignUp } from "@neuctra/authix-react";
+  const fullPropsCode = `import { ReactUserSignUp } from "@neuctra/authix";
 
 // Full customization
 function CustomSignupPage() {
@@ -76,7 +76,7 @@ function CustomSignupPage() {
   );
 }`;
 
-  const integrationExampleCode = `import { ReactUserSignUp, ReactUserLogin } from "@neuctra/authix-react";
+  const integrationExampleCode = `import { ReactUserSignUp, ReactUserLogin } from "@neuctra/authix";
 import { useState } from "react";
 
 function AuthPage() {

@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 const ReactUserLoginDocs = () => {
-  const basicUsageCode = `import { ReactUserLogin } from "@neuctra/authix-react";
+  const basicUsageCode = `import { ReactUserLogin } from "@neuctra/authix";
 
 // Basic usage
 function LoginPage() {
@@ -37,7 +37,7 @@ function LoginPage() {
   );
 }`;
 
-  const fullPropsCode = `import { ReactUserLogin } from "@neuctra/authix-react";
+  const fullPropsCode = `import { ReactUserLogin } from "@neuctra/authix";
 
 // Full customization
 function CustomLoginPage() {
@@ -71,7 +71,7 @@ function CustomLoginPage() {
   );
 }`;
 
-  const integrationExampleCode = `import { ReactUserLogin } from "@neuctra/authix-react";
+  const integrationExampleCode = `import { ReactUserLogin } from "@neuctra/authix";
 import { useState, useEffect } from "react";
 
 function App() {

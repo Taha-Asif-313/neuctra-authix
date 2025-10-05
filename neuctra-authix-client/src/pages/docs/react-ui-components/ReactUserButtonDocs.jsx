@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 
 const ReactUserButtonDocs = () => {
-  const basicUsageCode = `import { ReactUserButton } from "@neuctra/authix-react";
+  const basicUsageCode = `import { ReactUserButton } from "@neuctra/authix";
 
 // Basic usage with logout handler
 function Navigation() {
@@ -47,7 +47,7 @@ function Navigation() {
   );
 }`;
 
-  const withUserDataCode = `import { ReactUserButton } from "@neuctra/authix-react";
+  const withUserDataCode = `import { ReactUserButton } from "@neuctra/authix";
 
 // Using with pre-loaded user data
 function Dashboard({ user }) {
@@ -68,7 +68,7 @@ function Dashboard({ user }) {
   );
 }`;
 
-  const customUrlsCode = `import { ReactUserButton } from "@neuctra/authix-react";
+  const customUrlsCode = `import { ReactUserButton } from "@neuctra/authix";
 
 function AppHeader() {
   const handleLogout = () => {
@@ -92,7 +92,7 @@ function AppHeader() {
   );
 }`;
 
-  const fullCustomizationCode = `import { ReactUserButton } from "@neuctra/authix-react";
+  const fullCustomizationCode = `import { ReactUserButton } from "@neuctra/authix";
 
 function CustomUserButton() {
   const userData = {
@@ -128,7 +128,7 @@ function CustomUserButton() {
   );
 }`;
 
-  const integrationExampleCode = `import { ReactUserButton, ReactUserLogin } from "@neuctra/authix-react";
+  const integrationExampleCode = `import { ReactUserButton, ReactUserLogin } from "@neuctra/authix";
 import { useState, useEffect } from "react";
 
 function AppLayout() {

@@ -43,8 +43,8 @@ import ReactUserLoginDocs from "./pages/docs/react-ui-components/ReactUserLoginD
 import ReactUserSignUpDocs from "./pages/docs/react-ui-components/ReactUserSignUpDocs";
 import ReactUserProfileDocs from "./pages/docs/react-ui-components/ReactUserProfileDocs";
 import ReactUserButtonDocs from "./pages/docs/react-ui-components/ReactUserButtonDocs";
-import ReactSignInComponentDocs from "./pages/docs/react-ui-components/ReactSignInComponentDocs";
-import ReactSignOutComponentDocs from "./pages/docs/react-ui-components/ReactSignOutComponentDocs";
+import ReactSignedOutDocs from "./pages/docs/react-ui-components/ReactSignedOutDocs";
+import ReactSignedInDocs from "./pages/docs/react-ui-components/ReactSignedInDocs";
 
 // ✅ Protected wrapper inside same file
 const ProtectedRoute = ({ Component }) => {
@@ -167,11 +167,11 @@ function AppContent() {
           />
           <Route
             path="react-signin-component-docs"
-            element={<ReactSignInComponentDocs />}
+            element={<ReactSignedInDocs />}
           />
           <Route
             path="react-signout-component-docs"
-            element={<ReactSignOutComponentDocs />}
+            element={<ReactSignedOutDocs />}
           />
         </Route>
 

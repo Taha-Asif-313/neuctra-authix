@@ -1,4 +1,4 @@
-// src/pages/docs/components/ReactSignInComponent.jsx
+// src/pages/docs/components/ReactSignedIn.jsx
 import React from "react";
 import CodeBlock from "../../../components/docs/CodeBlock";
 import {
@@ -20,8 +20,8 @@ import {
   Settings
 } from "lucide-react";
 
-const ReactSignInComponentDocs = () => {
-  const basicUsageCode = `import { ReactSignInComponent } from "@neuctra/authix-react";
+const ReactSignedInDocs = () => {
+  const basicUsageCode = `import { ReactSignedIn } from "@neuctra/authix";
 
 // Basic usage - shows content only when signed in
 function Dashboard() {
@@ -31,13 +31,13 @@ function Dashboard() {
         <h1>My Dashboard</h1>
       </header>
       
-      <ReactSignInComponent>
+      <ReactSignedIn>
         <div className="sensitive-content">
           <h2>User Analytics</h2>
           <p>This content is only visible to authenticated users.</p>
           <button>View Reports</button>
         </div>
-      </ReactSignInComponent>
+      </ReactSignedIn>
       
       <footer>
         <p>Public footer content</p>
@@ -46,25 +46,25 @@ function Dashboard() {
   );
 }`;
 
-  const conditionalRenderingCode = `import { ReactSignInComponent } from "@neuctra/authix-react";
+  const conditionalRenderingCode = `import { ReactSignedIn } from "@neuctra/authix";
 
 // Conditional rendering with fallback
 function UserProfile() {
   return (
     <div className="profile-page">
-      <ReactSignInComponent>
+      <ReactSignedIn>
         {/* Authenticated content */}
         <div className="user-profile">
           <h2>Your Profile</h2>
           <p>Manage your account settings and preferences.</p>
           <button>Edit Profile</button>
         </div>
-      </ReactSignInComponent>
+      </ReactSignedIn>
       
       {/* Public fallback content */}
-      <ReactSignInComponent>
+      <ReactSignedIn>
         {null}
-      </ReactSignInComponent>
+      </ReactSignedIn>
       <div className="sign-in-prompt">
         <p>Please sign in to view your profile.</p>
         <a href="/login">Sign In</a>
@@ -73,29 +73,29 @@ function UserProfile() {
   );
 }`;
 
-  const defaultContentCode = `import { ReactSignInComponent } from "@neuctra/authix-react";
+  const defaultContentCode = `import { ReactSignedIn } from "@neuctra/authix";
 
 // Using default content
 function AdminPanel() {
   return (
     <div className="admin-layout">
-      <ReactSignInComponent>
+      <ReactSignedIn>
         {/* Custom admin content */}
         <div className="admin-tools">
           <h3>Administrator Tools</h3>
           <button>Manage Users</button>
           <button>View Analytics</button>
         </div>
-      </ReactSignInComponent>
+      </ReactSignedIn>
       
-      <ReactSignInComponent>
+      <ReactSignedIn>
         {/* Shows default signed-in content */}
-      </ReactSignInComponent>
+      </ReactSignedIn>
     </div>
   );
 }`;
 
-  const integrationExampleCode = `import { ReactSignInComponent, ReactUserLogin } from "@neuctra/authix-react";
+  const integrationExampleCode = `import { ReactSignedIn, ReactUserLogin } from "@neuctra/authix";
 import { useState, useEffect } from "react";
 
 function App() {
@@ -144,7 +144,7 @@ function App() {
         {!isAuthenticated ? (
           <ReactUserLogin onSuccess={handleLoginSuccess} />
         ) : (
-          <ReactSignInComponent>
+          <ReactSignedIn>
             <div className="authenticated-content">
               <h2>Welcome Back!</h2>
               <p>You have successfully signed in.</p>
@@ -163,14 +163,14 @@ function App() {
                 </div>
               </div>
             </div>
-          </ReactSignInComponent>
+          </ReactSignedIn>
         )}
       </main>
     </div>
   );
 }`;
 
-  const advancedUsageCode = `import { ReactSignInComponent } from "@neuctra/authix-react";
+  const advancedUsageCode = `import { ReactSignedIn } from "@neuctra/authix";
 import { useMemo } from "react";
 
 function ComplexComponent({ userData }) {
@@ -193,14 +193,14 @@ function ComplexComponent({ userData }) {
       </header>
 
       {/* Conditionally render expensive content */}
-      <ReactSignInComponent>
+      <ReactSignedIn>
         {expensiveContent}
-      </ReactSignInComponent>
+      </ReactSignedIn>
 
       {/* Fallback for non-authenticated users */}
-      <ReactSignInComponent>
+      <ReactSignedIn>
         {null}
-      </ReactSignInComponent>
+      </ReactSignedIn>
       <div className="upgrade-prompt">
         <h2>Upgrade to Premium</h2>
         <p>Sign in to access advanced features</p>
@@ -309,7 +309,7 @@ function ComplexComponent({ userData }) {
       <div className="space-y-4">
         <h1 className="flex items-center gap-2 sm:gap-3 text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
           <Lock className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-green-400 flex-shrink-0" />
-          ReactSignInComponent
+          ReactSignedIn Component
         </h1>
         
         <p className="text-base sm:text-lg text-gray-400 leading-relaxed max-w-4xl">
@@ -703,7 +703,7 @@ function ComplexComponent({ userData }) {
           Implementation Ready!
         </h3>
         <p className="text-sm sm:text-base text-gray-300 mb-3">
-          The ReactSignInComponent provides robust conditional rendering for authenticated content:
+          The ReactSignedIn component provides robust conditional rendering for authenticated content:
         </p>
         <ul className="text-sm sm:text-base text-gray-300 space-y-2">
           <li className="flex items-center gap-2">
@@ -732,4 +732,4 @@ function ComplexComponent({ userData }) {
   );
 };
 
-export default ReactSignInComponentDocs;
+export default ReactSignedInDocs;

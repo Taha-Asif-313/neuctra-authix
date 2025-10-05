@@ -1,4 +1,4 @@
-// src/pages/docs/components/ReactSignOutComponent.jsx
+// src/pages/docs/components/ReactSignedOut.jsx
 import React from "react";
 import CodeBlock from "../../../components/docs/CodeBlock";
 import {
@@ -21,8 +21,8 @@ import {
   ArrowRight
 } from "lucide-react";
 
-const ReactSignOutComponentDocs = () => {
-  const basicUsageCode = `import { ReactSignOutComponent } from "@neuctra/authix-react";
+const ReactSignedOutDocs = () => {
+  const basicUsageCode = `import { ReactSignedOut } from "@neuctra/authix";
 
 // Basic usage - shows content only when signed out
 function HomePage() {
@@ -32,13 +32,13 @@ function HomePage() {
         <h1>Welcome to Our App</h1>
       </header>
       
-      <ReactSignOutComponent>
+      <ReactSignedOut>
         <div className="signup-cta">
           <h2>Join Our Community</h2>
           <p>Sign up to access exclusive features and content.</p>
           <button>Get Started</button>
         </div>
-      </ReactSignOutComponent>
+      </ReactSignedOut>
       
       <footer>
         <p>© 2024 My App. All rights reserved.</p>
@@ -47,7 +47,7 @@ function HomePage() {
   );
 }`;
 
-  const conditionalRenderingCode = `import { ReactSignOutComponent } from "@neuctra/authix-react";
+  const conditionalRenderingCode = `import { ReactSignedOut } from "@neuctra/authix";
 
 // Conditional rendering with authentication flow
 function Navigation() {
@@ -59,17 +59,17 @@ function Navigation() {
       
       <div className="nav-actions">
         {/* Show auth buttons only when signed out */}
-        <ReactSignOutComponent>
+        <ReactSignedOut>
           <div className="auth-buttons">
             <button className="login-btn">Sign In</button>
             <button className="signup-btn">Get Started</button>
           </div>
-        </ReactSignOutComponent>
+        </ReactSignedOut>
         
         {/* Show user menu when signed in */}
-        <ReactSignOutComponent>
+        <ReactSignedOut>
           {null}
-        </ReactSignOutComponent>
+        </ReactSignedOut>
         <div className="user-menu">
           {/* User menu content for authenticated users */}
         </div>
@@ -78,13 +78,13 @@ function Navigation() {
   );
 }`;
 
-  const defaultContentCode = `import { ReactSignOutComponent } from "@neuctra/authix-react";
+  const defaultContentCode = `import { ReactSignedOut } from "@neuctra/authix";
 
 // Using default content for signed-out state
 function LandingPage() {
   return (
     <div className="landing-page">
-      <ReactSignOutComponent>
+      <ReactSignedOut>
         {/* Custom sign-out content */}
         <div className="premium-cta">
           <h2>Unlock Premium Features</h2>
@@ -95,16 +95,16 @@ function LandingPage() {
             <div>✓ Custom Templates</div>
           </div>
         </div>
-      </ReactSignOutComponent>
+      </ReactSignedOut>
       
-      <ReactSignOutComponent>
+      <ReactSignedOut>
         {/* Shows default signed-out content */}
-      </ReactSignOutComponent>
+      </ReactSignedOut>
     </div>
   );
 }`;
 
-  const integrationExampleCode = `import { ReactSignOutComponent, ReactUserLogin } from "@neuctra/authix-react";
+  const integrationExampleCode = `import { ReactSignedOut, ReactUserLogin } from "@neuctra/authix";
 import { useState, useEffect } from "react";
 
 function App() {
@@ -141,20 +141,20 @@ function App() {
         <div className="header-content">
           <div className="logo">MyApp</div>
           
-          <ReactSignOutComponent>
+          <ReactSignedOut>
             <div className="header-actions">
               <button onClick={() => document.getElementById('login-modal').showModal()}>
                 Sign In
               </button>
               <button className="primary">Sign Up</button>
             </div>
-          </ReactSignOutComponent>
+          </ReactSignedOut>
         </div>
       </header>
 
       <main className="app-main">
         {/* Hero section only for signed-out users */}
-        <ReactSignOutComponent>
+        <ReactSignedOut>
           <section className="hero">
             <div className="hero-content">
               <h1>Welcome to MyApp</h1>
@@ -165,7 +165,7 @@ function App() {
               </div>
             </div>
           </section>
-        </ReactSignOutComponent>
+        </ReactSignedOut>
 
         {/* Features section for all users */}
         <section className="features">
@@ -197,7 +197,7 @@ function App() {
   );
 }`;
 
-  const advancedUsageCode = `import { ReactSignOutComponent } from "@neuctra/authix-react";
+  const advancedUsageCode = `import { ReactSignedOut } from "@neuctra/authix";
 import { useMemo } from "react";
 
 function MarketingPage({ userData }) {
@@ -225,24 +225,24 @@ function MarketingPage({ userData }) {
       <header className="public-header">
         <nav>
           <div className="nav-logo">MyApp</div>
-          <ReactSignOutComponent>
+          <ReactSignedOut>
             <div className="nav-cta">
               <a href="/login">Sign In</a>
               <a href="/signup" className="cta-button">Get Started</a>
             </div>
-          </ReactSignOutComponent>
+          </ReactSignedOut>
         </nav>
       </header>
 
       {/* Conditionally render marketing content */}
-      <ReactSignOutComponent>
+      <ReactSignedOut>
         {marketingContent}
-      </ReactSignOutComponent>
+      </ReactSignedOut>
 
       {/* For authenticated users, show dashboard redirect */}
-      <ReactSignOutComponent>
+      <ReactSignedOut>
         {null}
-      </ReactSignOutComponent>
+      </ReactSignedOut>
       <div className="authenticated-redirect">
         <h2>Welcome Back!</h2>
         <p>You're already signed in. Head to your dashboard to continue.</p>
@@ -252,7 +252,7 @@ function MarketingPage({ userData }) {
   );
 }`;
 
-  const multiComponentCode = `import { ReactSignOutComponent, ReactSignInComponent } from "@neuctra/authix-react";
+  const multiComponentCode = `import { ReactSignedOut, ReactSignedIn } from "@neuctra/authix";
 
 function SmartNavigation() {
   return (
@@ -263,38 +263,38 @@ function SmartNavigation() {
       
       <div className="nav-content">
         {/* Public navigation items */}
-        <ReactSignOutComponent>
+        <ReactSignedOut>
           <div className="public-nav">
             <a href="/features">Features</a>
             <a href="/pricing">Pricing</a>
             <a href="/about">About</a>
           </div>
-        </ReactSignOutComponent>
+        </ReactSignedOut>
         
         {/* Private navigation items */}
-        <ReactSignInComponent>
+        <ReactSignedIn>
           <div className="private-nav">
             <a href="/dashboard">Dashboard</a>
             <a href="/projects">Projects</a>
             <a href="/team">Team</a>
           </div>
-        </ReactSignInComponent>
+        </ReactSignedIn>
         
         {/* Auth section */}
         <div className="nav-auth">
-          <ReactSignOutComponent>
+          <ReactSignedOut>
             <div className="auth-buttons">
               <a href="/login" className="login-btn">Sign In</a>
               <a href="/signup" className="signup-btn">Sign Up</a>
             </div>
-          </ReactSignOutComponent>
+          </ReactSignedOut>
           
-          <ReactSignInComponent>
+          <ReactSignedIn>
             <div className="user-section">
               <UserAvatar />
               <UserDropdown />
             </div>
-          </ReactSignInComponent>
+          </ReactSignedIn>
         </div>
       </div>
     </nav>
@@ -396,7 +396,7 @@ function SmartNavigation() {
 
   const complementaryComponents = [
     {
-      name: "ReactSignInComponent",
+      name: "ReactSignedIn",
       description: "Renders content only when user IS authenticated",
       useCase: "Protected content, user dashboards, private features"
     },
@@ -418,11 +418,11 @@ function SmartNavigation() {
       <div className="space-y-4">
         <h1 className="flex items-center gap-2 sm:gap-3 text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
           <LogOut className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-blue-400 flex-shrink-0" />
-          ReactSignOutComponent
+          ReactSignedOut Component
         </h1>
         
         <p className="text-base sm:text-lg text-gray-400 leading-relaxed max-w-4xl">
-          The inverse companion to ReactSignInComponent - conditionally renders content only when 
+          The inverse companion to ReactSignedIn - conditionally renders content only when 
           users are NOT authenticated. Perfect for marketing content, sign-up prompts, and public 
           features that should disappear once users log in.
         </p>
@@ -463,7 +463,7 @@ function SmartNavigation() {
             Inverse Authentication Logic
           </h4>
           <p className="text-xs sm:text-sm text-gray-300">
-            The component uses the same robust auth checking as <code className="text-blue-300">ReactSignInComponent</code> 
+            The component uses the same robust auth checking as <code className="text-blue-300">ReactSignedIn</code> 
             but inverts the logic - rendering content only when <code className="text-blue-300">userInfo</code> is 
             missing or invalid in <code className="text-blue-300">localStorage</code>.
           </p>
@@ -498,7 +498,7 @@ function SmartNavigation() {
             Complementary Security
           </h4>
           <p className="text-xs sm:text-sm text-gray-300">
-            Use <code className="text-blue-300">ReactSignOutComponent</code> alongside <code className="text-blue-300">ReactSignInComponent</code> 
+            Use <code className="text-blue-300">ReactSignedOut</code> alongside <code className="text-blue-300">ReactSignedIn</code> 
             to create comprehensive authentication-based UI flows that seamlessly adapt to user login states.
           </p>
         </div>
@@ -590,7 +590,7 @@ function SmartNavigation() {
             Smart UI Patterns
           </h4>
           <p className="text-xs sm:text-sm text-gray-300">
-            Combine with <code className="text-green-300">ReactSignInComponent</code> to create 
+            Combine with <code className="text-green-300">ReactSignedIn</code> to create 
             complementary UI sections that automatically switch between public and private 
             interfaces based on authentication state.
           </p>
@@ -749,7 +749,7 @@ function SmartNavigation() {
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-purple-400" />
-                <span>Combine with SignInComponent for complete flows</span>
+                <span>Combine with ReactSignedIn for complete flows</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-purple-400" />
@@ -844,7 +844,7 @@ function SmartNavigation() {
           Ready for Public Content!
         </h3>
         <p className="text-sm sm:text-base text-gray-300 mb-3">
-          The ReactSignOutComponent provides robust conditional rendering for public-facing content:
+          The ReactSignedOut component provides robust conditional rendering for public-facing content:
         </p>
         <ul className="text-sm sm:text-base text-gray-300 space-y-2">
           <li className="flex items-center gap-2">
@@ -873,4 +873,4 @@ function SmartNavigation() {
   );
 };
 
-export default ReactSignOutComponentDocs;
+export default ReactSignedOutDocs;

@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 
 const ReactUserProfileDocs = () => {
-  const basicUsageCode = `import { ReactUserProfile } from "@neuctra/authix-react";
+  const basicUsageCode = `import { ReactUserProfile } from "@neuctra/authix";
 
 // Basic usage with token
 function ProfilePage() {
@@ -45,7 +45,7 @@ function ProfilePage() {
   );
 }`;
 
-  const withUserPropCode = `import { ReactUserProfile } from "@neuctra/authix-react";
+  const withUserPropCode = `import { ReactUserProfile } from "@neuctra/authix";
 
 // Using with pre-loaded user data
 function Dashboard({ user }) {
@@ -61,7 +61,7 @@ function Dashboard({ user }) {
   );
 }`;
 
-  const fullCustomizationCode = `import { ReactUserProfile } from "@neuctra/authix-react";
+  const fullCustomizationCode = `import { ReactUserProfile } from "@neuctra/authix";
 
 function CustomProfilePage() {
   const userToken = localStorage.getItem('userToken');
@@ -86,7 +86,7 @@ function CustomProfilePage() {
   );
 }`;
 
-  const integrationExampleCode = `import { ReactUserProfile, ReactUserLogin } from "@neuctra/authix-react";
+  const integrationExampleCode = `import { ReactUserProfile, ReactUserLogin } from "@neuctra/authix";
 import { useState, useEffect } from "react";
 
 function App() {
