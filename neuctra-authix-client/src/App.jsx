@@ -46,6 +46,7 @@ import ReactUserButtonDocs from "./pages/docs/react-ui-components/ReactUserButto
 import ReactSignedOutDocs from "./pages/docs/react-ui-components/ReactSignedOutDocs";
 import ReactSignedInDocs from "./pages/docs/react-ui-components/ReactSignedInDocs";
 import ReactSetupDocs from "./pages/docs/react-ui-components/ReactSetupDocs";
+import Installation from "./pages/docs/installation";
 
 // ✅ Protected wrapper inside same file
 const ProtectedRoute = ({ Component }) => {
@@ -137,6 +138,7 @@ function AppContent() {
         {/* Public Docs */}
         <Route path="/docs" element={<DocsLayout />}>
           <Route index element={<Introduction />} />
+          <Route path="installation" element={<Installation />} />
           <Route
             path="authix-sdk-introduction"
             element={<AuthixSdkIntroduction />}
@@ -150,10 +152,7 @@ function AppContent() {
             element={<AuthUserManagement />}
           />
           <Route path="user-data-management" element={<UserDataManagement />} />
-           <Route
-            path="react-setup-docs"
-            element={<ReactSetupDocs />}
-          />
+          <Route path="react-setup-docs" element={<ReactSetupDocs />} />
           <Route
             path="react-user-login-docs"
             element={<ReactUserLoginDocs />}

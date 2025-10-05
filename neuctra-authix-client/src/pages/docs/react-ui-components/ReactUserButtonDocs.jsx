@@ -392,7 +392,7 @@ function AppLayout() {
   ];
 
   return (
-    <div className="px-4 py-6 sm:px-6 lg:px-8 space-y-6 sm:space-y-8 text-gray-300">
+    <div className="space-y-6 sm:space-y-8 text-gray-300">
       {/* Header Section */}
       <div className="space-y-4">
         <h1 className="flex items-center gap-2 sm:gap-3 text-2xl sm:text-3xl lg:text-4xl font-bold text-white">

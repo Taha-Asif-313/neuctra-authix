@@ -65,7 +65,7 @@ const Navbar = () => {
                   Sign In
                 </Link>
                 <Link
-                  to="/register"
+                  to="/signup"
                   className="px-5 py-2 bg-gradient-to-r from-primary to-green-500 text-white rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300"
                 >
                   Get Started
@@ -119,14 +119,14 @@ const Navbar = () => {
         <div className="flex flex-col justify-between h-[calc(100%-64px)]">
           <div className="p-6 space-y-4">
             {["Features", "Testimonials", "Pricing", "Docs"].map((item) => (
-              <a
+              <Link
                 key={item}
-                href={`#${item.toLowerCase()}`}
+                to={`${item.toLowerCase()}`}
                 onClick={() => setMobileMenuOpen(false)}
                 className="block text-gray-300 hover:text-primary text-lg py-2 border-b border-gray-800/50"
               >
                 {item}
-              </a>
+              </Link>
             ))}
           </div>
 
@@ -139,7 +139,7 @@ const Navbar = () => {
               Sign In
             </Link>
             <Link
-              to="/register"
+              to="/signup"
               onClick={() => setMobileMenuOpen(false)}
               className="block w-full text-center bg-gradient-to-r from-primary to-green-500 text-white py-3 rounded-lg font-semibold hover:scale-[1.03] hover:shadow-lg transition-all"
             >

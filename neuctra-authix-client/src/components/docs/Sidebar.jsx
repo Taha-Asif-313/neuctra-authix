@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import {
   BookOpen,
   Search,
@@ -32,7 +32,7 @@ const Sidebar = () => {
       category: "Getting Started",
       icon: Sparkles,
       items: [
-        { title: "Introduction", path: "/docs/introduction", badge: "New" },
+        { title: "Introduction", path: "/docs", badge: "New" },
         { title: "Installation", path: "/docs/installation", badge: "Updated" },
       ],
     },
@@ -116,11 +116,11 @@ const Sidebar = () => {
   return (
     <>
       {/* Mobile top bar */}
-      <div className="lg:hidden flex items-center justify-between p-4 bg-gradient-to-r from-gray-900 to-black border-b border-gray-800 backdrop-blur-sm">
+      <div className="lg:hidden flex items-center justify-between p-4 bg-gradient-to-r from-zinc-950 to-black border-b border-gray-800 backdrop-blur-sm">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-gradient-to-br from-[#00c420] to-green-400 rounded-lg">
-            <BookOpen size={20} className="text-white" />
-          </div>
+          <Link to={"/"}>
+            <img src="/logo.png" width={40} height={40} alt="logo" />
+          </Link>
           <div>
             <h2 className="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
               Neuctra Docs
@@ -138,7 +138,7 @@ const Sidebar = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 h-screen w-80 border-r border-gray-800 bg-gradient-to-b from-gray-900 to-black backdrop-blur-sm transform transition-transform duration-300 z-50
+        className={`fixed lg:sticky top-0 left-0 h-screen w-80 border-r border-gray-800 bg-gradient-to-b from-zinc-950 to-black backdrop-blur-sm transform transition-transform duration-300 z-50
           ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
         <div className="flex flex-col h-full">
@@ -146,9 +146,9 @@ const Sidebar = () => {
           <div className="pt-6 px-4">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div>
+                <Link to={"/"}>
                   <img src="/logo.png" width={40} height={40} alt="logo" />
-                </div>
+                </Link>
                 <div>
                   <h2 className="text-md font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                     Neuctra Authix Docs
