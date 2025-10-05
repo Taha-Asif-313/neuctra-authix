@@ -657,18 +657,35 @@ setSdkConfig({
 
       {/* Add custom CSS for floating animation */}
       <style jsx>{`
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0px) rotate(0deg) scale(2);
-          }
-          50% {
-            transform: translateY(-20px) rotate(5deg) scale(1);
-          }
-        }
-        .animate-float {
-          animation: float 2s ease-in-out infinite;
-        }
+       @keyframes float {
+  0% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+    filter: brightness(1);
+  }
+  25% {
+    transform: translateY(-12px) rotate(3deg) scale(1.05);
+    filter: brightness(1.1);
+  }
+  50% {
+    transform: translateY(-20px) rotate(-2deg) scale(1.1);
+    filter: brightness(1.15);
+  }
+  75% {
+    transform: translateY(-10px) rotate(2deg) scale(1.05);
+    filter: brightness(1.05);
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+    filter: brightness(1);
+  }
+}
+
+.animate-float {
+  animation: float 3.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  transform-origin: center;
+  will-change: transform, filter;
+}
+
       `}</style>
     </div>
   );

@@ -111,7 +111,7 @@ const CodeBlock = ({
         </div>
 
         {/* Copy Button */}
-        <div className="flex items-center gap-2 px-4 py-3 border-l border-gray-800/60">
+        <div className="flex items-center gap-2 px-4 py-3">
           <button
             onClick={copyToClipboard}
             className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200"
