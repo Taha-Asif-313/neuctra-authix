@@ -1,5 +1,5 @@
 import CryptoJS from "crypto-js";
-
+import bcrypt from "bcrypt"
 
 export function generateId() {
   return  CryptoJS.lib.WordArray.random(16).toString(); // 32-char hex

@@ -7,6 +7,12 @@ import {
   Edit,
   Trash2,
   Eye,
+  CircleDot,
+  Circle,
+  CircleOff,
+  EyeOff,
+  UserCheck,
+  UserLock,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -18,18 +24,18 @@ const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
   const { admin, token } = useAuth();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [appState, setAppState] = useState(app || {});
-console.log(appState);
 
-  // Sync local state when prop changes
+  // 🔄 Keep local state synced with parent
   useEffect(() => {
     setAppState(app || {});
   }, [app]);
 
-  // Close dropdown when clicking outside
+  // 🖱️ Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -40,9 +46,10 @@ console.log(appState);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  /** Toggle Active Status */
+  /** 🟢 Toggle Active Status (App + Users) */
   const handleToggleStatus = async () => {
     if (!appState?.id) return toast.error("App ID is missing!");
+
     try {
       const { data } = await axios.patch(
         `${import.meta.env.VITE_SERVER_URL}/api/apps/status/${appState.id}`,
@@ -56,8 +63,11 @@ console.log(appState);
       );
 
       if (data.success) {
-        setAppState(data.updatedApp || appState);
-        onActiveToggle?.(data.updatedApp || appState);
+        // backend now returns { data: { ...updatedApp, users, _count, activeUsers, totalUsers } }
+        const updatedApp = data.data || data.updatedApp;
+
+        setAppState(updatedApp);
+        onActiveToggle?.(updatedApp);
         toast.success(data.message || "Status updated!");
       } else {
         toast.error(data.message || "Failed to update status");
@@ -68,9 +78,10 @@ console.log(appState);
     }
   };
 
-  /** View App */
+  /** 👁️ View App */
   const handleView = async () => {
     if (!appState?.id) return toast.error("App ID is missing!");
+
     try {
       const { data } = await axios.get(
         `${import.meta.env.VITE_SERVER_URL}/api/apps/${appState.id}`,
@@ -93,8 +104,10 @@ console.log(appState);
     }
   };
 
-  // Safe nested data
-  const userCount = appState?._count?.users || 0;
+  // 📊 Safe nested stats
+  const totalUsers = appState?.totalUsers ?? appState?._count?.users ?? 0;
+  const activeUsers = appState?.activeUsers ?? 0;
+  const inactiveUsers = totalUsers - activeUsers;
 
   return (
     <>
@@ -155,22 +168,30 @@ console.log(appState);
 
         {/* Stats */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <Users size={14} className="text-gray-400 mr-1" />
-            <span className="text-sm text-white">{userCount}</span>
-            <span
-              className={`text-xs ml-2 ${
-                userCount >= 0 ? "text-green-400" : "text-red-400"
-              }`}
-            >
-              {userCount >= 0 ? "↑" : "↓"} {Math.abs(userCount)}
+          <div className="flex flex-col">
+            {/* Total Users */}
+            <div className="flex items-center">
+              <Users size={14} className="text-gray-400 mr-1" />
+              <span className="text-sm text-white">{totalUsers} users</span>
+            </div>
+
+            {/* Active / Inactive Breakdown */}
+            <span className="text-xs text-gray-400 mt-1 flex items-center gap-3">
+              <span className="flex items-center gap-1 text-green-500">
+                {activeUsers} active
+              </span>
+              <span className="flex items-center gap-1 text-red-500">
+                {inactiveUsers} inactive
+              </span>
             </span>
           </div>
+
+          {/* App Status */}
           <span
             className={`px-2 py-1 text-xs font-medium rounded-full ${
               appState?.isActive
-                ? "bg-primary/10 text-primary"
-                : "bg-gray-700 text-gray-400"
+                ? "bg-green-600/10 text-green-500"
+                : "bg-red-600/10 text-red-500"
             }`}
           >
             {appState?.isActive ? "Active" : "Inactive"}
@@ -200,7 +221,7 @@ console.log(appState);
                 ? navigate(`/dashboard/app/${appState.id}`)
                 : toast.error("App ID is missing!")
             }
-            className="flex items-center gap-1 px-3 py-2 text-xs bg-primary hover:bg-primary/30 text-white rounded-lg transition"
+            className="flex items-center gap-1 px-3 py-2 text-sm bg-primary hover:bg-primary/90 cursor-pointer text-white rounded-lg transition"
           >
             <span>View Details</span>
             <ArrowUpRight size={14} />

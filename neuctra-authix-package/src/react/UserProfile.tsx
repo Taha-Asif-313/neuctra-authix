@@ -1,4 +1,4 @@
-import React, { useEffect, useState, ChangeEvent, FormEvent } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { UserInfo } from "../api/login.js";
 import {
@@ -14,21 +14,15 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
-  Lock,
   Key,
-  EyeOff,
-  Eye,
-  AlertTriangle,
   Shield,
-  CheckCircle2,
-  Link2,
-  Image,
-  Upload,
-  Database,
-  UserX,
-  LogOut,
+  Send,
+  KeyRound,
 } from "lucide-react";
 import { getSdkConfig } from "../sdk/config.js";
+import DeleteAccountModal from "./components/DeleteAccountModal.js";
+import AvatarModal from "./components/AvatarModal.js";
+import ChangePasswordModal from "./components/ChangePasswordModal.js";
 
 interface UserProfileProps {
   token: string;
@@ -36,1880 +30,6 @@ interface UserProfileProps {
   darkMode?: boolean;
   primaryColor?: string;
 }
-
-interface ThemeColors {
-  background: string;
-  surface: string;
-  surfaceLight: string;
-  surfaceLighter: string;
-  textPrimary: string;
-  textSecondary: string;
-  textTertiary: string;
-  accent: string;
-  accentHover: string;
-  success: string;
-  error: string;
-  border: string;
-}
-
-interface ChangePasswordModalProps {
-  baseUrl: string;
-  apiKey: string;
-  appId: string;
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: (msg: string) => void;
-  onError: (msg: string) => void;
-  userId: string;
-  colors: ThemeColors;
-}
-
-interface AvatarModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onUpdate: (url: string) => Promise<boolean>;
-  colors: ThemeColors;
-}
-
-interface DeleteAccountModalProps {
-  baseUrl: string;
-  apiKey: string;
-  appId: string;
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: (msg: string) => void;
-  onError: (msg: string) => void;
-  userId: string;
-  token: string;
-  colors: ThemeColors;
-}
-
-const AvatarModal: React.FC<AvatarModalProps> = ({
-  isOpen,
-  onClose,
-  onUpdate,
-  colors,
-}) => {
-  const [newAvatar, setNewAvatar] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [validation, setValidation] = useState<{
-    isValid: boolean;
-    message: string;
-    type: "success" | "error" | "warning" | null;
-  }>({ isValid: false, message: "", type: null });
-
-  // Check mobile screen size
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  // Validate URL
-  useEffect(() => {
-    if (!newAvatar.trim()) {
-      setValidation({ isValid: false, message: "", type: null });
-      return;
-    }
-
-    try {
-      const url = new URL(newAvatar);
-      const isValidImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url.pathname);
-
-      if (isValidImage) {
-        setValidation({
-          isValid: true,
-          message: "Valid image URL",
-          type: "success",
-        });
-      } else {
-        setValidation({
-          isValid: false,
-          message: "URL should point to an image file",
-          type: "warning",
-        });
-      }
-    } catch {
-      setValidation({
-        isValid: false,
-        message: "Please enter a valid URL",
-        type: "error",
-      });
-    }
-  }, [newAvatar]);
-
-  if (!isOpen) return null;
-
-  const handleSubmit = async () => {
-    if (!newAvatar || !validation.isValid) return;
-
-    setLoading(true);
-    try {
-      const success = await onUpdate(newAvatar);
-      if (success) {
-        setNewAvatar("");
-        onClose();
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
-  return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.8)",
-        backdropFilter: "blur(8px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "16px",
-        zIndex: 1000,
-      }}
-      onClick={handleOverlayClick}
-    >
-      <div
-        style={{
-          backgroundColor: colors.surface,
-          border: `1px solid ${colors.border}`,
-          borderRadius: "20px",
-          width: "100%",
-          maxWidth: "480px",
-          padding: "24px",
-          boxShadow: "0 32px 64px rgba(0,0,0,0.4)",
-          animation: "modalSlideIn 0.3s ease-out",
-        }}
-        className="avatar-modal-container"
-      >
-        {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            marginBottom: "24px",
-            gap: "16px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              flex: 1,
-            }}
-          >
-            <div
-              style={{
-                width: "44px",
-                height: "44px",
-                borderRadius: "12px",
-                background: `linear-gradient(135deg, ${colors.accent}20, ${colors.accent}40)`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: colors.accent,
-                flexShrink: 0,
-              }}
-            >
-              <Camera size={22} />
-            </div>
-            <div>
-              <h3
-                style={{
-                  color: colors.textPrimary,
-                  margin: 0,
-                  fontSize: "20px",
-                  fontWeight: 700,
-                  lineHeight: "1.3",
-                }}
-              >
-                Update Avatar
-              </h3>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Close avatar modal"
-            style={{
-              background: "transparent",
-              border: "none",
-              color: colors.textTertiary,
-              cursor: "pointer",
-              padding: "8px",
-              borderRadius: "8px",
-              width: "36px",
-              height: "36px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              transition: "all 0.2s ease",
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = colors.border;
-              e.currentTarget.style.color = colors.textPrimary;
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.color = colors.textTertiary;
-            }}
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Body */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "20px",
-          }}
-        >
-          {/* URL Input */}
-          <div>
-            <label
-              htmlFor="avatar-url"
-              style={{
-                display: "flex",
-                marginBottom: "8px",
-                color: colors.textPrimary,
-                fontSize: "14px",
-                fontWeight: 500,
-
-                alignItems: "center",
-                gap: "6px",
-              }}
-            >
-              <Link2 size={16} />
-              Avatar URL
-            </label>
-            <div style={{ position: "relative" }}>
-              <input
-                type="url"
-                id="avatar-url"
-                placeholder="https://example.com/your-avatar.jpg"
-                value={newAvatar}
-                onChange={(e) => setNewAvatar(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "14px 16px",
-                  paddingLeft: "44px",
-                  borderRadius: "12px",
-                  border: `1.5px solid ${
-                    validation.type === "error"
-                      ? colors.error
-                      : validation.type === "success"
-                      ? colors.success
-                      : colors.border
-                  }`,
-                  backgroundColor: "transparent",
-                  color: colors.textPrimary,
-                  fontSize: "15px",
-                  outline: "none",
-                  transition: "all 0.2s ease",
-                  boxSizing: "border-box",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = colors.accent;
-                  e.target.style.boxShadow = `0 0 0 3px ${colors.accent}20`;
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor =
-                    validation.type === "error"
-                      ? colors.error
-                      : validation.type === "success"
-                      ? colors.success
-                      : colors.border;
-                  e.target.style.boxShadow = "none";
-                }}
-                disabled={loading}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  left: "16px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: colors.textTertiary,
-                }}
-              >
-                <Image size={18} />
-              </div>
-            </div>
-
-            {/* Validation Message */}
-            {validation.message && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  marginTop: "8px",
-                  fontSize: "13px",
-                  color:
-                    validation.type === "success"
-                      ? colors.success
-                      : validation.type === "error"
-                      ? colors.error
-                      : colors.textTertiary,
-                }}
-              >
-                {validation.type === "success" && <CheckCircle size={14} />}
-                {validation.type === "error" && <AlertCircle size={14} />}
-                {validation.type === "warning" && <AlertCircle size={14} />}
-                {validation.message}
-              </div>
-            )}
-          </div>
-
-          {/* Preview */}
-          {newAvatar && validation.type === "success" && (
-            <div
-              style={{
-                padding: "16px",
-                backgroundColor: `${colors.success}10`,
-                border: `1px solid ${colors.success}20`,
-                borderRadius: "12px",
-                textAlign: "center",
-              }}
-            >
-              <p
-                style={{
-                  color: colors.textSecondary,
-                  fontSize: "13px",
-                  fontWeight: 500,
-                  margin: "0 0 12px 0",
-                }}
-              >
-                Preview
-              </p>
-              <img
-                src={newAvatar}
-                alt="Avatar preview"
-                style={{
-                  width: "80px",
-                  height: "80px",
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                  border: `2px solid ${colors.success}40`,
-                  margin: "0 auto",
-                }}
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                }}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Actions */}
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            flexDirection: isMobile ? "column-reverse" : "row",
-            justifyContent: "flex-end",
-            alignItems: "stretch",
-            marginTop: "24px",
-          }}
-        >
-          <button
-            onClick={onClose}
-            disabled={loading}
-            style={{
-              padding: "10px 24px",
-              borderRadius: "10px",
-              border: `1.5px solid ${colors.border}`,
-              background: "transparent",
-              color: colors.textPrimary,
-              fontSize: "14px",
-              fontWeight: 500,
-              cursor: loading ? "not-allowed" : "pointer",
-              flex: isMobile ? "none" : 1,
-              minWidth: isMobile ? "100%" : "120px",
-              opacity: loading ? 0.6 : 1,
-              transition: "all 0.2s ease",
-            }}
-            onMouseOver={(e) => {
-              if (!loading) {
-                e.currentTarget.style.backgroundColor = colors.border;
-                e.currentTarget.style.transform = "translateY(-1px)";
-              }
-            }}
-            onMouseOut={(e) => {
-              if (!loading) {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.transform = "translateY(0)";
-              }
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={loading || !validation.isValid}
-            style={{
-              padding: "10px 24px",
-              borderRadius: "10px",
-              border: "none",
-              background: `linear-gradient(135deg, ${colors.accent}, ${colors.accent}E6)`,
-              color: "#fff",
-              fontSize: "14px",
-              fontWeight: 600,
-              cursor:
-                loading || !validation.isValid ? "not-allowed" : "pointer",
-              flex: isMobile ? "none" : 1,
-              minWidth: isMobile ? "100%" : "140px",
-              opacity: loading || !validation.isValid ? 0.6 : 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              transition: "all 0.2s ease",
-              boxShadow:
-                loading || !validation.isValid
-                  ? "none"
-                  : `0 4px 12px ${colors.accent}40`,
-            }}
-            onMouseOver={(e) => {
-              if (!loading && validation.isValid) {
-                e.currentTarget.style.transform = "translateY(-1px)";
-                e.currentTarget.style.boxShadow = `0 6px 20px ${colors.accent}60`;
-              }
-            }}
-            onMouseOut={(e) => {
-              if (!loading && validation.isValid) {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = `0 4px 12px ${colors.accent}40`;
-              }
-            }}
-          >
-            {loading ? (
-              <>
-                <Loader2
-                  size={16}
-                  style={{
-                    animation: "spin 1s linear infinite",
-                  }}
-                />
-                Updating...
-              </>
-            ) : (
-              <>
-                <Camera size={16} />
-                Update Avatar
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Inline CSS for animations */}
-      <style>
-        {`
-          @keyframes modalSlideIn {
-            from {
-              opacity: 0;
-              transform: scale(0.9) translateY(20px);
-            }
-            to {
-              opacity: 1;
-              transform: scale(1) translateY(0);
-            }
-          }
-          
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-          
-          .avatar-modal-container {
-            animation: modalSlideIn 0.3s ease-out;
-          }
-          
-          /* Mobile responsiveness */
-          @media (max-width: 480px) {
-            .avatar-modal-container {
-              padding: 20px 16px;
-              margin: 0;
-              border-radius: 16px 16px 0 0;
-              max-height: 90vh;
-              overflow-y: auto;
-            }
-          }
-          
-          @media (max-width: 360px) {
-            .avatar-modal-container {
-              padding: 16px 12px;
-            }
-          }
-          
-          /* Reduced motion support */
-          @media (prefers-reduced-motion: reduce) {
-            .avatar-modal-container {
-              animation: none;
-            }
-            
-            * {
-              transition: none !important;
-            }
-          }
-        `}
-      </style>
-    </div>
-  );
-};
-
-const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
-  isOpen,
-  onClose,
-  onSuccess,
-  onError,
-  userId,
-  colors,
-}) => {
-  const { baseUrl, apiKey, appId } = getSdkConfig();
-  const [formData, setFormData] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState<Record<string, boolean>>({
-    currentPassword: false,
-    newPassword: false,
-    confirmPassword: false,
-  });
-
-  // Check mobile screen size
-  const [isMobile, setIsMobile] = useState(false);
-
-  React.useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  if (!isOpen) return null;
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
-
-  const toggleVisibility = (field: string) => {
-    setShowPassword((prev) => ({ ...prev, [field]: !prev[field] }));
-  };
-
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    if (!formData.currentPassword)
-      newErrors.currentPassword = "Current password is required";
-    if (!formData.newPassword)
-      newErrors.newPassword = "New password is required";
-    else if (formData.newPassword.length < 6)
-      newErrors.newPassword = "Password must be at least 6 characters";
-    if (formData.newPassword !== formData.confirmPassword)
-      newErrors.confirmPassword = "Passwords do not match";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!validate()) return;
-
-    setLoading(true);
-    try {
-      const { data } = await axios.put(
-        `${baseUrl}/users/change-password/${userId}`,
-        {
-          appId,
-          currentPassword: formData.currentPassword,
-          newPassword: formData.newPassword,
-        },
-        {
-          headers: {
-            "x-api-key": apiKey,
-          },
-        }
-      );
-
-      if (data.success) {
-        onSuccess(data.message || "Password updated successfully");
-        setFormData({
-          currentPassword: "",
-          newPassword: "",
-          confirmPassword: "",
-        });
-        onClose();
-      } else {
-        onError(data.message || "Failed to update password");
-      }
-    } catch (err: any) {
-      onError(err.response?.data?.message || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const passwordFields = [
-    {
-      field: "currentPassword",
-      label: "Current Password",
-      icon: <Key size={18} />,
-    },
-    {
-      field: "newPassword",
-      label: "New Password",
-      icon: <Lock size={18} />,
-    },
-    {
-      field: "confirmPassword",
-      label: "Confirm Password",
-      icon: <Lock size={18} />,
-    },
-  ];
-
-  return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.7)",
-        backdropFilter: "blur(6px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "16px",
-        zIndex: 1000,
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: colors.surface,
-          border: `1px solid ${colors.border}`,
-          borderRadius: "16px",
-          maxWidth: "440px",
-          width: "100%",
-          padding: "24px",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
-          maxHeight: "90vh",
-          overflowY: "auto",
-        }}
-        className="change-password-modal"
-      >
-        {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            marginBottom: "24px",
-            gap: "12px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              flex: 1,
-            }}
-          >
-            <div
-              style={{
-                width: "40px",
-                height: "40px",
-                borderRadius: "10px",
-                background: `linear-gradient(135deg, ${colors.accent}20, ${colors.accent}40)`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: colors.accent,
-                flexShrink: 0,
-              }}
-            >
-              <Lock size={20} />
-            </div>
-            <div>
-              <h3
-                style={{
-                  color: colors.textPrimary,
-                  margin: 0,
-                  fontSize: "18px",
-                  fontWeight: 600,
-                  lineHeight: "1.4",
-                }}
-              >
-                Change Password
-              </h3>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Close password change modal"
-            style={{
-              background: "transparent",
-              border: "none",
-              color: colors.textTertiary,
-              cursor: "pointer",
-              padding: "8px",
-              borderRadius: "8px",
-              flexShrink: 0,
-              width: "36px",
-              height: "36px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = colors.border;
-              e.currentTarget.style.color = colors.textPrimary;
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.color = colors.textTertiary;
-            }}
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit}>
-          {passwordFields.map(({ field, label, icon }) => (
-            <div
-              key={field}
-              style={{
-                marginBottom: "20px",
-                position: "relative",
-              }}
-            >
-              <label
-                htmlFor={field}
-                style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  color: colors.textPrimary,
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  lineHeight: "1.4",
-                }}
-              >
-                {label}
-              </label>
-              <div style={{ position: "relative" }}>
-                <div
-                  style={{
-                    position: "absolute",
-                    left: "14px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    color: colors.textTertiary,
-                    zIndex: 2,
-                  }}
-                >
-                  {icon}
-                </div>
-                <input
-                  type={showPassword[field] ? "text" : "password"}
-                  id={field}
-                  name={field}
-                  placeholder={`Enter ${label.toLowerCase()}`}
-                  value={formData[field as keyof typeof formData]}
-                  onChange={handleChange}
-                  style={{
-                    width: "100%",
-                    padding: "14px 48px 14px 44px",
-                    borderRadius: "10px",
-                    border: `1.5px solid ${
-                      errors[field] ? colors.error : colors.border
-                    }`,
-                    backgroundColor: "transparent",
-                    color: colors.textPrimary,
-                    fontSize: "15px",
-                    outline: "none",
-                    transition: "all 0.2s ease",
-                    boxSizing: "border-box",
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = colors.accent;
-                    e.target.style.boxShadow = `0 0 0 3px ${colors.accent}20`;
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = errors[field]
-                      ? colors.error
-                      : colors.border;
-                    e.target.style.boxShadow = "none";
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => toggleVisibility(field)}
-                  style={{
-                    position: "absolute",
-                    right: "14px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    color: colors.textTertiary,
-                    padding: "4px",
-                    borderRadius: "4px",
-                    width: "32px",
-                    height: "32px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.backgroundColor = colors.border;
-                    e.currentTarget.style.color = colors.textPrimary;
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                    e.currentTarget.style.color = colors.textTertiary;
-                  }}
-                >
-                  {showPassword[field] ? (
-                    <EyeOff size={18} />
-                  ) : (
-                    <Eye size={18} />
-                  )}
-                </button>
-              </div>
-              {errors[field] && (
-                <div
-                  style={{
-                    fontSize: "13px",
-                    color: colors.error,
-                    marginTop: "6px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                  }}
-                >
-                  <span style={{ fontSize: "16px" }}>⚠</span>
-                  {errors[field]}
-                </div>
-              )}
-            </div>
-          ))}
-
-          {/* Actions */}
-          <div
-            style={{
-              display: "flex",
-              gap: "12px",
-              flexDirection: isMobile ? "column-reverse" : "row",
-              justifyContent: "flex-end",
-              alignItems: "stretch",
-            }}
-          >
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading}
-              style={{
-                padding: "14px 24px",
-                borderRadius: "10px",
-                border: `1.5px solid ${colors.border}`,
-                background: "transparent",
-                color: colors.textPrimary,
-                fontSize: "14px",
-                fontWeight: 500,
-                cursor: loading ? "not-allowed" : "pointer",
-                flex: isMobile ? "none" : 1,
-                minWidth: isMobile ? "100%" : "120px",
-                opacity: loading ? 0.6 : 1,
-                transition: "all 0.2s ease",
-              }}
-              onMouseOver={(e) => {
-                if (!loading) {
-                  e.currentTarget.style.backgroundColor = colors.border;
-                  e.currentTarget.style.transform = "translateY(-1px)";
-                }
-              }}
-              onMouseOut={(e) => {
-                if (!loading) {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.transform = "translateY(0)";
-                }
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                padding: "14px 24px",
-                borderRadius: "10px",
-                border: "none",
-                background: `linear-gradient(135deg, ${colors.accent}, ${colors.accent}E6)`,
-                color: "#fff",
-                fontSize: "14px",
-                fontWeight: 600,
-                cursor: loading ? "not-allowed" : "pointer",
-                flex: isMobile ? "none" : 1,
-                minWidth: isMobile ? "100%" : "140px",
-                opacity: loading ? 0.8 : 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                transition: "all 0.2s ease",
-                boxShadow: loading ? "none" : `0 4px 12px ${colors.accent}40`,
-              }}
-              onMouseOver={(e) => {
-                if (!loading) {
-                  e.currentTarget.style.transform = "translateY(-1px)";
-                  e.currentTarget.style.boxShadow = `0 6px 20px ${colors.accent}60`;
-                }
-              }}
-              onMouseOut={(e) => {
-                if (!loading) {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = `0 4px 12px ${colors.accent}40`;
-                }
-              }}
-            >
-              {loading ? (
-                <>
-                  <Loader2
-                    size={16}
-                    style={{
-                      animation: "spin 1s linear infinite",
-                    }}
-                  />
-                  Updating...
-                </>
-              ) : (
-                "Update Password"
-              )}
-            </button>
-          </div>
-        </form>
-
-        {/* Inline CSS for animations */}
-        <style>
-          {`
-            @keyframes spin {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
-            }
-            
-            .change-password-modal::-webkit-scrollbar {
-              width: 6px;
-            }
-            
-            .change-password-modal::-webkit-scrollbar-track {
-              background: transparent;
-            }
-            
-            .change-password-modal::-webkit-scrollbar-thumb {
-              background: ${colors.border};
-              border-radius: 3px;
-            }
-            
-            .change-password-modal::-webkit-scrollbar-thumb:hover {
-              background: ${colors.textTertiary};
-            }
-            
-            /* Mobile responsiveness */
-            @media (max-width: 480px) {
-              .change-password-modal {
-                padding: 20px 16px;
-                margin: 0;
-                border-radius: 12px 12px 0 0;
-                max-height: 85vh;
-              }
-            }
-            
-            @media (max-width: 360px) {
-              .change-password-modal {
-                padding: 16px 12px;
-              }
-            }
-          `}
-        </style>
-      </div>
-    </div>
-  );
-};
-
-const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
-  isOpen,
-  onClose,
-  onSuccess,
-  onError,
-  userId,
-  token,
-  colors,
-}) => {
-  const { baseUrl, apiKey, appId } = getSdkConfig();
-  const [loading, setLoading] = useState(false);
-  const [confirmationText, setConfirmationText] = useState("");
-  const [step, setStep] = useState<
-    "warning" | "confirmation" | "processing" | "success"
-  >("warning");
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Check mobile screen size
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  if (!isOpen) return null;
-
-  const handleDelete = async () => {
-    setLoading(true);
-    setStep("processing");
-
-    try {
-      const { data } = await axios.delete(`${baseUrl}/users/delete/${userId}`, {
-        data: { appId },
-        headers: {
-          "x-api-key": apiKey,
-        },
-      });
-
-      if (data.success) {
-        onSuccess(data.message || "Account deleted successfully");
-        setStep("success");
-
-        // Redirect after showing success state
-        setTimeout(() => {
-          localStorage.removeItem("userInfo");
-          localStorage.removeItem("userToken");
-          window.location.href = "/";
-        }, 2000);
-      } else {
-        onError(data.message || "Failed to delete account");
-        setStep("warning");
-      }
-    } catch (err: any) {
-      onError(err.response?.data?.message || "Something went wrong");
-      setStep("warning");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const isConfirmed = confirmationText.toLowerCase() === "delete my account";
-
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (
-      e.target === e.currentTarget &&
-      step !== "processing" &&
-      step !== "success"
-    ) {
-      onClose();
-    }
-  };
-
-  const renderStepContent = () => {
-    switch (step) {
-      case "warning":
-        return (
-          <>
-            {/* Header */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "24px",
-                gap: "16px",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  flex: 1,
-                }}
-              >
-                <div
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "12px",
-                    background: "linear-gradient(135deg, #ef4444, #dc2626)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "white",
-                    flexShrink: 0,
-                  }}
-                >
-                  <Trash2 size={20} />
-                </div>
-                <div>
-                  <h3
-                    style={{
-                      color: colors.textPrimary,
-                      margin: 0,
-                      fontSize: "20px",
-                      fontWeight: 700,
-                      lineHeight: "1.3",
-                    }}
-                  >
-                    Delete Account
-                  </h3>
-                </div>
-              </div>
-              <button
-                onClick={onClose}
-                aria-label="Close modal"
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  color: colors.textTertiary,
-                  cursor: "pointer",
-                  padding: "8px",
-                  borderRadius: "8px",
-                  width: "36px",
-                  height: "36px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                  transition: "all 0.2s ease",
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = colors.border;
-                  e.currentTarget.style.color = colors.textPrimary;
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = colors.textTertiary;
-                }}
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Warning Content */}
-            <div
-              style={{
-                display: "flex",
-                gap: "16px",
-                padding: "20px",
-                background: `${colors.error}15`,
-                border: `1px solid ${colors.error}30`,
-                borderRadius: "12px",
-                marginBottom: "20px",
-              }}
-            >
-              <div
-                style={{
-                  color: colors.error,
-                  flexShrink: 0,
-                  display: "flex",
-                  alignItems: "flex-start",
-                }}
-              >
-                <AlertTriangle size={24} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <h4
-                  style={{
-                    color: colors.textPrimary,
-                    margin: "0 0 12px 0",
-                    fontSize: "16px",
-                    fontWeight: 600,
-                  }}
-                >
-                  Before you proceed...
-                </h4>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
-                  }}
-                >
-                  {[
-                    {
-                      icon: <Database size={16} />,
-                      text: "All your data will be permanently deleted",
-                    },
-                    {
-                      icon: <UserX size={16} />,
-                      text: "This action cannot be reversed",
-                    },
-                    {
-                      icon: <LogOut size={16} />,
-                      text: "You will lose access to all services",
-                    },
-                  ].map((item, index) => (
-                    <div
-                      key={index}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "10px",
-                        fontSize: "14px",
-                        color: colors.textSecondary,
-                      }}
-                    >
-                      <div style={{ color: colors.error, flexShrink: 0 }}>
-                        {item.icon}
-                      </div>
-                      <span>{item.text}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div
-              style={{
-                display: "flex",
-                gap: "12px",
-                flexDirection: isMobile ? "column-reverse" : "row",
-                justifyContent: "flex-end",
-                alignItems: "stretch",
-              }}
-            >
-              <button
-                onClick={onClose}
-                style={{
-                  padding: "10px 24px",
-                  borderRadius: "10px",
-                  border: `1.5px solid ${colors.border}`,
-                  background: "transparent",
-                  color: colors.textPrimary,
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  cursor: "pointer",
-                  flex: isMobile ? "none" : 1,
-                  minWidth: isMobile ? "100%" : "120px",
-                  transition: "all 0.2s ease",
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = colors.border;
-                  e.currentTarget.style.transform = "translateY(-1px)";
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.transform = "translateY(0)";
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => setStep("confirmation")}
-                style={{
-                  padding: "10px 24px",
-                  borderRadius: "10px",
-                  border: "none",
-                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
-                  color: "white",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  flex: isMobile ? "none" : 1,
-                  minWidth: isMobile ? "100%" : "140px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
-                  transition: "all 0.2s ease",
-                  boxShadow: "0 4px 12px rgba(239, 68, 68, 0.4)",
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.transform = "translateY(-1px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 6px 20px rgba(239, 68, 68, 0.5)";
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow =
-                    "0 4px 12px rgba(239, 68, 68, 0.4)";
-                }}
-              >
-                <Trash2 size={16} />
-                Continue to Delete
-              </button>
-            </div>
-          </>
-        );
-
-      case "confirmation":
-        return (
-          <>
-            {/* Header */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                marginBottom: "24px",
-              }}
-            >
-              <div
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "12px",
-                  background: "linear-gradient(135deg, #f59e0b, #d97706)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "white",
-                  flexShrink: 0,
-                }}
-              >
-                <AlertTriangle size={24} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3
-                  style={{
-                    color: colors.textPrimary,
-                    margin: 0,
-                    fontSize: "20px",
-                    fontWeight: 700,
-                    lineHeight: "1.3",
-                  }}
-                >
-                  Confirm Deletion
-                </h3>
-              </div>
-            </div>
-
-            {/* Confirmation Content */}
-            <div style={{ marginBottom: "24px" }}>
-              <p
-                style={{
-                  color: colors.textSecondary,
-                  marginBottom: "16px",
-                  fontSize: "14px",
-                  lineHeight: "1.5",
-                }}
-              >
-                Type{" "}
-                <strong style={{ color: colors.textPrimary }}>
-                  "delete my account"
-                </strong>{" "}
-                to confirm:
-              </p>
-
-              <input
-                type="text"
-                value={confirmationText}
-                onChange={(e) => setConfirmationText(e.target.value)}
-                placeholder="delete my account"
-                style={{
-                  width: "100%",
-                  padding: "14px 16px",
-                  borderRadius: "10px",
-                  border: `2px solid ${
-                    isConfirmed ? colors.success : colors.error
-                  }`,
-                  backgroundColor: "transparent",
-                  color: colors.textPrimary,
-                  fontSize: "15px",
-                  outline: "none",
-                  transition: "all 0.2s ease",
-                  boxSizing: "border-box",
-                }}
-                onFocus={(e) => {
-                  e.target.style.boxShadow = `0 0 0 3px ${colors.accent}20`;
-                }}
-                onBlur={(e) => {
-                  e.target.style.boxShadow = "none";
-                }}
-                autoFocus
-              />
-
-              {isConfirmed && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    marginTop: "10px",
-                    color: colors.success,
-                    fontSize: "14px",
-                    fontWeight: 500,
-                  }}
-                >
-                  <CheckCircle2 size={16} />
-                  <span>Confirmation accepted</span>
-                </div>
-              )}
-            </div>
-
-            {/* Actions */}
-            <div
-              style={{
-                display: "flex",
-                gap: "12px",
-                flexDirection: "column-reverse",
-                justifyContent: "flex-end",
-                alignItems: "stretch",
-              }}
-            >
-              <button
-                onClick={() => {
-                  setStep("warning");
-                  setConfirmationText("");
-                }}
-                style={{
-                  padding: "10px 24px",
-                  borderRadius: "10px",
-                  border: `1.5px solid ${colors.border}`,
-                  background: "transparent",
-                  color: colors.textPrimary,
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  cursor: "pointer",
-                  flex: isMobile ? "none" : 1,
-                  minWidth: isMobile ? "100%" : "120px",
-                  transition: "all 0.2s ease",
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = colors.border;
-                  e.currentTarget.style.transform = "translateY(-1px)";
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.transform = "translateY(0)";
-                }}
-              >
-                Go Back
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={!isConfirmed || loading}
-                style={{
-                  padding: "10px 24px",
-                  borderRadius: "10px",
-                  border: "none",
-                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
-                  color: "white",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  cursor: !isConfirmed || loading ? "not-allowed" : "pointer",
-                  flex: isMobile ? "none" : 1,
-                  minWidth: isMobile ? "100%" : "140px",
-                  opacity: !isConfirmed || loading ? 0.6 : 1,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
-                  transition: "all 0.2s ease",
-                  boxShadow:
-                    !isConfirmed || loading
-                      ? "none"
-                      : "0 4px 12px rgba(239, 68, 68, 0.4)",
-                }}
-                onMouseOver={(e) => {
-                  if (isConfirmed && !loading) {
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                    e.currentTarget.style.boxShadow =
-                      "0 6px 20px rgba(239, 68, 68, 0.5)";
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (isConfirmed && !loading) {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow =
-                      "0 4px 12px rgba(239, 68, 68, 0.4)";
-                  }
-                }}
-              >
-                <Trash2 size={16} />
-                Yes, Delete My Account
-              </button>
-            </div>
-          </>
-        );
-
-      case "processing":
-        return (
-          <>
-            {/* Header */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                marginBottom: "24px",
-              }}
-            >
-              <div
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "12px",
-                  background: "linear-gradient(135deg, #6b7280, #4b5563)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "white",
-                  flexShrink: 0,
-                }}
-              >
-                <Loader2
-                  size={20}
-                  style={{
-                    animation: "spin 1s linear infinite",
-                  }}
-                />
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3
-                  style={{
-                    color: colors.textPrimary,
-                    margin: 0,
-                    fontSize: "20px",
-                    fontWeight: 700,
-                    lineHeight: "1.3",
-                  }}
-                >
-                  Deleting Account
-                </h3>
-                <p
-                  style={{
-                    color: colors.textTertiary,
-                    margin: "4px 0 0 0",
-                    fontSize: "14px",
-                    lineHeight: "1.4",
-                  }}
-                >
-                  Please wait while we process your request
-                </p>
-              </div>
-            </div>
-
-            {/* Processing Content */}
-            <div style={{ marginBottom: "20px" }}>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "12px",
-                }}
-              >
-                {[
-                  { text: "Removing your data", active: true },
-                  { text: "Closing active sessions", active: false },
-                  { text: "Finalizing deletion", active: false },
-                ].map((stepItem, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "12px",
-                      padding: "12px",
-                      borderRadius: "8px",
-                      transition: "all 0.2s ease",
-                      backgroundColor: stepItem.active
-                        ? `${colors.accent}10`
-                        : "transparent",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "8px",
-                        height: "8px",
-                        borderRadius: "50%",
-                        backgroundColor: stepItem.active
-                          ? colors.accent
-                          : colors.textTertiary,
-                        transition: "all 0.3s ease",
-                        boxShadow: stepItem.active
-                          ? `0 0 0 4px ${colors.accent}20`
-                          : "none",
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontSize: "14px",
-                        color: stepItem.active
-                          ? colors.textPrimary
-                          : colors.textSecondary,
-                        fontWeight: stepItem.active ? 500 : 400,
-                      }}
-                    >
-                      {stepItem.text}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                padding: "16px",
-                background: `${colors.accent}10`,
-                borderRadius: "10px",
-                fontSize: "14px",
-                color: colors.textSecondary,
-              }}
-            >
-              <Shield
-                size={18}
-                style={{ color: colors.accent, flexShrink: 0 }}
-              />
-              <span>You will be redirected to the login page shortly</span>
-            </div>
-          </>
-        );
-
-      case "success":
-        return (
-          <>
-            {/* Header */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                marginBottom: "24px",
-              }}
-            >
-              <div
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "12px",
-                  background: "linear-gradient(135deg, #10b981, #059669)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "white",
-                  flexShrink: 0,
-                }}
-              >
-                <CheckCircle2 size={20} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3
-                  style={{
-                    color: colors.textPrimary,
-                    margin: 0,
-                    fontSize: "20px",
-                    fontWeight: 700,
-                    lineHeight: "1.3",
-                  }}
-                >
-                  Account Deleted
-                </h3>
-                <p
-                  style={{
-                    color: colors.textTertiary,
-                    margin: "4px 0 0 0",
-                    fontSize: "14px",
-                    lineHeight: "1.4",
-                  }}
-                >
-                  Your account has been successfully deleted
-                </p>
-              </div>
-            </div>
-
-            {/* Success Content */}
-            <div
-              style={{
-                textAlign: "center",
-                padding: "20px",
-                background: `${colors.success}10`,
-                border: `1px solid ${colors.success}20`,
-                borderRadius: "12px",
-                marginBottom: "24px",
-              }}
-            >
-              <CheckCircle2
-                size={48}
-                style={{
-                  color: colors.success,
-                  marginBottom: "12px",
-                  display: "block",
-                  margin: "0 auto 12px auto",
-                }}
-              />
-              <p
-                style={{
-                  color: colors.textPrimary,
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  margin: "0 0 8px 0",
-                }}
-              >
-                Goodbye!
-              </p>
-              <p
-                style={{
-                  color: colors.textSecondary,
-                  fontSize: "14px",
-                  margin: 0,
-                  lineHeight: "1.5",
-                }}
-              >
-                Your account and all associated data have been permanently
-                removed from our systems.
-              </p>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                padding: "16px",
-                background: `${colors.accent}10`,
-                borderRadius: "10px",
-                fontSize: "14px",
-                color: colors.textSecondary,
-                justifyContent: "center",
-              }}
-            >
-              <Loader2
-                size={16}
-                style={{
-                  animation: "spin 1s linear infinite",
-                  color: colors.accent,
-                }}
-              />
-              <span>Redirecting to login page...</span>
-            </div>
-          </>
-        );
-    }
-  };
-
-  return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.8)",
-        backdropFilter: "blur(8px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "16px",
-        zIndex: 10000,
-        animation: "fadeIn 0.3s ease-out",
-      }}
-      onClick={handleOverlayClick}
-    >
-      <div
-        style={{
-          backgroundColor: colors.surface,
-          border: `1px solid ${colors.border}`,
-          borderRadius: "20px",
-          width: "100%",
-          maxWidth: "480px",
-          padding: "24px",
-          boxShadow: "0 32px 64px rgba(0,0,0,0.4)",
-          animation: "scaleIn 0.3s ease-out",
-        }}
-        className="delete-modal-container"
-      >
-        {renderStepContent()}
-      </div>
-
-      {/* Inline CSS for animations */}
-      <style>
-        {`
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-          
-          @keyframes scaleIn {
-            from {
-              opacity: 0;
-              transform: scale(0.9) translateY(20px);
-            }
-            to {
-              opacity: 1;
-              transform: scale(1) translateY(0);
-            }
-          }
-          
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-          
-          .delete-modal-container {
-            animation: scaleIn 0.3s ease-out;
-          }
-          
-          /* Mobile responsiveness */
-          @media (max-width: 480px) {
-            .delete-modal-container {
-              padding: 20px 16px;
-              margin: 0;
-              border-radius: 16px 16px 0 0;
-              max-height: 90vh;
-              overflow-y: auto;
-            }
-          }
-          
-          @media (max-width: 360px) {
-            .delete-modal-container {
-              padding: 16px 12px;
-            }
-          }
-          
-          /* Reduced motion support */
-          @media (prefers-reduced-motion: reduce) {
-            .delete-modal-container {
-              animation: none;
-            }
-            
-            * {
-              transition: none !important;
-              animation: none !important;
-            }
-          }
-        `}
-      </style>
-    </div>
-  );
-};
 
 export const ReactUserProfile: React.FC<UserProfileProps> = ({
   token,
@@ -1926,15 +46,89 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   const [avatarModal, setAvatarModal] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [showVerifyEmail, setShowVerifyEmail] = useState(false);
   const [notification, setNotification] = useState<{
     type: "success" | "error";
     message: string;
   } | null>(null);
+  const [sendingVerification, setSendingVerification] = useState(false);
+  const [verifyFormData, setVerifyFormData] = useState({ email: "", otp: "", appId:appId });
+  const [otpSent, setOtpSent] = useState(false);
+  const [verifying, setVerifying] = useState(false);
 
   // ✅ Notification helper
   const showNotification = (type: "success" | "error", message: string) => {
     setNotification({ type, message });
     setTimeout(() => setNotification(null), 3000);
+  };
+
+
+  // ✅ Send OTP for verification
+  const handleSendOTP = async () => {
+    if (!verifyFormData.email || !/\S+@\S+\.\S+/.test(verifyFormData.email)) {
+      showNotification("error", "Please enter a valid email");
+      return;
+    }
+
+    try {
+      setVerifying(true);
+      const res = await axios.post(
+        `${baseUrl}/users/send-verify-otp/${user?.id}`,
+        { email: verifyFormData.email },
+        {
+          headers: { "x-api-key": apiKey,"x-app-id":appId },
+        }
+      );
+      if (res.data.success) {
+        showNotification("success", res.data.message || "OTP sent to email!");
+        setOtpSent(true);
+      } else {
+        showNotification("error", res.data.message || "Failed to send OTP");
+      }
+    } catch (err: any) {
+      showNotification("error", err.response?.data?.message || "Server error");
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  // ✅ Verify Email with OTP
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!verifyFormData.email || !verifyFormData.otp) {
+      showNotification("error", "Please fill in all fields");
+      return;
+    }
+
+    try {
+      setVerifying(true);
+      const res = await axios.post(
+        `${baseUrl}/users/verify-email`,
+        verifyFormData
+      );
+      if (res.data.success) {
+        showNotification("success", res.data.message || "Email verified!");
+        // Update user verification status
+        if (user) {
+          const updatedUser = { ...user, isVerified: true };
+          setUser(updatedUser);
+          localStorage.setItem(
+            "userInfo",
+            JSON.stringify({ ...updatedUser, token })
+          );
+        }
+        setVerifyFormData({ email: "", otp: "" ,appId});
+        setOtpSent(false);
+        setShowVerifyEmail(false);
+      } else {
+        showNotification("error", res.data.message || "Verification failed");
+      }
+    } catch (err: any) {
+      showNotification("error", err.response?.data?.message || "Something went wrong");
+    } finally {
+      setVerifying(false);
+    }
   };
 
   // ✅ Avatar update
@@ -2012,7 +206,6 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
       }
     } catch (err) {
       console.error("User check failed:", err);
-      // optional clear
       localStorage.removeItem("userInfo");
       setUser(null);
     }
@@ -2024,14 +217,14 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
       if (propUser) {
         setUser(propUser);
         setLoading(false);
-        validateUser(propUser.id); // 🔹 no await
+        validateUser(propUser.id);
       } else {
         const stored = localStorage.getItem("userInfo");
         if (stored) {
           const parsed: UserInfo = JSON.parse(stored);
           setUser(parsed);
           setLoading(false);
-          validateUser(parsed.id); // 🔹 background validation
+          validateUser(parsed.id);
         } else {
           setLoading(false);
         }
@@ -2040,6 +233,13 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
 
     initUser();
   }, [propUser]);
+
+  // Set email in verification form when user is available
+  useEffect(() => {
+    if (user?.email) {
+      setVerifyFormData(prev => ({ ...prev, email: user.email }));
+    }
+  }, [user?.email]);
 
   const adjustColor = (hex: string, percent: number) => {
     let num = parseInt(hex.replace("#", ""), 16);
@@ -2054,18 +254,19 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
 
   const colors = darkMode
     ? {
-        background: "#000000", // pure black background
-        surface: "#18181b", // main card surface
-        surfaceLight: "#27272a", // lighter than surface for contrast
-        surfaceLighter: "#3f3f46", // even lighter for inputs/hover
-        textPrimary: "#ffffff", // main text
-        textSecondary: "#d4d4d8", // muted text
-        textTertiary: "#a1a1aa", // tertiary (labels/hints)
-        accent: primaryColor, // dynamic brand color
-        accentHover: adjustColor(primaryColor, -15), // softer hover shade
-        success: "#10b981", // green success
-        error: "#ef4444", // solid red error
-        border: "#27272a", // slightly lighter than surface
+        background: "#000000",
+        surface: "#18181b",
+        surfaceLight: "#27272a",
+        surfaceLighter: "#3f3f46",
+        textPrimary: "#ffffff",
+        textSecondary: "#d4d4d8",
+        textTertiary: "#a1a1aa",
+        accent: primaryColor,
+        accentHover: adjustColor(primaryColor, -15),
+        success: "#10b981",
+        error: "#ef4444",
+        border: "#27272a",
+        warning: "#f59e0b",
       }
     : {
         background: "#ffffff",
@@ -2080,6 +281,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
         success: "#10b981",
         error: "#ef4444",
         border: "#e4e4e7",
+        warning: "#d97706",
       };
 
   if (loading) {
@@ -2193,6 +395,48 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
       )}
 
       <div className="profile-main-container">
+        {/* Email Verification Banner */}
+        {!user.isVerified && (
+          <div
+            className="verification-banner"
+            style={{
+              backgroundColor: darkMode 
+                ? "rgba(245, 158, 11, 0.1)" 
+                : "rgba(245, 158, 11, 0.05)",
+              border: `1px solid ${darkMode 
+                ? "rgba(245, 158, 11, 0.3)" 
+                : "rgba(245, 158, 11, 0.2)"}`,
+              color: colors.warning,
+            }}
+          >
+            <div className="verification-content">
+              <div className="verification-info">
+                <AlertCircle size={20} aria-hidden="true" />
+                <div>
+                  <strong>Email not verified</strong>
+                  <p>Please verify your email address to access all features</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowVerifyEmail(true)}
+                disabled={sendingVerification}
+                className="btn-verify"
+                style={{
+                  backgroundColor: colors.warning,
+                  color: darkMode ? "#000000" : "#ffffff",
+                }}
+              >
+                {sendingVerification ? (
+                  <Loader2 size={16} className="spinner" aria-hidden="true" />
+                ) : (
+                  <Send size={16} aria-hidden="true" />
+                )}
+                {sendingVerification ? "Sending..." : "Verify Email"}
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="profile-grid">
           {/* Left Column - Avatar & Actions */}
           <aside className="profile-sidebar">
@@ -2226,6 +470,37 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
               </div>
               <h2 className="avatar-name">{user.name}</h2>
               <p style={{ color: colors.textTertiary }}>{user.email}</p>
+              
+              {/* Verification Status Badge */}
+              <div
+                className="verification-badge"
+                style={{
+                  backgroundColor: user.isVerified
+                    ? darkMode
+                      ? "rgba(16, 185, 129, 0.1)"
+                      : "rgba(16, 185, 129, 0.05)"
+                    : darkMode
+                    ? "rgba(245, 158, 11, 0.1)"
+                    : "rgba(245, 158, 11, 0.05)",
+                  color: user.isVerified ? colors.success : colors.warning,
+                  border: `1px solid ${
+                    user.isVerified
+                      ? darkMode
+                        ? "rgba(16, 185, 129, 0.3)"
+                        : "rgba(16, 185, 129, 0.2)"
+                      : darkMode
+                      ? "rgba(245, 158, 11, 0.3)"
+                      : "rgba(245, 158, 11, 0.2)"
+                  }`,
+                }}
+              >
+                {user.isVerified ? (
+                  <CheckCircle size={16} aria-hidden="true" />
+                ) : (
+                  <AlertCircle size={16} aria-hidden="true" />
+                )}
+                {user.isVerified ? "Email Verified" : "Not Verified"}
+              </div>
             </section>
 
             <nav className="action-buttons">
@@ -2283,33 +558,45 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                     <Key size={14} aria-hidden="true" />
                     Change Password
                   </button>
+                  
+                  {/* Resend Verification Button in Sidebar */}
+                  {!user.isVerified && (
+                    <button
+                      onClick={() => setShowVerifyEmail(true)}
+                      disabled={sendingVerification}
+                      className="btn btn-warning"
+                      style={{
+                        backgroundColor: darkMode
+                          ? "rgba(245, 158, 11, 0.1)"
+                          : "rgba(245, 158, 11, 0.05)",
+                        color: colors.warning,
+                        border: `1px solid ${darkMode
+                          ? "rgba(245, 158, 11, 0.3)"
+                          : "rgba(245, 158, 11, 0.2)"}`,
+                      }}
+                    >
+                      {sendingVerification ? (
+                        <Loader2 size={16} className="spinner" aria-hidden="true" />
+                      ) : (
+                        <Send size={16} aria-hidden="true" />
+                      )}
+                      {sendingVerification ? "Sending..." : "Verify Email"}
+                    </button>
+                  )}
+
                   <button
                     onClick={() => setShowDeleteAccount(true)}
                     className="btn btn-danger"
                     style={{
                       backgroundColor: darkMode
-                        ? "rgba(239, 68, 68, 0.1)" // slightly stronger red for dark mode
-                        : "rgba(239, 68, 68, 0.15)", // softer red for light mode
-                      color: colors.error, // consistent error text color
+                        ? "rgba(239, 68, 68, 0.1)"
+                        : "rgba(239, 68, 68, 0.15)",
+                      color: colors.error,
                       border: `1px solid ${
                         darkMode
                           ? "rgba(239, 68, 68, 0.4)"
                           : "rgba(239, 68, 68, 0.3)"
                       }`,
-                      padding: "8px 14px",
-                      borderRadius: "8px",
-                      fontWeight: 500,
-                      transition: "all 0.2s ease",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = darkMode
-                        ? "rgba(239, 68, 68, 0.2)"
-                        : "rgba(239, 68, 68, 0.25)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = darkMode
-                        ? "rgba(239, 68, 68, 0.1)"
-                        : "rgba(239, 68, 68, 0.15)";
                     }}
                   >
                     <Trash2 size={16} aria-hidden="true" />
@@ -2373,6 +660,49 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                 })}
               </div>
             </section>
+
+            {/* Security Status Section */}
+            <section
+              className="profile-card"
+              style={{ backgroundColor: colors.surface }}
+            >
+              <h2 className="section-title">
+                <Shield size={20} aria-hidden="true" />
+                Security Status
+              </h2>
+              <div className="security-status">
+                <div className="security-item">
+                  <div className="security-info">
+                    <Mail size={16} aria-hidden="true" />
+                    <span>Email Verification</span>
+                  </div>
+                  <div
+                    className={`security-status-badge ${
+                      user.isVerified ? "verified" : "not-verified"
+                    }`}
+                  >
+                    {user.isVerified ? (
+                      <>
+                        <CheckCircle size={16} aria-hidden="true" />
+                        Verified
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle size={16} aria-hidden="true" />
+                        Not Verified
+                      </>
+                    )}
+                  </div>
+                </div>
+                {!user.isVerified && (
+                  <div className="security-notice">
+                    <p style={{ color: colors.textTertiary, fontSize: "14px" }}>
+                      Verify your email to unlock all features and enhance your account security.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </section>
           </main>
         </div>
       </div>
@@ -2412,6 +742,115 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
         colors={colors}
       />
 
+      {/* Email Verification Modal */}
+      {showVerifyEmail && (
+        <div className="modal-overlay" style={{ backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.5)' }}>
+          <div 
+            className="verify-email-modal"
+            style={{ 
+              backgroundColor: colors.surface,
+              border: `1px solid ${colors.border}`,
+            }}
+          >
+            <div className="modal-header">
+              <h3 style={{ color: colors.textPrimary }}>Verify Your Email</h3>
+              <button
+                onClick={() => {
+                  setShowVerifyEmail(false);
+                  setOtpSent(false);
+                  setVerifyFormData({ email: user?.email || "", otp: "",appId });
+                }}
+                className="close-btn"
+                style={{ color: colors.textTertiary }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form className="verify-form" onSubmit={handleVerify}>
+              <div className="form-group">
+                <label style={{ color: colors.textSecondary }}>Email</label>
+                <div className="input-container">
+                  <Mail size={18} style={{ color: colors.textTertiary }} />
+                  <input
+                    type="email"
+                    value={verifyFormData.email}
+                    onChange={(e) => setVerifyFormData(prev => ({ ...prev, email: e.target.value }))}
+                    placeholder="Enter your email"
+                    style={{
+                      backgroundColor: colors.surfaceLight,
+                      color: colors.textPrimary,
+                      borderColor: colors.border,
+                    }}
+                    required
+                  />
+                </div>
+              </div>
+
+              {otpSent && (
+                <div className="form-group">
+                  <label style={{ color: colors.textSecondary }}>OTP</label>
+                  <div className="input-container">
+                    <KeyRound size={18} style={{ color: colors.textTertiary }} />
+                    <input
+                      type="text"
+                      value={verifyFormData.otp}
+                      onChange={(e) => setVerifyFormData(prev => ({ ...prev, otp: e.target.value }))}
+                      placeholder="Enter OTP"
+                      style={{
+                        backgroundColor: colors.surfaceLight,
+                        color: colors.textPrimary,
+                        borderColor: colors.border,
+                      }}
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="modal-actions">
+                {!otpSent ? (
+                  <button
+                    type="button"
+                    onClick={handleSendOTP}
+                    disabled={verifying}
+                    className="btn-primary"
+                    style={{
+                      background: `linear-gradient(to right, ${colors.accent}, ${colors.accentHover})`,
+                      opacity: verifying ? 0.7 : 1,
+                    }}
+                  >
+                    {verifying ? (
+                      <Loader2 size={16} className="spinner" />
+                    ) : (
+                      <Send size={16} />
+                    )}
+                    {verifying ? "Sending..." : "Send OTP"}
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={verifying}
+                    className="btn-primary"
+                    style={{
+                      background: `linear-gradient(to right, ${colors.accent}, ${colors.accentHover})`,
+                      opacity: verifying ? 0.7 : 1,
+                    }}
+                  >
+                    {verifying ? (
+                      <Loader2 size={16} className="spinner" />
+                    ) : (
+                      <CheckCircle size={16} />
+                    )}
+                    {verifying ? "Verifying..." : "Verify Email"}
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <style>{`
         .profile-container {
           width: 100%;
@@ -2419,6 +858,384 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
           line-height: 1.5;
         }
 
+        /* Container-based responsive design */
+        .profile-main-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 16px;
+          container-type: inline-size;
+          container-name: profile-container;
+        }
+
+        /* Responsive grid layout */
+        .profile-grid {
+          display: grid;
+          gap: 24px;
+          grid-template-columns: 1fr;
+        }
+
+        /* Container queries for different container sizes */
+        @container profile-container (min-width: 600px) {
+          .profile-grid {
+            gap: 28px;
+          }
+          
+          .fields-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+          }
+        }
+
+        @container profile-container (min-width: 768px) {
+          .profile-grid {
+            gap: 32px;
+          }
+          
+          .verification-content {
+            flex-direction: row;
+          }
+        }
+
+        @container profile-container (min-width: 1024px) {
+          .profile-grid {
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+          }
+          
+          .action-buttons {
+            flex-direction: column;
+          }
+        }
+
+        @container profile-container (min-width: 1200px) {
+          .profile-grid {
+            gap: 48px;
+          }
+        }
+
+        /* Mobile-first responsive design */
+        @media (max-width: 599px) {
+          .profile-main-container {
+            padding: 0 12px;
+          }
+          
+          .profile-card {
+            padding: 20px;
+          }
+          
+          .verification-content {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+          }
+          
+          .btn-verify {
+            align-self: stretch;
+            justify-content: center;
+          }
+        }
+
+        @media (min-width: 600px) and (max-width: 767px) {
+          .profile-main-container {
+            padding: 0 20px;
+          }
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .profile-main-container {
+            padding: 0 24px;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .profile-main-container {
+            padding: 0 32px;
+          }
+        }
+
+        /* Verification Banner */
+        .verification-banner {
+          border-radius: 12px;
+          padding: 16px 20px;
+          margin-bottom: 24px;
+          backdrop-filter: blur(8px);
+        }
+
+        .verification-content {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+        }
+
+        .verification-info {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          flex: 1;
+        }
+
+        .verification-info strong {
+          display: block;
+          margin-bottom: 4px;
+        }
+
+        .verification-info p {
+          margin: 0;
+          font-size: 14px;
+          opacity: 0.9;
+        }
+
+        .btn-verify {
+          padding: 8px 16px;
+          border-radius: 8px;
+          border: none;
+          font-weight: 500;
+          font-size: 14px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          white-space: nowrap;
+        }
+
+        .btn-verify:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-verify:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        /* Verification Badge */
+        .verification-badge {
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 500;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          margin-top: 8px;
+        }
+
+        /* Security Status */
+        .security-status {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .security-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 12px 0;
+        }
+
+        .security-info {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          color: ${colors.textSecondary};
+        }
+
+        .security-status-badge {
+          padding: 6px 12px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 500;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .security-status-badge.verified {
+          background-color: ${darkMode 
+            ? "rgba(16, 185, 129, 0.1)" 
+            : "rgba(16, 185, 129, 0.05)"};
+          color: ${colors.success};
+          border: 1px solid ${darkMode 
+            ? "rgba(16, 185, 129, 0.3)" 
+            : "rgba(16, 185, 129, 0.2)"};
+        }
+
+        .security-status-badge.not-verified {
+          background-color: ${darkMode 
+            ? "rgba(245, 158, 11, 0.1)" 
+            : "rgba(245, 158, 11, 0.05)"};
+          color: ${colors.warning};
+          border: 1px solid ${darkMode 
+            ? "rgba(245, 158, 11, 0.3)" 
+            : "rgba(245, 158, 11, 0.2)"};
+        }
+
+        .security-notice {
+          padding: 12px;
+          border-radius: 8px;
+          background-color: ${darkMode 
+            ? "rgba(100, 100, 100, 0.1)" 
+            : "rgba(0, 0, 0, 0.05)"};
+        }
+
+        /* Warning button style */
+        .btn-warning {
+          padding: 8px 20px;
+          border-radius: 8px;
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 14px;
+          font-weight: 500;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          min-height: 44px;
+        }
+
+        .btn-warning:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          background-color: ${darkMode 
+            ? "rgba(245, 158, 11, 0.2)" 
+            : "rgba(245, 158, 11, 0.1)"} !important;
+        }
+
+        .btn-warning:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        /* Email Verification Modal */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10000;
+          padding: 20px;
+        }
+
+        .verify-email-modal {
+          width: 100%;
+          max-width: 440px;
+          border-radius: 16px;
+          padding: 24px;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+          backdrop-filter: blur(8px);
+        }
+
+        .modal-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 24px;
+        }
+
+        .modal-header h3 {
+          margin: 0;
+          font-size: 20px;
+          font-weight: 600;
+        }
+
+        .close-btn {
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 4px;
+          border-radius: 4px;
+          transition: background-color 0.2s ease;
+        }
+
+        .close-btn:hover {
+          background-color: ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'};
+        }
+
+        .verify-form {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .form-group label {
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        .input-container {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+
+        .input-container svg {
+          position: absolute;
+          left: 12px;
+          pointer-events: none;
+        }
+
+        .input-container input {
+          width: 100%;
+          padding: 12px 12px 12px 40px;
+          border-radius: 8px;
+          border: 1px solid;
+          font-size: 14px;
+          outline: none;
+          transition: border-color 0.2s ease;
+        }
+
+        .input-container input:focus {
+          border-color: ${colors.accent};
+          box-shadow: 0 0 0 3px ${colors.accent}20;
+        }
+
+        .modal-actions {
+          display: flex;
+          gap: 12px;
+        }
+
+        .modal-actions .btn-primary {
+          flex: 1;
+          padding: 12px 20px;
+          border: none;
+          border-radius: 8px;
+          color: white;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+
+        .modal-actions .btn-primary:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-actions .btn-primary:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        /* Existing component styles */
         .notification {
           position: fixed;
           top: 20px;
@@ -2447,42 +1264,6 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
             transform: translateX(0);
             opacity: 1;
           }
-        }
-
-        .profile-main-container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 16px;
-        }
-
-        .profile-header {
-          margin-bottom: 32px;
-          text-align: center;
-        }
-
-        .profile-title {
-          font-size: clamp(1.875rem, 1.5rem + 1.5vw, 2.5rem);
-          font-weight: 700;
-          margin: 0 0 8px 0;
-          background: ${
-            darkMode
-              ? "linear-gradient(to right, white, #d1d5db)"
-              : "linear-gradient(to right, #111827, #374151)"
-          };
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .profile-subtitle {
-          font-size: 16px;
-          margin: 0;
-        }
-
-        .profile-grid {
-          display: grid;
-          gap: 24px;
-          grid-template-columns: 1fr;
         }
 
         .profile-sidebar {
@@ -2570,7 +1351,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
           min-height: 44px;
         }
 
-        .btn:hover {
+        .btn:hover:not(:disabled) {
           transform: translateY(-1px);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
@@ -2668,8 +1449,6 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
           box-sizing: border-box;
         }
 
-        
-
         .spinner {
           animation: spin 1s linear infinite;
         }
@@ -2679,65 +1458,14 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
           to { transform: rotate(360deg); }
         }
 
-        /* Responsive Design */
-        @media (min-width: 640px) {
-          .profile-main-container {
-            padding: 0 24px;
-          }
-
-          .profile-header {
-            text-align: left;
-          }
-        }
-
-        @media (min-width: 768px) {
-          .fields-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-          }
-
-          .field-group:nth-last-child(1):nth-child(odd) {
-            grid-column: 1 / -1;
-          }
-        }
-
-        @media (min-width: 1024px) {
-          .profile-grid {
-            grid-template-columns: 1fr 2fr;
-            gap: 32px;
-          }
-
-          .action-buttons {
-            flex-direction: column;
-          }
-        }
-
-        @media (min-width: 1280px) {
-          .profile-main-container {
-            padding: 0 32px;
-          }
-        }
-
         /* Reduced motion support */
         @media (prefers-reduced-motion: reduce) {
-          .btn, .avatar-edit-btn, .notification {
+          .btn, .avatar-edit-btn, .notification, .btn-verify, .close-btn, .modal-actions .btn-primary {
             transition: none;
           }
           
           .spinner {
             animation: none;
-          }
-        }
-
-        /* High contrast support */
-        @media (prefers-contrast: high) {
-          .field-input {
-            border-width: 2px;
-          }
-          
-          .btn {
-            border-width: 2px;
           }
         }
       `}</style>

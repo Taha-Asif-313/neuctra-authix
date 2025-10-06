@@ -74,9 +74,8 @@ function AppContent() {
 
   return (
     <div className="App min-h-screen bg-black transition-colors duration-200">
-      <ScrollToTop/>
+      <ScrollToTop />
       <Routes>
-        
         {/* ===== Public Routes ===== */}
         <Route path="/" element={<AuthLayout />}>
           <Route
@@ -119,7 +118,7 @@ function AppContent() {
           <Route path="/features" element={<Features />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/contact" element={<Contact />} />
-              <Route path="/about" element={<About />} />
+          <Route path="/about" element={<About />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         </Route>
 
@@ -200,10 +199,25 @@ function App() {
           <Router>
             <AppContent />
           </Router>
+
           <Toaster
-            containerStyle={{ fontSize: 12 }}
             position="top-right"
             reverseOrder={false}
+            gutter={8}
+            toastOptions={{
+              className:
+                "rounded-xl text-xs font-medium shadow-md !bg-green-700 !text-white",
+              style: {
+                padding: "10px 14px",
+                backdropFilter: "blur(10px)",
+              },
+              duration: 3000,
+            }}
+            containerStyle={{
+              top: 20,
+              right: 20,
+              fontSize: 13,
+            }}
           />
         </ThemeProvider>
       </AppProvider>

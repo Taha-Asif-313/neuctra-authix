@@ -75,7 +75,7 @@ router.delete("/:id/data/:dataId", authMiddleware, deleteUserData);
    =================================================== */
 
 // -------- Email Verification --------
-router.post("/send-verify-otp", authMiddleware, sendUserVerifyOTP); // private
+router.post("/send-verify-otp/:id", authMiddleware, sendUserVerifyOTP); // private
 router.post("/verify-email", verifyUserEmail); // public ✅
 
 // -------- Forgot / Reset Password --------

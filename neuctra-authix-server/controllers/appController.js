@@ -19,6 +19,27 @@ export const createApp = async (req, res) => {
       });
     }
 
+    // 🔐 Check if admin is verified
+    const admin = await prisma.adminUser.findUnique({
+      where: { id: req.admin.id },
+      select: { isVerified: true }
+    });
+
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: "Admin not found",
+      });
+    }
+
+    if (!admin.isVerified) {
+      return res.status(403).json({
+        success: false,
+        message: "Please verify your email address before creating apps",
+        code: "ADMIN_NOT_VERIFIED"
+      });
+    }
+
     // 🔑 Generate a unique app secret (used for SDK/API auth)
     const appSecret = generateId();
 
@@ -41,7 +62,7 @@ export const createApp = async (req, res) => {
         platform: true,
         appSecret: true,
         createdAt: true,
-        isActive:true,
+        isActive: true,
         _count: { select: { users: true } },
       },
     });
@@ -80,14 +101,37 @@ export const getApps = async (req, res) => {
         platform: true,
         updatedAt: true,
         createdAt: true,
-        _count: { select: { users: true } },
+        users: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            isActive: true,
+            createdAt: true,
+          },
+        },
+        _count: {
+          select: { users: true },
+        },
       },
+    });
+
+    // 🧮 Add total and active user counts
+    const enhancedApps = apps.map((app) => {
+      const totalUsers = app._count?.users || 0;
+      const activeUsers = app.users?.filter((u) => u.isActive).length || 0;
+
+      return {
+        ...app,
+        totalUsers,
+        activeUsers,
+      };
     });
 
     return res.status(200).json({
       success: true,
       message: "Apps fetched successfully",
-      data: apps,
+      data: enhancedApps,
     });
   } catch (err) {
     console.error("GetApps Error:", err);
@@ -98,6 +142,7 @@ export const getApps = async (req, res) => {
     });
   }
 };
+
 
 /* =====================================================
    📄 GET SINGLE APP BY ID
@@ -254,7 +299,7 @@ export const toggleAppStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // 🔎 Validate app ownership
+    // 🔍 Check if app exists and belongs to this admin
     const app = await prisma.app.findFirst({
       where: { id, adminId: req.admin.id },
     });
@@ -266,10 +311,13 @@ export const toggleAppStatus = async (req, res) => {
       });
     }
 
-    // 🔁 Toggle isActive
+    // 🔁 Toggle app active state
+    const newStatus = !app.isActive;
+
+    // 🔄 Update app
     const updatedApp = await prisma.app.update({
       where: { id: app.id },
-      data: { isActive: !app.isActive },
+      data: { isActive: newStatus },
       select: {
         id: true,
         applicationName: true,
@@ -278,16 +326,35 @@ export const toggleAppStatus = async (req, res) => {
         description: true,
         platform: true,
         createdAt: true,
-        _count: { select: { users: true } },
+        updatedAt: true,
       },
     });
 
+    // 👥 Update all users under this app
+    await prisma.user.updateMany({
+      where: { appId: app.id },
+      data: { isActive: newStatus },
+    });
+
+    // 📊 Fetch users count for updated response
+    const users = await prisma.user.findMany({
+      where: { appId: app.id },
+      select: { id: true, name: true, email: true, isActive: true },
+    });
+
+    const userCount = users.length;
+    const activeCount = users.filter((u) => u.isActive).length;
+
     return res.status(200).json({
       success: true,
-      message: `App status updated to ${
-        updatedApp.isActive ? "Active" : "Inactive"
-      }`,
-      updatedApp,
+      message: `App and all users set to ${newStatus ? "active" : "inactive"}`,
+      data: {
+        ...updatedApp,
+        users,
+        _count: { users: userCount },
+        activeUsers: activeCount,
+        totalUsers: userCount,
+      },
     });
   } catch (err) {
     console.error("ToggleAppStatus Error:", err);
@@ -298,6 +365,7 @@ export const toggleAppStatus = async (req, res) => {
     });
   }
 };
+
 
 /* =====================================================
    📊 GET APP STATUS

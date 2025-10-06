@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ShieldCheck } from "lucide-react";
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
@@ -15,31 +15,57 @@ const SignupPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState("");
   const navigate = useNavigate();
+
+  // ✅ Password strength logic
+  const getPasswordStrength = (password) => {
+    let strength = 0;
+    if (password.length >= 8) strength += 1;
+    if (/[A-Z]/.test(password)) strength += 1;
+    if (/[0-9]/.test(password)) strength += 1;
+    if (/[@$!%*?&]/.test(password)) strength += 1;
+
+    if (strength === 0) return "";
+    if (strength === 1) return "Weak";
+    if (strength === 2) return "Fair";
+    if (strength === 3) return "Good";
+    if (strength === 4) return "Strong";
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    if (name === "password") {
+      setPasswordStrength(getPasswordStrength(value));
+    }
 
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
     }
   };
 
+  // ✅ Improved Validation
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name) newErrors.name = "Name is required";
+    if (!formData.name.trim()) newErrors.name = "Name is required";
 
     if (!formData.email) {
       newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
+      newErrors.email = "Email format is invalid";
     }
 
     if (!formData.password) {
       newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
+    } else if (
+      !/(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&])/.test(formData.password)
+    ) {
+      newErrors.password =
+        "Password must include at least one uppercase letter, number, and symbol";
     }
 
     if (formData.password !== formData.confirmPassword) {
@@ -65,7 +91,7 @@ const SignupPage = () => {
 
       if (res.data.success) {
         toast.success(res.data.message || "Signup successful!");
-        navigate("/login"); // Redirect to login after signup
+        navigate("/login");
       } else {
         toast.error(res.data.message || "Signup failed");
       }
@@ -75,6 +101,13 @@ const SignupPage = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const strengthColors = {
+    Weak: "text-red-500",
+    Fair: "text-yellow-500",
+    Good: "text-blue-500",
+    Strong: "text-green-500",
   };
 
   return (
@@ -113,9 +146,7 @@ const SignupPage = () => {
                   Full Name
                 </label>
                 <div className="mt-1 relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-5 w-5 text-gray-400" />
-                  </div>
+                  <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                   <input
                     id="name"
                     name="name"
@@ -144,9 +175,7 @@ const SignupPage = () => {
                   Email address
                 </label>
                 <div className="mt-1 relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
-                  </div>
+                  <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                   <input
                     id="email"
                     name="email"
@@ -175,9 +204,7 @@ const SignupPage = () => {
                   Password
                 </label>
                 <div className="mt-1 relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
-                  </div>
+                  <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                   <input
                     id="password"
                     name="password"
@@ -203,6 +230,16 @@ const SignupPage = () => {
                     )}
                   </button>
                 </div>
+
+                {/* Password Strength Indicator */}
+                {passwordStrength && (
+                  <p
+                    className={`mt-2 text-xs font-medium ${strengthColors[passwordStrength]} flex items-center gap-1`}
+                  >
+                    <ShieldCheck size={12} /> {passwordStrength} password
+                  </p>
+                )}
+
                 {errors.password && (
                   <p className="mt-2 text-sm text-red-600">{errors.password}</p>
                 )}
@@ -217,9 +254,7 @@ const SignupPage = () => {
                   Confirm Password
                 </label>
                 <div className="mt-1 relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
-                  </div>
+                  <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                   <input
                     id="confirmPassword"
                     name="confirmPassword"

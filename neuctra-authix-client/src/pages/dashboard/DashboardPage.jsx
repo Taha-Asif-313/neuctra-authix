@@ -20,6 +20,7 @@ import {
   Server,
   Box,
   Layers,
+  UserCheck,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
@@ -170,11 +171,47 @@ const DashboardPage = () => {
   });
   console.log(apps);
 
+  // ✅ Use values directly from backend
   const activeApps = apps.filter((app) => app.isActive).length;
-  const totalUsers = apps.reduce(
-    (acc, app) => acc + (app._count.users || 0),
+
+  const totalUsers = apps.reduce((sum, app) => sum + (app.totalUsers || 0), 0);
+
+  const activeUsers = apps.reduce(
+    (sum, app) => sum + (app.activeUsers || 0),
     0
   );
+
+  // Get current date info
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  // Calculate previous month/year
+  const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+  const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+  // 🔹 Apps created last month
+  const appsLastMonth = apps.filter((app) => {
+    const created = new Date(app.createdAt);
+    return (
+      created.getMonth() === lastMonth &&
+      created.getFullYear() === lastMonthYear
+    );
+  }).length;
+
+  const usersLastMonth = apps.reduce((total, app) => {
+    const usersCreated = (app.users || []).filter((u) => {
+      if (!u.createdAt) return false;
+      const created = new Date(u.createdAt);
+      return (
+        created.getMonth() === lastMonth &&
+        created.getFullYear() === lastMonthYear
+      );
+    }).length;
+    return total + usersCreated;
+  }, 0);
+
+  console.log(activeUsers);
 
   // 🔹 Handle deletion (remove from state instantly)
   const handleAppDeleted = (deletedId) => {
@@ -213,12 +250,6 @@ const DashboardPage = () => {
     setSearchQuery("");
     setCategoryFilter("all");
   };
-
-  // Prepare dropdown options
-  const categoryOptions = [
-    { value: "all", label: "All Categories" },
-    ...categories.map((cat) => ({ value: cat, label: cat })),
-  ];
 
   if (loading) {
     return (
@@ -309,8 +340,8 @@ const DashboardPage = () => {
             </div>
           </div>
           <p className="text-blue-400 text-sm mt-3 flex items-center">
-            <TrendingUp size={14} className="mr-1" />+
-            {Math.floor(apps.length * 0.12)} from last month
+            <TrendingUp size={14} className="mr-1" />+{appsLastMonth} new last
+            month
           </p>
         </div>
 
@@ -327,8 +358,8 @@ const DashboardPage = () => {
             </div>
           </div>
           <p className="text-green-400 text-sm mt-3 flex items-center">
-            <TrendingUp size={14} className="mr-1" />+
-            {Math.floor(totalUsers * 0.082)} from last month
+            <TrendingUp size={14} className="mr-1" />+{usersLastMonth} new last
+            month
           </p>
         </div>
 
@@ -357,19 +388,32 @@ const DashboardPage = () => {
           </p>
         </div>
 
-        <div className="bg-purple-900/30 rounded-2xl p-5">
+        <div className="bg-cyan-900/30 rounded-2xl p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-sm">Security Score</p>
-              <p className="text-2xl font-bold text-white mt-1">98%</p>
+              <p className="text-gray-400 text-sm">Active Users</p>
+              <p className="text-2xl font-bold text-white mt-1">
+                {activeUsers}
+              </p>
             </div>
-            <div className="p-3 bg-purple-500/20 rounded-xl">
-              <Shield size={20} className="text-purple-400" />
+            <div className="p-3 bg-cyan-500/20 rounded-xl">
+              <UserCheck size={20} className="text-cyan-400" />
             </div>
           </div>
-          <p className="text-purple-400 text-sm mt-3 flex items-center">
-            <BarChart3 size={14} className="mr-1" />
-            All systems secure
+          <p className="text-cyan-400 text-sm mt-3 flex items-center">
+            <p className="text-cyan-400 text-sm mt-3 flex items-center">
+              {activeUsers < totalUsers ? (
+                <>
+                  <EyeOff size={14} className="mr-1" />
+                  {totalUsers - activeUsers} inactive
+                </>
+              ) : (
+                <>
+                  <Eye size={14} className="mr-1" />
+                  All active
+                </>
+              )}
+            </p>
           </p>
         </div>
       </div>

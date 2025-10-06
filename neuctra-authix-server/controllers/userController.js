@@ -500,7 +500,7 @@ export const checkUser = async (req, res) => {
  */
 export const sendUserVerifyOTP = async (req, res) => {
   try {
-    const userId = req.user?.id;
+    const userId = req.params?.id;
     const appId = req.headers["x-app-id"]; // enforce app context
 
     if (!userId || !appId) {

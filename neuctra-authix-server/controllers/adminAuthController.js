@@ -18,22 +18,50 @@ export const signupAdmin = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // 🔍 Check if email is already registered
-    const existingAdmin = await prisma.adminUser.findUnique({
-      where: { email },
-    });
-    if (existingAdmin) {
+    // 🧩 1. Basic field validation
+    if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Admin already exists",
-        errors: { email: "Email is already registered" },
+        message: "All fields are required.",
       });
     }
 
-    // ✅ Hash password before saving
+    // 📧 2. Validate email format (to prevent invalid inputs)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid email address.",
+        errors: { email: "Invalid email format" },
+      });
+    }
+
+    // 🔒 3. Enforce strong password policy
+    const strongPassword =
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!strongPassword.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Password must be at least 8 characters long, include uppercase, lowercase, a number, and a special character.",
+        errors: { password: "Weak password" },
+      });
+    }
+
+    // 🚫 4. Check if email is already in use
+    const existingAdmin = await prisma.adminUser.findUnique({ where: { email } });
+    if (existingAdmin) {
+      return res.status(400).json({
+        success: false,
+        message: "Try signing in or use another email.",
+        errors: { email: "Email already registered" },
+      });
+    }
+
+    // 🔑 5. Hash password before saving
     const hashedPassword = await hashPassword(password);
 
-    // ✅ Create new admin
+    // 🧠 6. Create new admin user
     const admin = await prisma.adminUser.create({
       data: {
         id: generateId(),
@@ -42,23 +70,30 @@ export const signupAdmin = async (req, res) => {
         password: hashedPassword,
         apiKey: generateApiKey(),
       },
-      select: { id: true, name: true, email: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+      },
     });
 
+    // 🎉 7. Respond cleanly without leaking sensitive info
     return res.status(201).json({
       success: true,
-      message: "Admin created successfully",
+      message: "Signup successful! Welcome aboard 👋",
       data: admin,
     });
   } catch (err) {
     console.error("SignupAdmin Error:", err);
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
-      error: err.message,
+      message:
+        "Something went wrong while creating your account. Please try again later.",
     });
   }
 };
+
 
 /**
  * @desc Login admin
