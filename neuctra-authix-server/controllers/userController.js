@@ -157,7 +157,7 @@ export const loginUser = async (req, res) => {
     const { email, password, appId } = req.body;
     const adminId = req.admin?.id || null;
 
-    // Validate input
+    // ✅ Validate input
     if (!email || !password || !appId) {
       return res.status(400).json({
         success: false,
@@ -165,10 +165,11 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // 1. Verify app is active
+    // ✅ 1. Verify app is active
     const app = await prisma.app.findFirst({
       where: { id: appId, isActive: true },
     });
+
     if (!app) {
       return res.status(404).json({
         success: false,
@@ -176,15 +177,16 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // 2. Find active user in this app (and admin if provided)
+    // ✅ 2. Find active user in this app (and by admin if applicable)
     const user = await prisma.user.findFirst({
       where: {
         email: email.toLowerCase(),
         appId,
-        isActive: true, // ensure user is active
+        isActive: true,
         ...(adminId ? { adminId } : {}),
       },
     });
+
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -192,7 +194,7 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // 3. Compare password
+    // ✅ 3. Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
@@ -201,26 +203,29 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // 4. Issue a fresh token
+    // ✅ 4. Issue a fresh token
     const newToken = jwt.sign(
       { id: user.id, email: user.email, appId: user.appId, role: user.role },
       app.appSecret,
       { expiresIn: "7d" }
     );
 
-    // 5. Save token & update last login
+    console.log("User found:", JSON.stringify(user, null, 2));
+
+    // ✅ 5. Save token & update last login
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
-      data: { 
+      data: {
         token: newToken,
-        updatedAt: new Date(), // auto by @updatedAt, but explicit is fine
-        // optional tracking:
-        // lastLogin: new Date(),
-        // isOnline: true
+        updatedAt: new Date(), // Prisma handles this automatically, but explicit is fine
+        // lastLogin: new Date(), // optional
+        // isOnline: true, // optional
       },
     });
 
-    // 6. Return user with token
+    console.log("Updated User:", JSON.stringify(updatedUser, null, 2));
+
+    // ✅ 6. Return user with token
     return res.status(200).json({
       success: true,
       message: "Login successful",
@@ -232,6 +237,7 @@ export const loginUser = async (req, res) => {
         address: updatedUser.address,
         avatarUrl: updatedUser.avatarUrl,
         isActive: updatedUser.isActive,
+        isVerified: updatedUser.isVerified, // fixed reference
         role: updatedUser.role,
         appId: updatedUser.appId,
         adminId: updatedUser.adminId,
@@ -245,10 +251,12 @@ export const loginUser = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal server error",
-      error: process.env.NODE_ENV === "development" ? err.message : undefined,
+      error:
+        process.env.NODE_ENV === "development" ? err.message : undefined,
     });
   }
 };
+
 
 /**
  * @desc    Update user details (only if belongs to logged-in admin & same app)
@@ -419,44 +427,51 @@ export const deleteUser = async (req, res) => {
 };
 
 /**
- * @desc    Check if a user exists (only if belongs to logged-in admin & app)
+ * @desc    Check if a user exists (and belongs to the logged-in admin & app)
  * @route   GET /api/users/:id/check
  * @access  Private (Admin only)
  */
 export const checkUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const { appId } = req.query; // safer for GET requests
+    const { appId } = req.query; // ✅ safer for GET requests
 
-    // Ensure admin exists in request (set by auth middleware)
-    if (!req.admin || !req.admin.id) {
+    // ✅ 1. Ensure admin context exists
+    const adminId = req.admin?.id;
+    if (!adminId) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized. Admin not found.",
+        message: "Unauthorized: Admin credentials missing.",
       });
     }
 
+    // ✅ 2. Validate appId presence
     if (!appId) {
       return res.status(400).json({
         success: false,
-        message: "App ID is required",
+        message: "App ID is required.",
       });
     }
 
-    // Verify that app belongs to logged-in admin
+    // ✅ 3. Verify app ownership by the logged-in admin
     const app = await prisma.app.findFirst({
-      where: { id: appId, adminId: req.admin.id },
+      where: { id: appId, adminId },
     });
+
     if (!app) {
       return res.status(404).json({
         success: false,
-        message: "App not found or does not belong to you",
+        message: "App not found or does not belong to this admin.",
       });
     }
 
-    // Find user under this admin + app
+    // ✅ 4. Check if user exists under this admin and app
     const user = await prisma.user.findFirst({
-      where: { id: userId, adminId: req.admin.id, appId },
+      where: {
+        id: userId,
+        adminId,
+        appId,
+      },
       select: {
         id: true,
         name: true,
@@ -464,8 +479,11 @@ export const checkUser = async (req, res) => {
         phone: true,
         role: true,
         isActive: true,
+        isVerified: true,
+        avatarUrl: true,
         appId: true,
         createdAt: true,
+        updatedAt: true,
       },
     });
 
@@ -473,25 +491,28 @@ export const checkUser = async (req, res) => {
       return res.status(404).json({
         success: false,
         exists: false,
-        message: "User not found",
+        message: "User not found for this app or admin.",
       });
     }
 
+    // ✅ 5. Return success with user info
     return res.status(200).json({
       success: true,
       exists: true,
-      message: "User exists",
+      message: "User exists and belongs to this app/admin.",
       user,
     });
   } catch (err) {
     console.error("CheckUser Error:", err);
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
-      error: process.env.NODE_ENV === "development" ? err.message : undefined,
+      message: "Internal server error.",
+      error:
+        process.env.NODE_ENV === "development" ? err.message : undefined,
     });
   }
 };
+
 
 /**
  * @desc Send email verification OTP for user
@@ -934,6 +955,7 @@ export const getProfile = async (req, res) => {
         isActive: true,
         role: true,
         appId: true,
+        isVerified:true,
         adminId: true,
         createdAt: true,
         updatedAt: true,

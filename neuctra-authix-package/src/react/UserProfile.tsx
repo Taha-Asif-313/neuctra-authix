@@ -23,6 +23,7 @@ import { getSdkConfig } from "../sdk/config.js";
 import DeleteAccountModal from "./components/DeleteAccountModal.js";
 import AvatarModal from "./components/AvatarModal.js";
 import ChangePasswordModal from "./components/ChangePasswordModal.js";
+import { EmailVerificationModal } from "./components/EmailVerificationModal.js";
 
 interface UserProfileProps {
   token: string;
@@ -52,7 +53,11 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
     message: string;
   } | null>(null);
   const [sendingVerification, setSendingVerification] = useState(false);
-  const [verifyFormData, setVerifyFormData] = useState({ email: "", otp: "", appId:appId });
+  const [verifyFormData, setVerifyFormData] = useState({
+    email: "",
+    otp: "",
+    appId: appId,
+  });
   const [otpSent, setOtpSent] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
@@ -61,7 +66,6 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
     setNotification({ type, message });
     setTimeout(() => setNotification(null), 3000);
   };
-
 
   // ✅ Send OTP for verification
   const handleSendOTP = async () => {
@@ -76,7 +80,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
         `${baseUrl}/users/send-verify-otp/${user?.id}`,
         { email: verifyFormData.email },
         {
-          headers: { "x-api-key": apiKey,"x-app-id":appId },
+          headers: { "x-api-key": apiKey, "x-app-id": appId },
         }
       );
       if (res.data.success) {
@@ -118,14 +122,17 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
             JSON.stringify({ ...updatedUser, token })
           );
         }
-        setVerifyFormData({ email: "", otp: "" ,appId});
+        setVerifyFormData({ email: "", otp: "", appId });
         setOtpSent(false);
         setShowVerifyEmail(false);
       } else {
         showNotification("error", res.data.message || "Verification failed");
       }
     } catch (err: any) {
-      showNotification("error", err.response?.data?.message || "Something went wrong");
+      showNotification(
+        "error",
+        err.response?.data?.message || "Something went wrong"
+      );
     } finally {
       setVerifying(false);
     }
@@ -237,7 +244,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   // Set email in verification form when user is available
   useEffect(() => {
     if (user?.email) {
-      setVerifyFormData(prev => ({ ...prev, email: user.email }));
+      setVerifyFormData((prev) => ({ ...prev, email: user.email }));
     }
   }, [user?.email]);
 
@@ -286,15 +293,29 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
 
   if (loading) {
     return (
-      <div className="profile-container" style={{ color: colors.textPrimary }}>
-        <div className="loading-container">
+      <div style={{ 
+        width: "100%", 
+        minHeight: "400px", 
+        display: "flex", 
+        alignItems: "center", 
+        justifyContent: "center",
+        color: colors.textPrimary,
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
+      }}>
+        <div style={{ 
+          display: "flex", 
+          flexDirection: "column", 
+          alignItems: "center", 
+          gap: "16px",
+          textAlign: "center"
+        }}>
           <Loader2
             size={40}
             color={colors.accent}
-            className="spinner"
+            style={{ animation: "spin 1s linear infinite" }}
             aria-hidden="true"
           />
-          <p style={{ color: colors.textTertiary }}>Loading your profile...</p>
+          <p style={{ color: colors.textTertiary, margin: 0 }}>Loading your profile...</p>
         </div>
       </div>
     );
@@ -302,20 +323,24 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
 
   if (!user) {
     return (
-      <div className="profile-container" style={{ color: colors.textPrimary }}>
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            minHeight: "400px",
-            textAlign: "center",
-          }}
-        >
+      <div style={{ 
+        width: "100%", 
+        minHeight: "400px", 
+        display: "flex", 
+        alignItems: "center", 
+        justifyContent: "center",
+        color: colors.textPrimary,
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
+      }}>
+        <div style={{ 
+          display: "flex", 
+          flexDirection: "column", 
+          alignItems: "center", 
+          gap: "12px",
+          textAlign: "center"
+        }}>
           <AlertCircle size={40} color={colors.error} aria-hidden="true" />
-          <p style={{ color: colors.textTertiary }}>
+          <p style={{ color: colors.textTertiary, margin: 0 }}>
             No profile found. Please log in again.
           </p>
         </div>
@@ -355,13 +380,34 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   ];
 
   return (
-    <div className="profile-container" style={{ color: colors.textPrimary }}>
+    <div style={{ 
+      width: "100%",
+      color: colors.textPrimary,
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      lineHeight: 1.5,
+      backgroundColor: colors.background,
+      minHeight: "100vh"
+    }}>
       {/* Notification */}
       {notification && (
         <div
-          className={`notification ${notification.type}`}
           style={{
+            position: "fixed",
+            top: "20px",
+            right: "20px",
+            padding: "12px 24px",
+            borderRadius: "12px",
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+            backdropFilter: "blur(8px)",
+            border: "1px solid",
             zIndex: 10000,
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            fontSize: "14px",
+            fontWeight: 500,
+            maxWidth: "400px",
+            animation: "slideIn 0.3s ease-out",
             ...(notification.type === "success"
               ? {
                   backgroundColor: darkMode
@@ -394,40 +440,76 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
         </div>
       )}
 
-      <div className="profile-main-container">
+      <div style={{ 
+        maxWidth: "1200px",
+        margin: "0 auto",
+        padding: "16px",
+        width: "100%",
+        boxSizing: "border-box"
+      }}>
         {/* Email Verification Banner */}
         {!user.isVerified && (
           <div
-            className="verification-banner"
             style={{
-              backgroundColor: darkMode 
-                ? "rgba(245, 158, 11, 0.1)" 
+              backgroundColor: darkMode
+                ? "rgba(245, 158, 11, 0.1)"
                 : "rgba(245, 158, 11, 0.05)",
-              border: `1px solid ${darkMode 
-                ? "rgba(245, 158, 11, 0.3)" 
-                : "rgba(245, 158, 11, 0.2)"}`,
+              border: `1px solid ${
+                darkMode ? "rgba(245, 158, 11, 0.3)" : "rgba(245, 158, 11, 0.2)"
+              }`,
               color: colors.warning,
+              borderRadius: "12px",
+              padding: "16px 20px",
+              marginBottom: "24px",
+              backdropFilter: "blur(8px)",
             }}
           >
-            <div className="verification-content">
-              <div className="verification-info">
+            <div style={{
+              display: "flex",
+              flexDirection: window.innerWidth < 768 ? "column" : "row",
+              alignItems: window.innerWidth < 768 ? "flex-start" : "center",
+              justifyContent: "space-between",
+              gap: "16px",
+              width: "100%"
+            }}>
+              <div style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "12px",
+                flex: 1
+              }}>
                 <AlertCircle size={20} aria-hidden="true" />
                 <div>
-                  <strong>Email not verified</strong>
-                  <p>Please verify your email address to access all features</p>
+                  <div style={{ fontWeight: 600, marginBottom: "4px" }}>Email not verified</div>
+                  <div style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>
+                    Please verify your email address to access all features
+                  </div>
                 </div>
               </div>
               <button
                 onClick={() => setShowVerifyEmail(true)}
                 disabled={sendingVerification}
-                className="btn-verify"
                 style={{
                   backgroundColor: colors.warning,
                   color: darkMode ? "#000000" : "#ffffff",
+                  padding: "8px 16px",
+                  borderRadius: "8px",
+                  border: "none",
+                  fontWeight: 500,
+                  fontSize: "14px",
+                  cursor: sendingVerification ? "not-allowed" : "pointer",
+                  transition: "all 0.2s ease",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  whiteSpace: "nowrap",
+                  opacity: sendingVerification ? 0.6 : 1,
+                  alignSelf: window.innerWidth < 768 ? "stretch" : "auto",
+                  justifyContent: "center"
                 }}
               >
                 {sendingVerification ? (
-                  <Loader2 size={16} className="spinner" aria-hidden="true" />
+                  <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} aria-hidden="true" />
                 ) : (
                   <Send size={16} aria-hidden="true" />
                 )}
@@ -437,14 +519,40 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
           </div>
         )}
 
-        <div className="profile-grid">
+        <div style={{
+          display: "grid",
+          gap: "24px",
+          gridTemplateColumns: "1fr",
+          ...(window.innerWidth >= 1024 && {
+            gridTemplateColumns: "1fr 2fr",
+            gap: "40px"
+          }),
+          ...(window.innerWidth >= 768 && window.innerWidth < 1024 && {
+            gap: "32px"
+          }),
+          ...(window.innerWidth >= 600 && window.innerWidth < 768 && {
+            gap: "28px"
+          })
+        }}>
           {/* Left Column - Avatar & Actions */}
-          <aside className="profile-sidebar">
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "24px"
+          }}>
             <section
-              className="profile-card avatar-section"
-              style={{ backgroundColor: colors.surface }}
+              style={{
+                backgroundColor: colors.surface,
+                borderRadius: "16px",
+                padding: "24px",
+                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center"
+              }}
             >
-              <div className="avatar-container">
+              <div style={{ position: "relative", display: "inline-block", marginBottom: "16px" }}>
                 <img
                   src={
                     user.avatarUrl ||
@@ -453,27 +561,59 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                     )}`
                   }
                   alt={`Profile avatar of ${user.name}`}
-                  className="avatar-image"
-                  style={{ borderColor: colors.border }}
+                  style={{
+                    width: "128px",
+                    height: "128px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.3)",
+                    border: `3px solid ${colors.border}`
+                  }}
                   width={128}
                   height={128}
                   loading="eager"
                 />
                 <button
                   onClick={() => setAvatarModal(true)}
-                  className="avatar-edit-btn"
-                  style={{ backgroundColor: colors.accent }}
+                  style={{
+                    position: "absolute",
+                    bottom: "8px",
+                    right: "8px",
+                    backgroundColor: colors.accent,
+                    color: "white",
+                    padding: "8px",
+                    borderRadius: "50%",
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "32px",
+                    height: "32px"
+                  }}
                   aria-label="Change profile picture"
                 >
                   <Camera size={16} aria-hidden="true" />
                 </button>
               </div>
-              <h2 className="avatar-name">{user.name}</h2>
-              <p style={{ color: colors.textTertiary }}>{user.email}</p>
-              
+              <h2 style={{ 
+                fontSize: "24px", 
+                fontWeight: 600, 
+                margin: "0 0 4px 0",
+                color: colors.textPrimary
+              }}>
+                {user.name}
+              </h2>
+              <p style={{ 
+                color: colors.textTertiary, 
+                margin: "0 0 8px 0"
+              }}>
+                {user.email}
+              </p>
+
               {/* Verification Status Badge */}
               <div
-                className="verification-badge"
                 style={{
                   backgroundColor: user.isVerified
                     ? darkMode
@@ -492,6 +632,14 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                       ? "rgba(245, 158, 11, 0.3)"
                       : "rgba(245, 158, 11, 0.2)"
                   }`,
+                  padding: "6px 12px",
+                  borderRadius: "20px",
+                  fontSize: "12px",
+                  fontWeight: 500,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  marginTop: "8px"
                 }}
               >
                 {user.isVerified ? (
@@ -503,16 +651,34 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
               </div>
             </section>
 
-            <nav className="action-buttons">
+            <nav style={{
+              display: "flex",
+              flexDirection: window.innerWidth >= 1024 ? "column" : "row",
+              gap: "12px",
+              flexWrap: window.innerWidth < 1024 ? "wrap" : "nowrap"
+            }}>
               {editMode ? (
                 <>
                   <button
                     onClick={() => setEditMode(false)}
-                    className="btn btn-outline"
                     style={{
                       backgroundColor: colors.surfaceLight,
-                      borderColor: colors.border,
+                      border: `1px solid ${colors.border}`,
                       color: colors.textPrimary,
+                      padding: "12px 20px",
+                      borderRadius: "8px",
+                      borderStyle: "solid",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      textDecoration: "none",
+                      minHeight: "44px",
+                      flex: window.innerWidth < 1024 ? "1" : "auto"
                     }}
                   >
                     <X size={16} aria-hidden="true" />
@@ -521,16 +687,30 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="btn btn-primary"
                     style={{
                       background: `linear-gradient(to right, ${colors.accent}, ${colors.accentHover})`,
                       opacity: saving ? 0.7 : 1,
+                      color: "white",
+                      padding: "12px 20px",
+                      borderRadius: "8px",
+                      border: "none",
+                      cursor: saving ? "not-allowed" : "pointer",
+                      transition: "all 0.2s ease",
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      textDecoration: "none",
+                      minHeight: "44px",
+                      flex: window.innerWidth < 1024 ? "1" : "auto"
                     }}
                   >
                     {saving ? (
                       <Loader2
                         size={16}
-                        className="spinner"
+                        style={{ animation: "spin 1s linear infinite" }}
                         aria-hidden="true"
                       />
                     ) : (
@@ -543,9 +723,23 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                 <>
                   <button
                     onClick={() => setEditMode(true)}
-                    className="btn btn-primary"
                     style={{
                       background: `linear-gradient(to right, ${colors.accent}, ${colors.accentHover})`,
+                      color: "white",
+                      padding: "12px 20px",
+                      borderRadius: "8px",
+                      border: "none",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      textDecoration: "none",
+                      minHeight: "44px",
+                      flex: window.innerWidth < 1024 ? "1" : "auto"
                     }}
                   >
                     <Edit3 size={16} aria-hidden="true" />
@@ -553,30 +747,66 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                   </button>
                   <button
                     onClick={() => setShowChangePassword(true)}
-                    className="btn btn-secondary"
+                    style={{
+                      backgroundColor: colors.surfaceLight,
+                      color: colors.textPrimary,
+                      padding: "12px 20px",
+                      borderRadius: "8px",
+                      border: "none",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      textDecoration: "none",
+                      minHeight: "44px",
+                      flex: window.innerWidth < 1024 ? "1" : "auto"
+                    }}
                   >
                     <Key size={14} aria-hidden="true" />
                     Change Password
                   </button>
-                  
+
                   {/* Resend Verification Button in Sidebar */}
                   {!user.isVerified && (
                     <button
                       onClick={() => setShowVerifyEmail(true)}
                       disabled={sendingVerification}
-                      className="btn btn-warning"
                       style={{
                         backgroundColor: darkMode
                           ? "rgba(245, 158, 11, 0.1)"
                           : "rgba(245, 158, 11, 0.05)",
                         color: colors.warning,
-                        border: `1px solid ${darkMode
-                          ? "rgba(245, 158, 11, 0.3)"
-                          : "rgba(245, 158, 11, 0.2)"}`,
+                        border: `1px solid ${
+                          darkMode
+                            ? "rgba(245, 158, 11, 0.3)"
+                            : "rgba(245, 158, 11, 0.2)"
+                        }`,
+                        padding: "12px 20px",
+                        borderRadius: "8px",
+                        borderStyle: "solid",
+                        cursor: sendingVerification ? "not-allowed" : "pointer",
+                        transition: "all 0.2s ease",
+                        fontSize: "14px",
+                        fontWeight: 500,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                        minHeight: "44px",
+                        flex: window.innerWidth < 1024 ? "1" : "auto",
+                        opacity: sendingVerification ? 0.6 : 1
                       }}
                     >
                       {sendingVerification ? (
-                        <Loader2 size={16} className="spinner" aria-hidden="true" />
+                        <Loader2
+                          size={16}
+                          style={{ animation: "spin 1s linear infinite" }}
+                          aria-hidden="true"
+                        />
                       ) : (
                         <Send size={16} aria-hidden="true" />
                       )}
@@ -586,7 +816,6 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
 
                   <button
                     onClick={() => setShowDeleteAccount(true)}
-                    className="btn btn-danger"
                     style={{
                       backgroundColor: darkMode
                         ? "rgba(239, 68, 68, 0.1)"
@@ -597,6 +826,20 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                           ? "rgba(239, 68, 68, 0.4)"
                           : "rgba(239, 68, 68, 0.3)"
                       }`,
+                      padding: "12px 20px",
+                      borderRadius: "8px",
+                      borderStyle: "solid",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      textDecoration: "none",
+                      minHeight: "44px",
+                      flex: window.innerWidth < 1024 ? "1" : "auto"
                     }}
                   >
                     <Trash2 size={16} aria-hidden="true" />
@@ -605,25 +848,61 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                 </>
               )}
             </nav>
-          </aside>
+          </div>
 
           {/* Right Column - User Details */}
-          <main className="profile-content">
+          <div style={{
+            minWidth: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: "24px"
+          }}>
             <section
-              className="profile-card"
-              style={{ backgroundColor: colors.surface }}
+              style={{
+                backgroundColor: colors.surface,
+                borderRadius: "16px",
+                padding: "24px",
+                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)"
+              }}
             >
-              <h2 className="section-title">
+              <h2 style={{
+                fontSize: "20px",
+                fontWeight: 600,
+                margin: "0 0 24px 0",
+                color: colors.textSecondary,
+                display: "flex",
+                alignItems: "center",
+                gap: "8px"
+              }}>
                 <User size={20} aria-hidden="true" />
                 Personal Information
               </h2>
 
-              <div className="fields-grid">
+              <div style={{
+                display: "grid",
+                gap: "20px",
+                gridTemplateColumns: "1fr",
+                ...(window.innerWidth >= 600 && {
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "20px"
+                })
+              }}>
                 {userFields.map((field) => {
                   const IconComponent = field.icon;
                   return (
-                    <div key={field.name} className="field-group">
-                      <label className="field-label">
+                    <div key={field.name} style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "8px"
+                    }}>
+                      <label style={{
+                        color: colors.textTertiary,
+                        fontSize: "14px",
+                        fontWeight: 500,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px"
+                      }}>
                         <IconComponent size={16} aria-hidden="true" />
                         {field.label}
                       </label>
@@ -639,18 +918,36 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                                 : prev
                             )
                           }
-                          className="field-input"
                           style={{
-                            borderColor: primaryColor,
+                            padding: "12px",
+                            borderRadius: "8px",
+                            border: `1px solid ${primaryColor}`,
+                            backgroundColor: "transparent",
                             color: colors.textPrimary,
+                            fontSize: "14px",
+                            outline: "none",
+                            transition: "border-color 0.2s ease",
+                            minHeight: "44px",
+                            width: "100%",
+                            boxSizing: "border-box"
                           }}
                           placeholder={`Enter ${field.label.toLowerCase()}`}
                           aria-label={field.label}
                         />
                       ) : (
                         <div
-                          className="field-value"
-                          style={{ color: colors.textPrimary }}
+                          style={{
+                            padding: "12px",
+                            borderRadius: "8px",
+                            border: "1px solid transparent",
+                            fontSize: "14px",
+                            minHeight: "44px",
+                            display: "flex",
+                            alignItems: "center",
+                            boxSizing: "border-box",
+                            color: colors.textPrimary,
+                            backgroundColor: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"
+                          }}
                         >
                           {field.value}
                         </div>
@@ -663,23 +960,78 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
 
             {/* Security Status Section */}
             <section
-              className="profile-card"
-              style={{ backgroundColor: colors.surface }}
+              style={{
+                backgroundColor: colors.surface,
+                borderRadius: "16px",
+                padding: "24px",
+                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)"
+              }}
             >
-              <h2 className="section-title">
+              <h2 style={{
+                fontSize: "20px",
+                fontWeight: 600,
+                margin: "0 0 24px 0",
+                color: colors.textSecondary,
+                display: "flex",
+                alignItems: "center",
+                gap: "8px"
+              }}>
                 <Shield size={20} aria-hidden="true" />
                 Security Status
               </h2>
-              <div className="security-status">
-                <div className="security-item">
-                  <div className="security-info">
+              <div style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "16px"
+              }}>
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 0"
+                }}>
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    color: colors.textSecondary
+                  }}>
                     <Mail size={16} aria-hidden="true" />
                     <span>Email Verification</span>
                   </div>
                   <div
-                    className={`security-status-badge ${
-                      user.isVerified ? "verified" : "not-verified"
-                    }`}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "8px",
+                      fontSize: "12px",
+                      fontWeight: 500,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      ...(user.isVerified
+                        ? {
+                            backgroundColor: darkMode
+                              ? "rgba(16, 185, 129, 0.1)"
+                              : "rgba(16, 185, 129, 0.05)",
+                            color: colors.success,
+                            border: `1px solid ${
+                              darkMode
+                                ? "rgba(16, 185, 129, 0.3)"
+                                : "rgba(16, 185, 129, 0.2)"
+                            }`,
+                          }
+                        : {
+                            backgroundColor: darkMode
+                              ? "rgba(245, 158, 11, 0.1)"
+                              : "rgba(245, 158, 11, 0.05)",
+                            color: colors.warning,
+                            border: `1px solid ${
+                              darkMode
+                                ? "rgba(245, 158, 11, 0.3)"
+                                : "rgba(245, 158, 11, 0.2)"
+                            }`,
+                          })
+                    }}
                   >
                     {user.isVerified ? (
                       <>
@@ -695,15 +1047,23 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                   </div>
                 </div>
                 {!user.isVerified && (
-                  <div className="security-notice">
-                    <p style={{ color: colors.textTertiary, fontSize: "14px" }}>
+                  <div style={{
+                    padding: "12px",
+                    borderRadius: "8px",
+                    backgroundColor: darkMode ? "rgba(100, 100, 100, 0.1)" : "rgba(0, 0, 0, 0.05)"
+                  }}>
+                    <p style={{ 
+                      color: colors.textTertiary, 
+                      fontSize: "14px",
+                      margin: 0
+                    }}>
                       Verify your email to unlock all features and enhance your account security.
                     </p>
                   </div>
                 )}
               </div>
             </section>
-          </main>
+          </div>
         </div>
       </div>
 
@@ -743,195 +1103,45 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
       />
 
       {/* Email Verification Modal */}
-      {showVerifyEmail && (
-        <div className="modal-overlay" style={{ backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.5)' }}>
-          <div 
-            className="verify-email-modal"
-            style={{ 
-              backgroundColor: colors.surface,
-              border: `1px solid ${colors.border}`,
-            }}
-          >
-            <div className="modal-header">
-              <h3 style={{ color: colors.textPrimary }}>Verify Your Email</h3>
-              <button
-                onClick={() => {
-                  setShowVerifyEmail(false);
-                  setOtpSent(false);
-                  setVerifyFormData({ email: user?.email || "", otp: "",appId });
-                }}
-                className="close-btn"
-                style={{ color: colors.textTertiary }}
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <form className="verify-form" onSubmit={handleVerify}>
-              <div className="form-group">
-                <label style={{ color: colors.textSecondary }}>Email</label>
-                <div className="input-container">
-                  <Mail size={18} style={{ color: colors.textTertiary }} />
-                  <input
-                    type="email"
-                    value={verifyFormData.email}
-                    onChange={(e) => setVerifyFormData(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder="Enter your email"
-                    style={{
-                      backgroundColor: colors.surfaceLight,
-                      color: colors.textPrimary,
-                      borderColor: colors.border,
-                    }}
-                    required
-                  />
-                </div>
-              </div>
-
-              {otpSent && (
-                <div className="form-group">
-                  <label style={{ color: colors.textSecondary }}>OTP</label>
-                  <div className="input-container">
-                    <KeyRound size={18} style={{ color: colors.textTertiary }} />
-                    <input
-                      type="text"
-                      value={verifyFormData.otp}
-                      onChange={(e) => setVerifyFormData(prev => ({ ...prev, otp: e.target.value }))}
-                      placeholder="Enter OTP"
-                      style={{
-                        backgroundColor: colors.surfaceLight,
-                        color: colors.textPrimary,
-                        borderColor: colors.border,
-                      }}
-                      required
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="modal-actions">
-                {!otpSent ? (
-                  <button
-                    type="button"
-                    onClick={handleSendOTP}
-                    disabled={verifying}
-                    className="btn-primary"
-                    style={{
-                      background: `linear-gradient(to right, ${colors.accent}, ${colors.accentHover})`,
-                      opacity: verifying ? 0.7 : 1,
-                    }}
-                  >
-                    {verifying ? (
-                      <Loader2 size={16} className="spinner" />
-                    ) : (
-                      <Send size={16} />
-                    )}
-                    {verifying ? "Sending..." : "Send OTP"}
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    disabled={verifying}
-                    className="btn-primary"
-                    style={{
-                      background: `linear-gradient(to right, ${colors.accent}, ${colors.accentHover})`,
-                      opacity: verifying ? 0.7 : 1,
-                    }}
-                  >
-                    {verifying ? (
-                      <Loader2 size={16} className="spinner" />
-                    ) : (
-                      <CheckCircle size={16} />
-                    )}
-                    {verifying ? "Verifying..." : "Verify Email"}
-                  </button>
-                )}
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <EmailVerificationModal
+        isOpen={showVerifyEmail}
+        onClose={() => {
+          setShowVerifyEmail(false);
+          setOtpSent(false);
+          setVerifyFormData({ email: user?.email || "", otp: "", appId });
+        }}
+        onVerify={handleVerify}
+        onSendOTP={handleSendOTP}
+        verifyFormData={verifyFormData}
+        setVerifyFormData={setVerifyFormData}
+        otpSent={otpSent}
+        verifying={verifying}
+        user={user}
+        colors={colors}
+        darkMode={darkMode}
+      />
 
       <style>{`
-        .profile-container {
-          width: 100%;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-          line-height: 1.5;
-        }
-
-        /* Container-based responsive design */
-        .profile-main-container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 16px;
-          container-type: inline-size;
-          container-name: profile-container;
-        }
-
-        /* Responsive grid layout */
-        .profile-grid {
-          display: grid;
-          gap: 24px;
-          grid-template-columns: 1fr;
-        }
-
-        /* Container queries for different container sizes */
-        @container profile-container (min-width: 600px) {
-          .profile-grid {
-            gap: 28px;
+        @keyframes slideIn {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
           }
-          
-          .fields-grid {
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+          to {
+            transform: translateX(0);
+            opacity: 1;
           }
         }
 
-        @container profile-container (min-width: 768px) {
-          .profile-grid {
-            gap: 32px;
-          }
-          
-          .verification-content {
-            flex-direction: row;
-          }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
 
-        @container profile-container (min-width: 1024px) {
-          .profile-grid {
-            grid-template-columns: 1fr 2fr;
-            gap: 40px;
-          }
-          
-          .action-buttons {
-            flex-direction: column;
-          }
-        }
-
-        @container profile-container (min-width: 1200px) {
-          .profile-grid {
-            gap: 48px;
-          }
-        }
-
-        /* Mobile-first responsive design */
+        /* Responsive design using container queries as fallback */
         @media (max-width: 599px) {
           .profile-main-container {
             padding: 0 12px;
-          }
-          
-          .profile-card {
-            padding: 20px;
-          }
-          
-          .verification-content {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 12px;
-          }
-          
-          .btn-verify {
-            align-self: stretch;
-            justify-content: center;
           }
         }
 
@@ -953,519 +1163,12 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
           }
         }
 
-        /* Verification Banner */
-        .verification-banner {
-          border-radius: 12px;
-          padding: 16px 20px;
-          margin-bottom: 24px;
-          backdrop-filter: blur(8px);
-        }
-
-        .verification-content {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-        }
-
-        .verification-info {
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-          flex: 1;
-        }
-
-        .verification-info strong {
-          display: block;
-          margin-bottom: 4px;
-        }
-
-        .verification-info p {
-          margin: 0;
-          font-size: 14px;
-          opacity: 0.9;
-        }
-
-        .btn-verify {
-          padding: 8px 16px;
-          border-radius: 8px;
-          border: none;
-          font-weight: 500;
-          font-size: 14px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          white-space: nowrap;
-        }
-
-        .btn-verify:hover:not(:disabled) {
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn-verify:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-
-        /* Verification Badge */
-        .verification-badge {
-          padding: 6px 12px;
-          border-radius: 20px;
-          font-size: 12px;
-          font-weight: 500;
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          margin-top: 8px;
-        }
-
-        /* Security Status */
-        .security-status {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .security-item {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 12px 0;
-        }
-
-        .security-info {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          color: ${colors.textSecondary};
-        }
-
-        .security-status-badge {
-          padding: 6px 12px;
-          border-radius: 8px;
-          font-size: 12px;
-          font-weight: 500;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-
-        .security-status-badge.verified {
-          background-color: ${darkMode 
-            ? "rgba(16, 185, 129, 0.1)" 
-            : "rgba(16, 185, 129, 0.05)"};
-          color: ${colors.success};
-          border: 1px solid ${darkMode 
-            ? "rgba(16, 185, 129, 0.3)" 
-            : "rgba(16, 185, 129, 0.2)"};
-        }
-
-        .security-status-badge.not-verified {
-          background-color: ${darkMode 
-            ? "rgba(245, 158, 11, 0.1)" 
-            : "rgba(245, 158, 11, 0.05)"};
-          color: ${colors.warning};
-          border: 1px solid ${darkMode 
-            ? "rgba(245, 158, 11, 0.3)" 
-            : "rgba(245, 158, 11, 0.2)"};
-        }
-
-        .security-notice {
-          padding: 12px;
-          border-radius: 8px;
-          background-color: ${darkMode 
-            ? "rgba(100, 100, 100, 0.1)" 
-            : "rgba(0, 0, 0, 0.05)"};
-        }
-
-        /* Warning button style */
-        .btn-warning {
-          padding: 8px 20px;
-          border-radius: 8px;
-          border: none;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          font-size: 14px;
-          font-weight: 500;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          min-height: 44px;
-        }
-
-        .btn-warning:hover:not(:disabled) {
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-          background-color: ${darkMode 
-            ? "rgba(245, 158, 11, 0.2)" 
-            : "rgba(245, 158, 11, 0.1)"} !important;
-        }
-
-        .btn-warning:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-          transform: none;
-        }
-
-        /* Email Verification Modal */
-        .modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 10000;
-          padding: 20px;
-        }
-
-        .verify-email-modal {
-          width: 100%;
-          max-width: 440px;
-          border-radius: 16px;
-          padding: 24px;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-          backdrop-filter: blur(8px);
-        }
-
-        .modal-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 24px;
-        }
-
-        .modal-header h3 {
-          margin: 0;
-          font-size: 20px;
-          font-weight: 600;
-        }
-
-        .close-btn {
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 4px;
-          border-radius: 4px;
-          transition: background-color 0.2s ease;
-        }
-
-        .close-btn:hover {
-          background-color: ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'};
-        }
-
-        .verify-form {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .form-group {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .form-group label {
-          font-size: 14px;
-          font-weight: 500;
-        }
-
-        .input-container {
-          position: relative;
-          display: flex;
-          align-items: center;
-        }
-
-        .input-container svg {
-          position: absolute;
-          left: 12px;
-          pointer-events: none;
-        }
-
-        .input-container input {
-          width: 100%;
-          padding: 12px 12px 12px 40px;
-          border-radius: 8px;
-          border: 1px solid;
-          font-size: 14px;
-          outline: none;
-          transition: border-color 0.2s ease;
-        }
-
-        .input-container input:focus {
-          border-color: ${colors.accent};
-          box-shadow: 0 0 0 3px ${colors.accent}20;
-        }
-
-        .modal-actions {
-          display: flex;
-          gap: 12px;
-        }
-
-        .modal-actions .btn-primary {
-          flex: 1;
-          padding: 12px 20px;
-          border: none;
-          border-radius: 8px;
-          color: white;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-        }
-
-        .modal-actions .btn-primary:hover:not(:disabled) {
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .modal-actions .btn-primary:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-          transform: none;
-        }
-
-        /* Existing component styles */
-        .notification {
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          padding: 12px 24px;
-          border-radius: 12px;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-          backdrop-filter: blur(8px);
-          border: 1px solid;
-          z-index: 1000;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 14px;
-          font-weight: 500;
-          max-width: 400px;
-          animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-
-        .profile-sidebar {
-          display: flex;
-          flex-direction: column;
-          gap: 24px;
-        }
-
-        .profile-content {
-          min-width: 0;
-        }
-
-        .profile-card {
-          border-radius: 16px;
-          padding: 24px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .avatar-section {
-          text-align: center;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-
-        .avatar-container {
-          position: relative;
-          display: inline-block;
-          margin-bottom: 16px;
-        }
-
-        .avatar-image {
-          width: 128px;
-          height: 128px;
-          border-radius: 50%;
-          object-fit: cover;
-          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-          border: 3px solid;
-        }
-
-        .avatar-edit-btn {
-          position: absolute;
-          bottom: 8px;
-          right: 8px;
-          color: white;
-          padding: 8px;
-          border-radius: 50%;
-          border: none;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .avatar-edit-btn:hover {
-          transform: scale(1.1);
-        }
-
-        .avatar-name {
-          font-size: 24px;
-          font-weight: 600;
-          margin: 0 0 4px 0;
-        }
-
-        .action-buttons {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .btn {
-          padding: 8px 20px;
-          border-radius: 8px;
-          border: none;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          font-size: 14px;
-          font-weight: 500;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          text-decoration: none;
-          min-height: 44px;
-        }
-
-        .btn:hover:not(:disabled) {
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-          transform: none;
-        }
-
-        .btn-primary {
-          background: linear-gradient(to right, ${colors.accent}, ${
-        colors.accentHover
-      });
-          color: white;
-        }
-
-        .btn-secondary {
-          background-color: #27272a;
-          color: white;
-        }
-
-        .btn-secondary:hover {
-          background-color: #3f3f46;
-        }
-
-        .btn-outline {
-          background: transparent;
-          border: 1px solid;
-        }
-
-        .btn-danger {
-          background: transparent;
-          border: 1px solid;
-        }
-
-        .section-title {
-          font-size: 20px;
-          font-weight: 600;
-          margin: 0 0 24px 0;
-          color: ${colors.textSecondary};
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .fields-grid {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .field-group {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .field-label {
-          color: ${colors.textTertiary};
-          font-size: 14px;
-          font-weight: 500;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .field-input {
-          padding: 12px;
-          border-radius: 8px;
-          border: 1px solid;
-          background: transparent;
-          color: inherit;
-          font-size: 14px;
-          outline: none;
-          transition: border-color 0.2s ease;
-          min-height: 44px;
-          width: 100%;
-          box-sizing: border-box;
-        }
-
-        .field-input:focus {
-          border-color: ${colors.accent};
-          box-shadow: 0 0 0 3px ${colors.accent}20;
-        }
-
-        .field-value {
-          padding: 12px;
-          border-radius: 8px;
-          border: 1px solid transparent;
-          font-size: 14px;
-          min-height: 44px;
-          display: flex;
-          align-items: center;
-          box-sizing: border-box;
-        }
-
-        .spinner {
-          animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-
         /* Reduced motion support */
         @media (prefers-reduced-motion: reduce) {
-          .btn, .avatar-edit-btn, .notification, .btn-verify, .close-btn, .modal-actions .btn-primary {
-            transition: none;
-          }
-          
-          .spinner {
-            animation: none;
+          * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
           }
         }
       `}</style>
