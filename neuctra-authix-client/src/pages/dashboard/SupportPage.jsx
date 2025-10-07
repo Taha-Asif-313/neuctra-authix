@@ -17,6 +17,7 @@ import {
   Lock,
   Smartphone,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 /**
  * SupportPage Component - Modern Documentation Style
@@ -171,30 +172,30 @@ const supportOptions = [
     link: "mailto:neuctra@gmail.com", // opens email client
     gradient: "from-blue-500 to-cyan-500",
   },
-  {
-    icon: MessageSquare,
-    title: "Live Chat",
-    desc: "Instant help from our support agents for urgent issues",
-    action: "Start Chat",
-    link: "https://neuctra.com/chat", // your live chat page or widget
-    gradient: "from-green-500 to-emerald-500",
-  },
+  // {
+  //   icon: MessageSquare,
+  //   title: "Live Chat",
+  //   desc: "Instant help from our support agents for urgent issues",
+  //   action: "Start Chat",
+  //   link: "https://neuctra.com/chat", // your live chat page or widget
+  //   gradient: "from-green-500 to-emerald-500",
+  // },
   {
     icon: BookOpen,
     title: "Documentation",
     desc: "Comprehensive guides, API references, and tutorials",
     action: "View Docs",
-    link: "https://docs.neuctra.com", // your docs site
+    link: "/docs", // your docs site
     gradient: "from-purple-500 to-pink-500",
   },
-  {
-    icon: LifeBuoy,
-    title: "Community Forum",
-    desc: "Connect with other developers and share solutions",
-    action: "Join Forum",
-    link: "https://community.neuctra.com", // your forum/community
-    gradient: "from-orange-500 to-red-500",
-  },
+  // {
+  //   icon: LifeBuoy,
+  //   title: "Community Forum",
+  //   desc: "Connect with other developers and share solutions",
+  //   action: "Join Forum",
+  //   link: "https://community.neuctra.com", // your forum/community
+  //   gradient: "from-orange-500 to-red-500",
+  // },
 ];
 
 
@@ -220,7 +221,7 @@ const supportOptions = [
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-sm:px-3">
         {/* Header Section */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-3 bg-primary/10 border border-primary/20 rounded-full px-6 py-3 mb-6 backdrop-blur-sm">
@@ -254,7 +255,7 @@ const supportOptions = [
 
         {/* Support Options Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2  gap-6 mb-20">
-          {supportOptions.map(({ icon: Icon, title, desc, action, gradient }) => (
+          {supportOptions.map(({ icon: Icon, title, desc, action, gradient, link }) => (
             <div
               key={title}
               className="group relative overflow-hidden rounded-2xl bg-slate-800/30 backdrop-blur-sm border border-slate-700 hover:border-slate-500 transition-all duration-500 hover:transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10"
@@ -272,13 +273,13 @@ const supportOptions = [
                 <p className="text-slate-300 text-base mb-6 leading-relaxed group-hover:text-slate-200 transition-colors">
                   {desc}
                 </p>
-                <button className="inline-flex items-center gap-3 text-base font-semibold text-white hover:text-blue-300 transition-all duration-300 group/btn">
+                <Link to={link} className="inline-flex items-center gap-3 text-base font-semibold text-white hover:text-slate-300 transition-all duration-300 group/btn">
                   {action}
                   <ExternalLink
                     size={18}
-                    className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform duration-300"
+                    className="transition-transform duration-300"
                   />
-                </button>
+                </Link>
               </div>
             </div>
           ))}
@@ -402,7 +403,7 @@ const supportOptions = [
             We're committed to providing timely and effective solutions.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button className="bg-gradient-to-r from-primary to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/25 text-lg">
+            <button className="bg-primary text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/25 text-lg">
               Contact Support Team
             </button>
             <button className="border-2 border-slate-700 hover:border-slate-600 text-slate-300 hover:text-white font-semibold py-4 px-8 rounded-2xl transition-all duration-300 hover:transform hover:-translate-y-1 backdrop-blur-sm">
