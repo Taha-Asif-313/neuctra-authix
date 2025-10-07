@@ -6,11 +6,12 @@ import { generateId, hashOTP, verifyHashedOTP } from "../utils/crypto.js";
 import { sendEmail, sendOTPEmail } from "../utils/mailer.js";
 import { comparePassword, hashPassword } from "../utils/password.js";
 
-/**
- * @desc    User signup for a specific app
- * @route   POST /api/users/signup
- * @access  Private (App-level, Admin-level)
- */
+
+// ------------------------------------------------------------
+// @desc    Register a new user for a specific app
+// @route   POST /api/users/signup
+// @access  Private (App-level, Admin-level)
+// ------------------------------------------------------------
 export const signupUser = async (req, res) => {
   try {
     const {
@@ -25,14 +26,15 @@ export const signupUser = async (req, res) => {
       role,
     } = req.body;
 
+    // 1️⃣ Basic validation
     if (!name || !email || !password || !appId) {
       return res.status(400).json({
         success: false,
-        message: "Name, email, password, and appId are required",
+        message: "Name, email, password, and appId are required.",
       });
     }
 
-    // 1. Find app (validate by admin if needed)
+    // 2️⃣ Find app (validate ownership if admin)
     const app = await prisma.app.findFirst({
       where: req.admin
         ? { id: appId, adminId: req.admin.id, isActive: true }
@@ -42,18 +44,18 @@ export const signupUser = async (req, res) => {
     if (!app) {
       return res.status(404).json({
         success: false,
-        message: "Invalid or inactive app",
+        message: "App not found or inactive.",
       });
     }
 
     if (!req.admin && !app.isActive) {
-      return res.status(400).json({
+      return res.status(403).json({
         success: false,
-        message: "Cannot signup under an inactive app",
+        message: "Signup is disabled for this app.",
       });
     }
 
-    // 2. Check duplicate user
+    // 3️⃣ Prevent duplicate user
     const existingUser = await prisma.user.findFirst({
       where: req.admin
         ? { email: email.toLowerCase(), adminId: req.admin.id, appId }
@@ -61,22 +63,22 @@ export const signupUser = async (req, res) => {
     });
 
     if (existingUser) {
-      return res.status(400).json({
+      return res.status(409).json({
         success: false,
-        message: "User with this email already exists for this app",
+        message: "Email is already registered for this app.",
       });
     }
 
-    // 3. Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // 4️⃣ Secure password hashing
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-    // 4. Create user first (without token)
+    // 5️⃣ Create user (initial record)
     let user = await prisma.user.create({
       data: {
         name: name.trim(),
         email: email.toLowerCase(),
         password: hashedPassword,
-        token: "", // temp empty, will update after token generation
+        token: "",
         adminId: req.admin ? req.admin.id : app.adminId,
         appId,
         phone: phone || null,
@@ -100,14 +102,14 @@ export const signupUser = async (req, res) => {
       },
     });
 
-    // 5. Generate JWT with user.id (only for public signup)
-
+    // 6️⃣ Generate JWT token
     const token = jwt.sign(
       { id: user.id, email: user.email, appId, role: user.role },
-      app.appSecret
+      app.appSecret,
+      { expiresIn: "7d" }
     );
 
-    // update user with token
+    // 7️⃣ Save token to user record
     user = await prisma.user.update({
       where: { id: user.id },
       data: { token },
@@ -126,23 +128,28 @@ export const signupUser = async (req, res) => {
       },
     });
 
+    // 8️⃣ Return secure success response
     return res.status(201).json({
       success: true,
-      message: "Signup successful",
+      message: "Signup successful.",
       user,
     });
   } catch (err) {
-    console.error("SignUpUser Error:", err);
+    console.error("SignupUser Error:", err);
+
+    // Prisma unique constraint
     if (err.code === "P2002" && err.meta?.target?.includes("email")) {
-      return res.status(400).json({
+      return res.status(409).json({
         success: false,
-        message: "Email is already in use",
+        message: "Email already in use.",
       });
     }
+
+    // Fallback error
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
-      error: process.env.NODE_ENV === "development" ? err.message : undefined,
+      message: "An unexpected error occurred. Please try again later.",
+      ...(process.env.NODE_ENV === "development" && { error: err.message }),
     });
   }
 };
@@ -251,12 +258,10 @@ export const loginUser = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal server error",
-      error:
-        process.env.NODE_ENV === "development" ? err.message : undefined,
+      error: process.env.NODE_ENV === "development" ? err.message : undefined,
     });
   }
 };
-
 
 /**
  * @desc    Update user details (only if belongs to logged-in admin & same app)
@@ -507,12 +512,10 @@ export const checkUser = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal server error.",
-      error:
-        process.env.NODE_ENV === "development" ? err.message : undefined,
+      error: process.env.NODE_ENV === "development" ? err.message : undefined,
     });
   }
 };
-
 
 /**
  * @desc Send email verification OTP for user
@@ -955,7 +958,7 @@ export const getProfile = async (req, res) => {
         isActive: true,
         role: true,
         appId: true,
-        isVerified:true,
+        isVerified: true,
         adminId: true,
         createdAt: true,
         updatedAt: true,

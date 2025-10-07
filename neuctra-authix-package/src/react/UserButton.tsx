@@ -524,17 +524,7 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
           aria-haspopup="true"
           aria-expanded={open}
           aria-label="Toggle user menu"
-          onMouseOver={(e) => {
-            e.currentTarget.style.backgroundColor = colors.surfaceHover;
-            e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.backgroundColor = colors.surface;
-            e.currentTarget.style.boxShadow = "none";
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.outline = "none";
-          }}
+       
         >
           {user?.avatarUrl ? (
             <img

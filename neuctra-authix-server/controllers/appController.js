@@ -22,7 +22,7 @@ export const createApp = async (req, res) => {
     // 🔐 Check if admin is verified
     const admin = await prisma.adminUser.findUnique({
       where: { id: req.admin.id },
-      select: { isVerified: true }
+      select: { isVerified: true },
     });
 
     if (!admin) {
@@ -36,7 +36,7 @@ export const createApp = async (req, res) => {
       return res.status(403).json({
         success: false,
         message: "Please verify your email address before creating apps",
-        code: "ADMIN_NOT_VERIFIED"
+        code: "ADMIN_NOT_VERIFIED",
       });
     }
 
@@ -142,7 +142,6 @@ export const getApps = async (req, res) => {
     });
   }
 };
-
 
 /* =====================================================
    📄 GET SINGLE APP BY ID
@@ -365,7 +364,6 @@ export const toggleAppStatus = async (req, res) => {
     });
   }
 };
-
 
 /* =====================================================
    📊 GET APP STATUS
