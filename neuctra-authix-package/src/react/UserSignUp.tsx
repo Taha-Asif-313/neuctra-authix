@@ -129,7 +129,7 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
       const user = await signupUser(userData, { baseUrl, apiKey });
       setMessage({ type: "success", text: "Account created successfully!" });
       if (onSuccess) onSuccess(user);
-      window.location.reload()
+      window.location.reload();
     } catch (err: any) {
       const errorMsg = err.message || "Signup failed. Please try again.";
       setMessage({ type: "error", text: errorMsg });
@@ -142,7 +142,7 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
   // Common Input Style - matches login component
   const inputStyle: React.CSSProperties = {
     width: "100%",
-    padding: isMobile ? "14px 14px 14px 44px" : "16px 16px 16px 44px",
+    padding: isMobile ? "14px 14px 14px 44px" : "14px 16px 14px 44px",
     backgroundColor: inputBg,
     border: `1px solid ${inputBorder}`,
     borderRadius: "12px",
@@ -163,9 +163,9 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
     >
       <div
         style={{
-          minWidth: isMobile ? "320px" : "340px",
+          minWidth: isMobile ? "320px" : "380px",
           width: "100%",
-          maxWidth: "390px",
+          maxWidth: isMobile ? "340px" : "390px",
           display: "flex",
           flexDirection: "column",
           borderRadius: "10px",
@@ -476,6 +476,36 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
             )}
           </div>
 
+          {/* Messages */}
+          {message && (
+            <div
+              style={{
+                padding: "12px",
+                borderRadius: "12px",
+                fontSize: "12px",
+                display: "flex",
+                alignItems: "start",
+                gap: "10px",
+                backgroundColor:
+                  message.type === "success"
+                    ? `${primaryColor}15`
+                    : "rgba(239,68,68,0.1)",
+                border:
+                  message.type === "success"
+                    ? `1px solid ${primaryColor}30`
+                    : "1px solid rgba(239,68,68,0.3)",
+                color: message.type === "success" ? primaryColor : "#ef4444",
+              }}
+            >
+              {message.type === "success" ? (
+                <CheckCircle size={20} />
+              ) : (
+                <AlertCircle size={20} />
+              )}
+              <span>{message.text}</span>
+            </div>
+          )}
+
           {/* Submit */}
           <button
             type="submit"
@@ -509,37 +539,6 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
             )}
           </button>
         </form>
-
-        {/* Messages */}
-        {message && (
-          <div
-            style={{
-              marginTop: "16px",
-              padding: "12px",
-              borderRadius: "12px",
-              fontSize: "14px",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              backgroundColor:
-                message.type === "success"
-                  ? `${primaryColor}15`
-                  : "rgba(239,68,68,0.1)",
-              border:
-                message.type === "success"
-                  ? `1px solid ${primaryColor}30`
-                  : "1px solid rgba(239,68,68,0.3)",
-              color: message.type === "success" ? primaryColor : "#ef4444",
-            }}
-          >
-            {message.type === "success" ? (
-              <CheckCircle size={20} />
-            ) : (
-              <AlertCircle size={20} />
-            )}
-            <span>{message.text}</span>
-          </div>
-        )}
 
         {/* Footer */}
         <div

@@ -160,7 +160,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
   // Common Input Style
   const inputStyle: React.CSSProperties = {
     width: "100%",
-    padding: isMobile ? "14px 14px 14px 44px" : "16px 16px 16px 44px",
+    padding: isMobile ? "14px 14px 14px 44px" : "14px 16px 14px 44px",
     backgroundColor: inputBg,
     border: `1px solid ${inputBorder}`,
     borderRadius: "12px",
@@ -180,8 +180,8 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
     >
       <div
         style={{
-          minWidth: isMobile ? "320px" : "340px",
-          maxWidth: "390px",
+          minWidth: isMobile ? "320px" : "380px",
+          maxWidth: isMobile? "340px" : "390px",
           width: "100%",
           display: "flex",
           flexDirection: "column",

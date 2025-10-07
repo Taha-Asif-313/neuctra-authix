@@ -402,7 +402,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
         lineHeight: 1.5,
   
-        minHeight: "100vh",
+        minHeight: "80vh",
       }}
     >
       {/* Notification */}
@@ -515,7 +515,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                 <img
                   src={
                     user.avatarUrl ||
-                    `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(
+                    `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
                       user.name
                     )}`
                   }
@@ -617,9 +617,8 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
             <nav
               style={{
                 display: "flex",
-                flexDirection: window.innerWidth >= 1024 ? "column" : "row",
+                flexDirection: "column",
                 gap: "6px",
-                flexWrap: window.innerWidth < 1024 ? "wrap" : "nowrap",
               }}
             >
               {editMode ? (

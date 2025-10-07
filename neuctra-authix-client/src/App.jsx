@@ -206,7 +206,7 @@ function App() {
             gutter={8}
             toastOptions={{
               className:
-                "rounded-xl text-xs font-medium shadow-md !bg-green-700 !text-white",
+                "rounded-xl text-xs font-medium shadow-md !bg-green-600 !text-white",
               style: {
                 padding: "10px 14px",
                 backdropFilter: "blur(10px)",

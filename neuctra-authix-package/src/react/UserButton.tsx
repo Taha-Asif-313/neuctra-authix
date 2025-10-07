@@ -543,16 +543,12 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
             onError={(e) => {
               // Fallback to default avatar on error
               const target = e.target as HTMLImageElement;
-              target.src = `https://api.dicebear.com/9.x/avataaars/svg?seed=${
-                user.name || "user"
-              }`;
+              target.src = `https://api.dicebear.com/9.x/glass/svg?seed=Kingston`;
             }}
           />
         ) : (
           <img
-            src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${
-              user?.name || "user"
-            }`}
+            src={`https://api.dicebear.com/9.x/glass/svg?seed=Kingston`}
             alt="Default user avatar"
             style={styles.avatarImage}
             loading="lazy"
@@ -596,12 +592,12 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
                     loading="lazy"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.src = `https://api.dicebear.com/9.x/avataaars/svg?seed=${user.name}`;
+                      target.src = `https://api.dicebear.com/9.x/initials/svg?seed=${user.name}`;
                     }}
                   />
                 ) : (
                   <img
-                    src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${user.name}`}
+                    src={`https://api.dicebear.com/9.x/initials/svg?seed=${user.name}`}
                     alt={`${user.name}'s default avatar`}
                     style={styles.dropdownAvatar}
                     loading="lazy"

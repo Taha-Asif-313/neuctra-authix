@@ -317,7 +317,7 @@ const DashboardPage = () => {
           {/* Add New App Button */}
           <button
             onClick={() => setShowNewAppForm(true)}
-            className="flex items-center text-sm gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2.5 rounded-lg transition shadow-lg shadow-primary/20"
+            className="flex items-center cursor-pointer text-sm gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2.5 rounded-lg transition shadow-lg shadow-primary/20"
           >
             <Plus size={18} />
             <span className="inline">New App</span>
