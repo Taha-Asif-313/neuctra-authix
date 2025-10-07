@@ -517,7 +517,6 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
       {varient === "classic" ? (
         <div
           ref={buttonRef}
-        
           onClick={() => setOpen((prev) => !prev)}
           onKeyDown={(e) => handleKeyPress(e, () => setOpen((prev) => !prev))}
           tabIndex={0}
@@ -541,7 +540,14 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
             <img
               src={user.avatarUrl}
               alt={`${user.name}'s avatar`}
-              style={styles.avatarImage}
+              style={{
+                width: isMobile ? "34px" : "40px",
+                height: isMobile ? "34px" : "40px",
+                borderRadius: "50%",
+                objectFit: "cover" as const,
+                border: `2px solid ${colors.borderLight}`,
+                flexShrink: 0,
+              }}
               loading="lazy"
               onError={(e) => {
                 // Fallback to default avatar on error
@@ -553,11 +559,17 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
             <img
               src={`https://api.dicebear.com/9.x/glass/svg?seed=Kingston`}
               alt="Default user avatar"
-              style={styles.avatarImage}
+              style={{
+                width: isMobile ? "34px" : "40px",
+                height: isMobile ? "34px" : "40px",
+                borderRadius: "50%",
+                objectFit: "cover" as const,
+                border: `2px solid ${colors.borderLight}`,
+                flexShrink: 0,
+              }}
               loading="lazy"
             />
           )}
-      
         </div>
       ) : (
         <div

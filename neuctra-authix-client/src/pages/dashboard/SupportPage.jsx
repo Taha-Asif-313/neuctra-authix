@@ -41,7 +41,7 @@ const SupportPage = () => {
       id: "getting-started",
       name: "Getting Started",
       icon: Zap,
-      color: "from-primary to-cyan-500",
+      color: "from-blue-500 to-cyan-500",
       faqs: [
         {
           q: "How do I sign up as an admin?",
@@ -121,7 +121,7 @@ const SupportPage = () => {
       id: "data",
       name: "Data & Reports",
       icon: Database,
-      color: "from-indigo-500 to-primary",
+      color: "from-indigo-500 to-purple-500",
       faqs: [
         {
           q: "How do I download my admin report?",
@@ -159,39 +159,44 @@ const SupportPage = () => {
     }
   ];
 
-  /**
-   * Support channel options
-   */
-  const supportOptions = [
-    {
-      icon: Mail,
-      title: "Email Support",
-      desc: "Get detailed help from our technical support team via email",
-      action: "support@neuctra.com",
-      gradient: "from-primary to-cyan-500",
-    },
-    {
-      icon: MessageSquare,
-      title: "Live Chat",
-      desc: "Instant help from our support agents for urgent issues",
-      action: "Start Chat",
-      gradient: "from-green-500 to-emerald-500",
-    },
-    {
-      icon: BookOpen,
-      title: "Documentation",
-      desc: "Comprehensive guides, API references, and tutorials",
-      action: "View Docs",
-      gradient: "from-purple-500 to-pink-500",
-    },
-    {
-      icon: LifeBuoy,
-      title: "Community Forum",
-      desc: "Connect with other developers and share solutions",
-      action: "Join Forum",
-      gradient: "from-orange-500 to-red-500",
-    },
-  ];
+/**
+ * Support channel options
+ */
+const supportOptions = [
+  {
+    icon: Mail,
+    title: "Email Support",
+    desc: "Get detailed help from our technical support team via email",
+    action: "neuctra@gmail.com",
+    link: "mailto:neuctra@gmail.com", // opens email client
+    gradient: "from-blue-500 to-cyan-500",
+  },
+  {
+    icon: MessageSquare,
+    title: "Live Chat",
+    desc: "Instant help from our support agents for urgent issues",
+    action: "Start Chat",
+    link: "https://neuctra.com/chat", // your live chat page or widget
+    gradient: "from-green-500 to-emerald-500",
+  },
+  {
+    icon: BookOpen,
+    title: "Documentation",
+    desc: "Comprehensive guides, API references, and tutorials",
+    action: "View Docs",
+    link: "https://docs.neuctra.com", // your docs site
+    gradient: "from-purple-500 to-pink-500",
+  },
+  {
+    icon: LifeBuoy,
+    title: "Community Forum",
+    desc: "Connect with other developers and share solutions",
+    action: "Join Forum",
+    link: "https://community.neuctra.com", // your forum/community
+    gradient: "from-orange-500 to-red-500",
+  },
+];
+
 
   /**
    * Filter FAQs based on search term and active category
@@ -214,13 +219,13 @@ const SupportPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header Section */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-3 bg-primary/10 border border-primary/20 rounded-full px-6 py-3 mb-6 backdrop-blur-sm">
-            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-            <span className="text-blue-400 text-sm font-semibold tracking-wide">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+            <span className="text-primary text-sm font-semibold tracking-wide">
               24/7 Support Available
             </span>
           </div>
@@ -236,19 +241,19 @@ const SupportPage = () => {
         {/* Search Bar */}
         <div className="max-w-3xl mx-auto mb-16">
           <div className="relative group">
-            <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-400 w-6 h-6 group-focus-within:text-blue-400 transition-colors" />
+            <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-400 w-6 h-6 group-focus-within:text-primary transition-colors" />
             <input
               type="text"
               placeholder="Search documentation, FAQs, and guides..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-16 pr-6 py-5 bg-slate-800/50 border border-slate-700 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-blue-400 backdrop-blur-sm text-lg placeholder-slate-400 transition-all duration-300"
+              className="w-full pl-16 pr-6 py-5 bg-slate-800/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-lg placeholder-slate-400 transition-all duration-300"
             />
           </div>
         </div>
 
         {/* Support Options Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2  gap-6 mb-20">
           {supportOptions.map(({ icon: Icon, title, desc, action, gradient }) => (
             <div
               key={title}
@@ -351,12 +356,12 @@ const SupportPage = () => {
                     {openFaqIndex === idx ? (
                       <ChevronUp
                         size={24}
-                        className="text-slate-400 group-hover:text-blue-400 transition-colors"
+                        className="text-slate-400 group-hover:text-primary transition-colors"
                       />
                     ) : (
                       <ChevronDown
                         size={24}
-                        className="text-slate-400 group-hover:text-blue-400 transition-colors"
+                        className="text-slate-400 group-hover:text-primary transition-colors"
                       />
                     )}
                   </div>
