@@ -401,7 +401,6 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
         color: colors.textPrimary,
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
         lineHeight: 1.5,
-  
         minHeight: "80vh",
       }}
     >

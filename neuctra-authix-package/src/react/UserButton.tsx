@@ -22,6 +22,7 @@ interface UserInfo {
 interface UserButtonProps {
   darkMode?: boolean;
   primaryColor?: string;
+  varient?: "classic" | "modren";
   onLogout: () => void;
   propUser?: UserInfo | null;
   className?: string;
@@ -43,6 +44,7 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
   darkMode = true,
   primaryColor = "#3b82f6",
   onLogout,
+  varient = "classic",
   propUser,
   className = "",
   // New URL props with defaults
@@ -512,66 +514,113 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
       aria-label="User menu"
     >
       {/* Modern Avatar Button with User Info */}
-      <div
-        ref={buttonRef}
-        style={styles.avatarButton}
-        onClick={() => setOpen((prev) => !prev)}
-        onKeyDown={(e) => handleKeyPress(e, () => setOpen((prev) => !prev))}
-        tabIndex={0}
-        role="button"
-        aria-haspopup="true"
-        aria-expanded={open}
-        aria-label="Toggle user menu"
-        onMouseOver={(e) => {
-          e.currentTarget.style.backgroundColor = colors.surfaceHover;
-          e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.backgroundColor = colors.surface;
-          e.currentTarget.style.boxShadow = "none";
-        }}
-        onBlur={(e) => {
-          e.currentTarget.style.outline = "none";
-        }}
-      >
-        {user?.avatarUrl ? (
-          <img
-            src={user.avatarUrl}
-            alt={`${user.name}'s avatar`}
-            style={styles.avatarImage}
-            loading="lazy"
-            onError={(e) => {
-              // Fallback to default avatar on error
-              const target = e.target as HTMLImageElement;
-              target.src = `https://api.dicebear.com/9.x/glass/svg?seed=Kingston`;
-            }}
-          />
-        ) : (
-          <img
-            src={`https://api.dicebear.com/9.x/glass/svg?seed=Kingston`}
-            alt="Default user avatar"
-            style={styles.avatarImage}
-            loading="lazy"
-          />
-        )}
-        {!isMobile && (
-          <div style={styles.userInfo}>
-            <div style={styles.userName} title={user?.name}>
-              {user?.name || "Guest"}
-            </div>
-            {user?.email && (
-              <div style={styles.userEmail} title={user.email}>
-                {user.email}
+      {varient === "classic" ? (
+        <div
+          ref={buttonRef}
+        
+          onClick={() => setOpen((prev) => !prev)}
+          onKeyDown={(e) => handleKeyPress(e, () => setOpen((prev) => !prev))}
+          tabIndex={0}
+          role="button"
+          aria-haspopup="true"
+          aria-expanded={open}
+          aria-label="Toggle user menu"
+          onMouseOver={(e) => {
+            e.currentTarget.style.backgroundColor = colors.surfaceHover;
+            e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.backgroundColor = colors.surface;
+            e.currentTarget.style.boxShadow = "none";
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.outline = "none";
+          }}
+        >
+          {user?.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt={`${user.name}'s avatar`}
+              style={styles.avatarImage}
+              loading="lazy"
+              onError={(e) => {
+                // Fallback to default avatar on error
+                const target = e.target as HTMLImageElement;
+                target.src = `https://api.dicebear.com/9.x/glass/svg?seed=Kingston`;
+              }}
+            />
+          ) : (
+            <img
+              src={`https://api.dicebear.com/9.x/glass/svg?seed=Kingston`}
+              alt="Default user avatar"
+              style={styles.avatarImage}
+              loading="lazy"
+            />
+          )}
+      
+        </div>
+      ) : (
+        <div
+          ref={buttonRef}
+          style={styles.avatarButton}
+          onClick={() => setOpen((prev) => !prev)}
+          onKeyDown={(e) => handleKeyPress(e, () => setOpen((prev) => !prev))}
+          tabIndex={0}
+          role="button"
+          aria-haspopup="true"
+          aria-expanded={open}
+          aria-label="Toggle user menu"
+          onMouseOver={(e) => {
+            e.currentTarget.style.backgroundColor = colors.surfaceHover;
+            e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.backgroundColor = colors.surface;
+            e.currentTarget.style.boxShadow = "none";
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.outline = "none";
+          }}
+        >
+          {user?.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt={`${user.name}'s avatar`}
+              style={styles.avatarImage}
+              loading="lazy"
+              onError={(e) => {
+                // Fallback to default avatar on error
+                const target = e.target as HTMLImageElement;
+                target.src = `https://api.dicebear.com/9.x/glass/svg?seed=Kingston`;
+              }}
+            />
+          ) : (
+            <img
+              src={`https://api.dicebear.com/9.x/glass/svg?seed=Kingston`}
+              alt="Default user avatar"
+              style={styles.avatarImage}
+              loading="lazy"
+            />
+          )}
+          {!isMobile && (
+            <div style={styles.userInfo}>
+              <div style={styles.userName} title={user?.name}>
+                {user?.name || "Guest"}
               </div>
-            )}
-          </div>
-        )}
-        <ChevronDown
-          size={isMobile ? 14 : 16}
-          style={styles.chevron}
-          aria-hidden="true"
-        />
-      </div>
+              {user?.email && (
+                <div style={styles.userEmail} title={user.email}>
+                  {user.email}
+                </div>
+              )}
+            </div>
+          )}
+          <ChevronDown
+            size={isMobile ? 14 : 16}
+            style={styles.chevron}
+            aria-hidden="true"
+          />
+        </div>
+      )}
 
       {/* Modern Dropdown Menu */}
       {open && (
