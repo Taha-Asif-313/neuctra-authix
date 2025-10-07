@@ -18,6 +18,7 @@ import {
   Shield,
   Send,
   KeyRound,
+  LogOut,
 } from "lucide-react";
 import { getSdkConfig } from "../sdk/config.js";
 import DeleteAccountModal from "./components/DeleteAccountModal.js";
@@ -30,16 +31,17 @@ interface UserProfileProps {
   user?: UserInfo | null;
   darkMode?: boolean;
   primaryColor?: string;
+  onLogout: () => void;
 }
 
 export const ReactUserProfile: React.FC<UserProfileProps> = ({
   token,
   user: propUser = null,
   darkMode = true,
+  onLogout,
   primaryColor = "#00C214",
 }) => {
   const { baseUrl, apiKey, appId } = getSdkConfig();
-
   const [user, setUser] = useState<UserInfo | null>(propUser);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
@@ -293,29 +295,35 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
 
   if (loading) {
     return (
-      <div style={{ 
-        width: "100%", 
-        minHeight: "400px", 
-        display: "flex", 
-        alignItems: "center", 
-        justifyContent: "center",
-        color: colors.textPrimary,
-        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
-      }}>
-        <div style={{ 
-          display: "flex", 
-          flexDirection: "column", 
-          alignItems: "center", 
-          gap: "16px",
-          textAlign: "center"
-        }}>
+      <div
+        style={{
+          width: "100%",
+          minHeight: "400px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: colors.textPrimary,
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "16px",
+            textAlign: "center",
+          }}
+        >
           <Loader2
             size={40}
             color={colors.accent}
             style={{ animation: "spin 1s linear infinite" }}
             aria-hidden="true"
           />
-          <p style={{ color: colors.textTertiary, margin: 0 }}>Loading your profile...</p>
+          <p style={{ color: colors.textTertiary, margin: 0 }}>
+            Loading your profile...
+          </p>
         </div>
       </div>
     );
@@ -323,22 +331,26 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
 
   if (!user) {
     return (
-      <div style={{ 
-        width: "100%", 
-        minHeight: "400px", 
-        display: "flex", 
-        alignItems: "center", 
-        justifyContent: "center",
-        color: colors.textPrimary,
-        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
-      }}>
-        <div style={{ 
-          display: "flex", 
-          flexDirection: "column", 
-          alignItems: "center", 
-          gap: "12px",
-          textAlign: "center"
-        }}>
+      <div
+        style={{
+          width: "100%",
+          minHeight: "400px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: colors.textPrimary,
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "12px",
+            textAlign: "center",
+          }}
+        >
           <AlertCircle size={40} color={colors.error} aria-hidden="true" />
           <p style={{ color: colors.textTertiary, margin: 0 }}>
             No profile found. Please log in again.
@@ -380,14 +392,19 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   ];
 
   return (
-    <div style={{ 
-      width: "100%",
-      color: colors.textPrimary,
-      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-      lineHeight: 1.5,
-      backgroundColor: colors.background,
-      minHeight: "100vh"
-    }}>
+    <div
+      style={{
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: colors.textPrimary,
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+        lineHeight: 1.5,
+  
+        minHeight: "100vh",
+      }}
+    >
       {/* Notification */}
       {notification && (
         <div
@@ -400,7 +417,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
             boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
             backdropFilter: "blur(8px)",
             border: "1px solid",
-            zIndex: 10000,
+            zIndex: 1000,
             display: "flex",
             alignItems: "center",
             gap: "8px",
@@ -440,106 +457,42 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
         </div>
       )}
 
-      <div style={{ 
-        maxWidth: "1200px",
-        margin: "0 auto",
-        padding: "16px",
-        width: "100%",
-        boxSizing: "border-box"
-      }}>
-        {/* Email Verification Banner */}
-        {!user.isVerified && (
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "16px",
+          width: "100%",
+          boxSizing: "border-box",
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gap: "24px",
+            gridTemplateColumns: "1fr",
+            ...(window.innerWidth >= 1024 && {
+              gridTemplateColumns: "1fr 2fr",
+              gap: "20px",
+            }),
+            ...(window.innerWidth >= 768 &&
+              window.innerWidth < 1024 && {
+                gap: "20px",
+              }),
+            ...(window.innerWidth >= 600 &&
+              window.innerWidth < 768 && {
+                gap: "28px",
+              }),
+          }}
+        >
+          {/* Left Column - Avatar & Actions */}
           <div
             style={{
-              backgroundColor: darkMode
-                ? "rgba(245, 158, 11, 0.1)"
-                : "rgba(245, 158, 11, 0.05)",
-              border: `1px solid ${
-                darkMode ? "rgba(245, 158, 11, 0.3)" : "rgba(245, 158, 11, 0.2)"
-              }`,
-              color: colors.warning,
-              borderRadius: "12px",
-              padding: "16px 20px",
-              marginBottom: "24px",
-              backdropFilter: "blur(8px)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "6px",
             }}
           >
-            <div style={{
-              display: "flex",
-              flexDirection: window.innerWidth < 768 ? "column" : "row",
-              alignItems: window.innerWidth < 768 ? "flex-start" : "center",
-              justifyContent: "space-between",
-              gap: "16px",
-              width: "100%"
-            }}>
-              <div style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: "12px",
-                flex: 1
-              }}>
-                <AlertCircle size={20} aria-hidden="true" />
-                <div>
-                  <div style={{ fontWeight: 600, marginBottom: "4px" }}>Email not verified</div>
-                  <div style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>
-                    Please verify your email address to access all features
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowVerifyEmail(true)}
-                disabled={sendingVerification}
-                style={{
-                  backgroundColor: colors.warning,
-                  color: darkMode ? "#000000" : "#ffffff",
-                  padding: "8px 16px",
-                  borderRadius: "8px",
-                  border: "none",
-                  fontWeight: 500,
-                  fontSize: "14px",
-                  cursor: sendingVerification ? "not-allowed" : "pointer",
-                  transition: "all 0.2s ease",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  whiteSpace: "nowrap",
-                  opacity: sendingVerification ? 0.6 : 1,
-                  alignSelf: window.innerWidth < 768 ? "stretch" : "auto",
-                  justifyContent: "center"
-                }}
-              >
-                {sendingVerification ? (
-                  <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} aria-hidden="true" />
-                ) : (
-                  <Send size={16} aria-hidden="true" />
-                )}
-                {sendingVerification ? "Sending..." : "Verify Email"}
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div style={{
-          display: "grid",
-          gap: "24px",
-          gridTemplateColumns: "1fr",
-          ...(window.innerWidth >= 1024 && {
-            gridTemplateColumns: "1fr 2fr",
-            gap: "40px"
-          }),
-          ...(window.innerWidth >= 768 && window.innerWidth < 1024 && {
-            gap: "32px"
-          }),
-          ...(window.innerWidth >= 600 && window.innerWidth < 768 && {
-            gap: "28px"
-          })
-        }}>
-          {/* Left Column - Avatar & Actions */}
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "24px"
-          }}>
             <section
               style={{
                 backgroundColor: colors.surface,
@@ -549,10 +502,16 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                 textAlign: "center",
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "center"
+                alignItems: "center",
               }}
             >
-              <div style={{ position: "relative", display: "inline-block", marginBottom: "16px" }}>
+              <div
+                style={{
+                  position: "relative",
+                  display: "inline-block",
+                  marginBottom: "16px",
+                }}
+              >
                 <img
                   src={
                     user.avatarUrl ||
@@ -567,7 +526,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                     borderRadius: "50%",
                     objectFit: "cover",
                     boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.3)",
-                    border: `3px solid ${colors.border}`
+                    border: `3px solid ${colors.border}`,
                   }}
                   width={128}
                   height={128}
@@ -590,25 +549,29 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                     alignItems: "center",
                     justifyContent: "center",
                     width: "32px",
-                    height: "32px"
+                    height: "32px",
                   }}
                   aria-label="Change profile picture"
                 >
                   <Camera size={16} aria-hidden="true" />
                 </button>
               </div>
-              <h2 style={{ 
-                fontSize: "24px", 
-                fontWeight: 600, 
-                margin: "0 0 4px 0",
-                color: colors.textPrimary
-              }}>
+              <h2
+                style={{
+                  fontSize: "24px",
+                  fontWeight: 600,
+                  margin: "0 0 4px 0",
+                  color: colors.textPrimary,
+                }}
+              >
                 {user.name}
               </h2>
-              <p style={{ 
-                color: colors.textTertiary, 
-                margin: "0 0 8px 0"
-              }}>
+              <p
+                style={{
+                  color: colors.textTertiary,
+                  margin: "0 0 8px 0",
+                }}
+              >
                 {user.email}
               </p>
 
@@ -639,7 +602,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                   display: "inline-flex",
                   alignItems: "center",
                   gap: "6px",
-                  marginTop: "8px"
+                  marginTop: "8px",
                 }}
               >
                 {user.isVerified ? (
@@ -651,12 +614,14 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
               </div>
             </section>
 
-            <nav style={{
-              display: "flex",
-              flexDirection: window.innerWidth >= 1024 ? "column" : "row",
-              gap: "12px",
-              flexWrap: window.innerWidth < 1024 ? "wrap" : "nowrap"
-            }}>
+            <nav
+              style={{
+                display: "flex",
+                flexDirection: window.innerWidth >= 1024 ? "column" : "row",
+                gap: "6px",
+                flexWrap: window.innerWidth < 1024 ? "wrap" : "nowrap",
+              }}
+            >
               {editMode ? (
                 <>
                   <button
@@ -678,7 +643,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                       gap: "8px",
                       textDecoration: "none",
                       minHeight: "44px",
-                      flex: window.innerWidth < 1024 ? "1" : "auto"
+                      flex: window.innerWidth < 1024 ? "1" : "auto",
                     }}
                   >
                     <X size={16} aria-hidden="true" />
@@ -704,7 +669,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                       gap: "8px",
                       textDecoration: "none",
                       minHeight: "44px",
-                      flex: window.innerWidth < 1024 ? "1" : "auto"
+                      flex: window.innerWidth < 1024 ? "1" : "auto",
                     }}
                   >
                     {saving ? (
@@ -739,7 +704,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                       gap: "8px",
                       textDecoration: "none",
                       minHeight: "44px",
-                      flex: window.innerWidth < 1024 ? "1" : "auto"
+                      flex: window.innerWidth < 1024 ? "1" : "auto",
                     }}
                   >
                     <Edit3 size={16} aria-hidden="true" />
@@ -763,7 +728,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                       gap: "8px",
                       textDecoration: "none",
                       minHeight: "44px",
-                      flex: window.innerWidth < 1024 ? "1" : "auto"
+                      flex: window.innerWidth < 1024 ? "1" : "auto",
                     }}
                   >
                     <Key size={14} aria-hidden="true" />
@@ -798,7 +763,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                         gap: "8px",
                         minHeight: "44px",
                         flex: window.innerWidth < 1024 ? "1" : "auto",
-                        opacity: sendingVerification ? 0.6 : 1
+                        opacity: sendingVerification ? 0.6 : 1,
                       }}
                     >
                       {sendingVerification ? (
@@ -814,32 +779,99 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                     </button>
                   )}
 
+                  {onLogout && (
+                    <button
+                      onClick={onLogout}
+                      style={{
+                        backgroundColor: darkMode
+                          ? "rgba(239, 68, 68, 0.12)"
+                          : "rgba(239, 68, 68, 0.08)",
+                        color: darkMode ? "#fca5a5" : "#dc2626",
+                        border: `1px solid ${
+                          darkMode
+                            ? "rgba(248, 113, 113, 0.4)"
+                            : "rgba(239, 68, 68, 0.25)"
+                        }`,
+                        padding: "12px 20px",
+                        borderRadius: "10px",
+                        cursor: "pointer",
+                        transition: "all 0.25s ease",
+                        fontSize: "14px",
+                        fontWeight: 500,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                        textDecoration: "none",
+                        minHeight: "44px",
+                        flex: window.innerWidth < 1024 ? "1" : "auto",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = darkMode
+                          ? "rgba(239, 68, 68, 0.2)"
+                          : "rgba(239, 68, 68, 0.18)";
+                        e.currentTarget.style.borderColor = darkMode
+                          ? "rgba(248, 113, 113, 0.6)"
+                          : "rgba(239, 68, 68, 0.45)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = darkMode
+                          ? "rgba(239, 68, 68, 0.12)"
+                          : "rgba(239, 68, 68, 0.08)";
+                        e.currentTarget.style.borderColor = darkMode
+                          ? "rgba(248, 113, 113, 0.4)"
+                          : "rgba(239, 68, 68, 0.25)";
+                      }}
+                    >
+                      <LogOut size={16} aria-hidden="true" />
+                      Logout
+                    </button>
+                  )}
+
+                  {/* Delete Account Button – solid dark red, critical danger */}
                   <button
                     onClick={() => setShowDeleteAccount(true)}
                     style={{
-                      backgroundColor: darkMode
-                        ? "rgba(239, 68, 68, 0.1)"
-                        : "rgba(239, 68, 68, 0.15)",
-                      color: colors.error,
-                      border: `1px solid ${
-                        darkMode
-                          ? "rgba(239, 68, 68, 0.4)"
-                          : "rgba(239, 68, 68, 0.3)"
-                      }`,
+                      backgroundColor: darkMode ? "#b91c1c" : "#b91c1c", // deep dark red base
+                      color: "#ffffff",
                       padding: "12px 20px",
-                      borderRadius: "8px",
-                      borderStyle: "solid",
+                      borderRadius: "10px",
                       cursor: "pointer",
-                      transition: "all 0.2s ease",
+                      transition: "all 0.25s ease",
                       fontSize: "14px",
-                      fontWeight: 500,
+                      fontWeight: 600,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       gap: "8px",
                       textDecoration: "none",
                       minHeight: "44px",
-                      flex: window.innerWidth < 1024 ? "1" : "auto"
+                      flex: window.innerWidth < 1024 ? "1" : "auto",
+                      boxShadow: darkMode
+                        ? "0 0 10px rgba(220, 38, 38, 0.25)"
+                        : "0 2px 8px rgba(185, 28, 28, 0.25)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = darkMode
+                        ? "#7f1d1d"
+                        : "#991b1b";
+                      e.currentTarget.style.boxShadow = darkMode
+                        ? "0 0 14px rgba(239, 68, 68, 0.4)"
+                        : "0 3px 10px rgba(185, 28, 28, 0.35)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = darkMode
+                        ? "#b91c1c"
+                        : "#b91c1c";
+                      e.currentTarget.style.boxShadow = darkMode
+                        ? "0 0 10px rgba(220, 38, 38, 0.25)"
+                        : "0 2px 8px rgba(185, 28, 28, 0.25)";
+                    }}
+                    onMouseDown={(e) => {
+                      e.currentTarget.style.transform = "scale(0.97)";
+                    }}
+                    onMouseUp={(e) => {
+                      e.currentTarget.style.transform = "scale(1)";
                     }}
                   >
                     <Trash2 size={16} aria-hidden="true" />
@@ -851,58 +883,69 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
           </div>
 
           {/* Right Column - User Details */}
-          <div style={{
-            minWidth: 0,
-            display: "flex",
-            flexDirection: "column",
-            gap: "24px"
-          }}>
+          <div
+            style={{
+              minWidth: 0,
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+            }}
+          >
             <section
               style={{
                 backgroundColor: colors.surface,
                 borderRadius: "16px",
                 padding: "24px",
-                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)"
+                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
               }}
             >
-              <h2 style={{
-                fontSize: "20px",
-                fontWeight: 600,
-                margin: "0 0 24px 0",
-                color: colors.textSecondary,
-                display: "flex",
-                alignItems: "center",
-                gap: "8px"
-              }}>
+              <h2
+                style={{
+                  fontSize: "20px",
+                  fontWeight: 600,
+                  margin: "0 0 24px 0",
+                  color: colors.textSecondary,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
                 <User size={20} aria-hidden="true" />
                 Personal Information
               </h2>
 
-              <div style={{
-                display: "grid",
-                gap: "20px",
-                gridTemplateColumns: "1fr",
-                ...(window.innerWidth >= 600 && {
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "20px"
-                })
-              }}>
+              <div
+                style={{
+                  display: "grid",
+                  gap: "20px",
+                  gridTemplateColumns: "1fr",
+                  ...(window.innerWidth >= 600 && {
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "20px",
+                  }),
+                }}
+              >
                 {userFields.map((field) => {
                   const IconComponent = field.icon;
                   return (
-                    <div key={field.name} style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "8px"
-                    }}>
-                      <label style={{
-                        color: colors.textTertiary,
-                        fontSize: "14px",
-                        fontWeight: 500,
+                    <div
+                      key={field.name}
+                      style={{
                         display: "flex",
-                        alignItems: "center",
-                        gap: "8px"
-                      }}>
+                        flexDirection: "column",
+                        gap: "8px",
+                      }}
+                    >
+                      <label
+                        style={{
+                          color: colors.textTertiary,
+                          fontSize: "14px",
+                          fontWeight: 500,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
                         <IconComponent size={16} aria-hidden="true" />
                         {field.label}
                       </label>
@@ -929,7 +972,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                             transition: "border-color 0.2s ease",
                             minHeight: "44px",
                             width: "100%",
-                            boxSizing: "border-box"
+                            boxSizing: "border-box",
                           }}
                           placeholder={`Enter ${field.label.toLowerCase()}`}
                           aria-label={field.label}
@@ -946,7 +989,9 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                             alignItems: "center",
                             boxSizing: "border-box",
                             color: colors.textPrimary,
-                            backgroundColor: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"
+                            backgroundColor: darkMode
+                              ? "rgba(255,255,255,0.05)"
+                              : "rgba(0,0,0,0.05)",
                           }}
                         >
                           {field.value}
@@ -963,39 +1008,47 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
               style={{
                 backgroundColor: colors.surface,
                 borderRadius: "16px",
-                padding: "24px",
-                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)"
+                padding: "30px 24px",
+                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
               }}
             >
-              <h2 style={{
-                fontSize: "20px",
-                fontWeight: 600,
-                margin: "0 0 24px 0",
-                color: colors.textSecondary,
-                display: "flex",
-                alignItems: "center",
-                gap: "8px"
-              }}>
+              <h2
+                style={{
+                  fontSize: "20px",
+                  fontWeight: 600,
+                  margin: "0 0 24px 0",
+                  color: colors.textSecondary,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
                 <Shield size={20} aria-hidden="true" />
                 Security Status
               </h2>
-              <div style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "16px"
-              }}>
-                <div style={{
+              <div
+                style={{
                   display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "12px 0"
-                }}>
-                  <div style={{
+                  flexDirection: "column",
+                  gap: "16px",
+                }}
+              >
+                <div
+                  style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "12px",
-                    color: colors.textSecondary
-                  }}>
+                    justifyContent: "space-between",
+                    padding: "12px 0",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                      color: colors.textSecondary,
+                    }}
+                  >
                     <Mail size={16} aria-hidden="true" />
                     <span>Email Verification</span>
                   </div>
@@ -1030,7 +1083,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                                 ? "rgba(245, 158, 11, 0.3)"
                                 : "rgba(245, 158, 11, 0.2)"
                             }`,
-                          })
+                          }),
                     }}
                   >
                     {user.isVerified ? (
@@ -1047,17 +1100,24 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                   </div>
                 </div>
                 {!user.isVerified && (
-                  <div style={{
-                    padding: "12px",
-                    borderRadius: "8px",
-                    backgroundColor: darkMode ? "rgba(100, 100, 100, 0.1)" : "rgba(0, 0, 0, 0.05)"
-                  }}>
-                    <p style={{ 
-                      color: colors.textTertiary, 
-                      fontSize: "14px",
-                      margin: 0
-                    }}>
-                      Verify your email to unlock all features and enhance your account security.
+                  <div
+                    style={{
+                      padding: "12px",
+                      borderRadius: "8px",
+                      backgroundColor: darkMode
+                        ? "rgba(100, 100, 100, 0.1)"
+                        : "rgba(0, 0, 0, 0.05)",
+                    }}
+                  >
+                    <p
+                      style={{
+                        color: colors.textTertiary,
+                        fontSize: "14px",
+                        margin: 0,
+                      }}
+                    >
+                      Verify your email to unlock all features and enhance your
+                      account security.
                     </p>
                   </div>
                 )}
