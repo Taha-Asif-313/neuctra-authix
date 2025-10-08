@@ -1,5 +1,4 @@
 import nodemailer from "nodemailer";
-console.log("SMTP_HOST:", process.env.SMTP_HOST);
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
