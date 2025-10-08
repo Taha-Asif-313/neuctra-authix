@@ -71,7 +71,7 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
       {/* Sidebar */}
       <aside
         className={`
-          fixed md:relative h-screen w-64 bg-zinc-950 border-r border-black flex flex-col z-30
+          fixed md:relative md:h-screen h-full w-72 bg-zinc-950 border-r border-black flex flex-col z-30
           transform transition-transform duration-300 ease-in-out
           ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
@@ -109,7 +109,7 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
                     ${
                       isActive
                         ? "bg-primary text-white"
-                        : "hover:bg-gray-800 text-gray-300"
+                        : "hover:bg-zinc-900 text-gray-300"
                     }
                   `}
                   onClick={() =>
@@ -159,7 +159,7 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
                         className={`block px-4 py-2 rounded-lg text-sm transition-all ${
                           location.pathname === sub.path
                             ? "text-primary text-sm bg-opacity-50"
-                            : "text-gray-400 hover:text-gray-200 hover:bg-gray-800"
+                            : "text-gray-400 hover:text-gray-200 hover:bg-zinc-900"
                         }`}
                         onClick={() => setSidebarOpen(false)}
                       >

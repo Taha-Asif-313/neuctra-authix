@@ -13,7 +13,7 @@ const DashboardLayout = () => {
         <DashboardHeader sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
         {/* Page Content */}
-        <main className="flex-1 max-h-screen overflow-y-auto bg-black p-4 md:p-6">
+        <main className="flex-1 max-h-screen overflow-y-auto bg-black p-4 md:p-6 max-sm:pb-20">
           <Outlet />
         </main>
       </div>

@@ -244,7 +244,7 @@ const ApplicationsPage = () => {
           </div>
           <div>
             <h2 className="text-2xl font-bold text-white">Applications</h2>
-            <p className="text-sm text-gray-400">
+            <p className="text-xs text-gray-400">
               Manage your connected applications
             </p>
           </div>

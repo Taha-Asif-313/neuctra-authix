@@ -813,8 +813,6 @@ const ProfilePage = () => {
             isCopyable
             isSecret={!showApiKey}
             onToggleSecret={() => setShowApiKey(!showApiKey)}
-            onRegenerate={handleRegenerateApiKey}
-            regenerating={regeneratingKey}
           />
         </div>
       </div>
