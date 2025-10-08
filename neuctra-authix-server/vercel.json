@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "buildCommand": "npm install && npx prisma generate",
   "builds": [
     {
       "src": "index.js",
@@ -11,6 +12,5 @@
       "src": "/(.*)",
       "dest": "index.js"
     }
-  ],
-  "buildCommand": "npm install && npx prisma generate"
+  ]
 }
