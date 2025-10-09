@@ -123,7 +123,7 @@ const Sidebar = () => {
           </Link>
           <div>
             <h2 className="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-              Neuctra Docs
+              Neuctra Authix Docs
             </h2>
             <p className="text-xs text-gray-400">v2.1.0</p>
           </div>

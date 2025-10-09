@@ -22,7 +22,7 @@ const Navbar = () => {
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
           isScrolled
             ? "bg-black/95 backdrop-blur-lg py-3 shadow-xl border-b border-white/5"
-            : "bg-transparent py-5"
+            : "bg-transparent py-3"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -150,7 +150,7 @@ const ForgotResetPasswordPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2 rounded-md bg-[#00c420] text-white hover:bg-emerald-600 disabled:opacity-70"
+              className="w-full py-2 rounded-md bg-[#00c420] text-white hover:bg-primary/80 disabled:opacity-70"
             >
               {isLoading ? "Resetting..." : "Reset Password"}
             </button>

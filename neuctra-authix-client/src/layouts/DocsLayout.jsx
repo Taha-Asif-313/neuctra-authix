@@ -37,8 +37,8 @@ const DocsLayout = () => {
         </section>
 
         {/* Footer (optional for mobile UX) */}
-        <footer className="mt-auto md:hidden text-center text-xs text-gray-500 py-3 border-t border-gray-800 bg-zinc-950/80">
-          © {new Date().getFullYear()} Neuctra Docs — All rights reserved.
+        <footer className="mt-auto md:hidden text-center text-xs text-gray-500 py-5 border-t border-zinc-800 bg-zinc-950/80">
+          © {new Date().getFullYear()} Neuctra Authix Docs — All rights reserved.
         </footer>
       </main>
     </div>

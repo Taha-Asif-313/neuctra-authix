@@ -309,7 +309,7 @@ setSdkConfig({
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-gray-900 text-white overflow-hidden">
       {/* Hero Section with Floating Icons */}
-      <section className="relative pt-20 md:pt-24 lg:pt-32 pb-16 md:pb-24 lg:pb-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="relative pt-28 md:pt-24 lg:pt-32 pb-16 md:pb-24 lg:pb-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Animated background with floating icons - ONLY in hero section */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-[#00c420]/10 to-transparent rounded-full blur-3xl" />
