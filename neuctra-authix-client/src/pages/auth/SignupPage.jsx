@@ -83,7 +83,7 @@ const SignupPage = () => {
     try {
       setIsLoading(true);
 
-      const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}api/admin/signup`, {
+      const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/admin/signup`, {
         name: formData.name,
         email: formData.email,
         password: formData.password,
