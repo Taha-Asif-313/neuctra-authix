@@ -16,6 +16,7 @@ import { getSdkConfig } from "../sdk/config.js";
 interface SignupFormProps {
   // Customization options
   logoUrl?: string;
+  logoLinkUrl?: string;
   title?: string;
   subtitle?: string;
   footerText?: string;
@@ -41,6 +42,7 @@ interface FormData {
 
 export const ReactUserSignUp: React.FC<SignupFormProps> = ({
   logoUrl,
+  logoLinkUrl,
   title = "Create Your Account",
   subtitle = "Join our platform today",
   footerText = "Secure authentication powered by Neuctra Authix",
@@ -142,10 +144,10 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
   // Common Input Style - matches login component
   const inputStyle: React.CSSProperties = {
     width: "100%",
-    padding: isMobile ? "14px 14px 14px 44px" : "14px 16px 14px 44px",
+    padding: isMobile ? "10px 14px 10px 44px" : "10px 16px 10px 44px",
     backgroundColor: inputBg,
     border: `1px solid ${inputBorder}`,
-    borderRadius: "12px",
+    borderRadius: "10px",
     color: textColor,
     fontSize: isMobile ? "15px" : "15px",
     outline: "none",
@@ -172,7 +174,7 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
           fontFamily:
             "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           backgroundColor: darkMode ? "#000000" : "#ffffff",
-          padding: isMobile ? "30px 24px" : "32px 28px",
+          padding: isMobile ? "30px 24px" : "18px 28px",
         }}
       >
         {/* Header */}
@@ -181,15 +183,17 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: "20px",
+            marginBottom: "10px",
           }}
         >
           {logoUrl ? (
-            <img
-              src={logoUrl}
-              alt="Logo"
-              style={{ height: "50px", width: "50px", marginBottom: "10px" }}
-            />
+            <a href={logoLinkUrl ? logoLinkUrl : "/"} target="_self" rel="noopener noreferrer">
+              <img
+                src={logoUrl}
+                alt="Logo"
+                style={{ height: "50px", width: "50px", marginBottom: "10px" }}
+              />
+            </a>
           ) : (
             <User
               size={40}
@@ -211,7 +215,6 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
             style={{
               fontSize: "14px",
               color: subTextColor,
-              margin: "6px 0 0 0",
             }}
           >
             {subtitle}
@@ -454,15 +457,14 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
           )}
 
           {/* Links */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              fontSize: "13px",
-              marginTop: "6px",
-            }}
-          >
-            {loginUrl && (
+          {loginUrl && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                fontSize: "13px",
+              }}
+            >
               <a
                 href={loginUrl}
                 style={{
@@ -473,9 +475,8 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
               >
                 Already have an account?
               </a>
-            )}
-          </div>
-
+            </div>
+          )}
           {/* Messages */}
           {message && (
             <div
@@ -516,10 +517,10 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
               color: "#fff",
               border: "none",
               borderRadius: "10px",
+              fontSize: "14px",
               fontWeight: 600,
               cursor: loading ? "not-allowed" : "pointer",
               opacity: loading ? 0.7 : 1,
-              marginTop: "8px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -546,7 +547,7 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
             textAlign: "center",
             fontSize: "12px",
             color: subTextColor,
-            marginTop: "20px",
+            marginTop: "16px",
             padding: "0 4px",
           }}
         >

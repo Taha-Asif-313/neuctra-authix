@@ -1,38 +1,39 @@
 import React, { ReactNode } from "react";
 
-// Utility function to check auth status
-const checkAuth = (): boolean => {
+const isUserSignedIn = (): boolean => {
   try {
     const userInfo = localStorage.getItem("userInfo");
-    return Boolean(userInfo && userInfo !== "undefined");
+    return Boolean(userInfo && userInfo !== "undefined" && userInfo !== "null");
   } catch {
     return false;
   }
 };
 
-interface SignOutComponentProps {
+interface ReactSignedOutProps {
   children?: ReactNode;
+  fallback?: ReactNode;
 }
 
-// SignOutComponent - only renders if userInfo doesn't exist
-export const ReactSignedOut: React.FC<SignOutComponentProps> = ({ children }) => {
-  if (checkAuth()) return null; // Don't render if authenticated
+/**
+ * ReactSignedOut
+ * Shows children only when the user is *not* signed in.
+ * Inline styles are used for consistent alignment with flex/inline elements.
+ */
+export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
+  children,
+  fallback = null,
+}) => {
+  if (isUserSignedIn()) return null;
 
   return (
-    <div>
-      {children ?? (
-        <div
-          style={{
-            padding: "20px",
-            border: "2px solid blue",
-            margin: "10px",
-            borderRadius: "8px",
-          }}
-        >
-          <h2>Signed Out Content</h2>
-          <p>This content only shows when user is signed out.</p>
-        </div>
-      )}
-    </div>
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        verticalAlign: "middle",
+      }}
+    >
+      {children ?? fallback}
+    </span>
   );
 };

@@ -16,6 +16,7 @@ import axios from "axios";
 
 interface AuthFormProps {
   logoUrl?: string;
+  logoLinkUrl?: string;
   title?: string;
   subtitle?: string;
   footerText?: string;
@@ -29,6 +30,7 @@ interface AuthFormProps {
 
 export const ReactUserLogin: React.FC<AuthFormProps> = ({
   logoUrl,
+  logoLinkUrl,
   title = "Sign In to Your Account",
   subtitle = "Welcome back! Please enter your details",
   footerText = "Secure authentication powered by Neuctra Authix",
@@ -160,10 +162,10 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
   // Common Input Style
   const inputStyle: React.CSSProperties = {
     width: "100%",
-    padding: isMobile ? "14px 14px 14px 44px" : "14px 16px 14px 44px",
+    padding: isMobile ? "10px 14px 10px 44px" : "10px 16px 10px 44px",
     backgroundColor: inputBg,
     border: `1px solid ${inputBorder}`,
-    borderRadius: "12px",
+    borderRadius: "10px",
     color: textColor,
     fontSize: isMobile ? "15px" : "15px",
     outline: "none",
@@ -181,7 +183,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
       <div
         style={{
           minWidth: isMobile ? "320px" : "380px",
-          maxWidth: isMobile? "340px" : "390px",
+          maxWidth: isMobile ? "340px" : "390px",
           width: "100%",
           display: "flex",
           flexDirection: "column",
@@ -189,7 +191,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
           fontFamily:
             "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           backgroundColor: darkMode ? "#000000" : "#ffffff",
-          padding: isMobile ? "30px 24px" : "32px 28px",
+          padding: isMobile ? "30px 24px" : "18px 28px",
         }}
       >
         {/* Header */}
@@ -198,15 +200,17 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: "20px",
+            marginBottom: "10px",
           }}
         >
           {logoUrl ? (
-            <img
-              src={logoUrl}
-              alt="Logo"
-              style={{ height: "50px", width: "50px", marginBottom: "10px" }}
-            />
+            <a href={logoLinkUrl ? logoLinkUrl : "/"} target="_self" rel="noopener noreferrer">
+              <img
+                src={logoUrl}
+                alt="Logo"
+                style={{ height: "50px", width: "50px", marginBottom: "10px" }}
+              />
+            </a>
           ) : (
             <User
               size={40}
@@ -232,7 +236,6 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
             style={{
               fontSize: "14px",
               color: subTextColor,
-              margin: "6px 0 0 0",
             }}
           >
             {mode === "login"
@@ -381,6 +384,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
                 color: "#fff",
                 border: "none",
                 borderRadius: "10px",
+                fontSize: "14px",
                 fontWeight: 600,
               }}
             >
@@ -523,10 +527,11 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
               disabled={loading}
               style={{
                 padding: "12px",
+
                 background: gradient,
                 color: "#fff",
                 border: "none",
-                fontSize: "15px",
+                fontSize: "14px",
                 borderRadius: "10px",
                 fontWeight: 600,
               }}
@@ -547,6 +552,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
               style={{
                 background: "none",
                 border: "none",
+                fontSize: "14px",
                 color: subTextColor,
                 marginTop: "6px",
                 cursor: "pointer",
@@ -594,7 +600,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
             textAlign: "center",
             fontSize: "12px",
             color: subTextColor,
-            marginTop: "20px",
+            marginTop: "16px",
             padding: "0 4px",
           }}
         >

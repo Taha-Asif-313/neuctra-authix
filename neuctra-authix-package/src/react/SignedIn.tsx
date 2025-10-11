@@ -1,40 +1,39 @@
 import React, { ReactNode } from "react";
 
-// Utility function to check auth status
-const checkAuth = (): boolean => {
+const isUserSignedIn = (): boolean => {
   try {
     const userInfo = localStorage.getItem("userInfo");
-    return Boolean(userInfo && userInfo !== "undefined");
+    return Boolean(userInfo && userInfo !== "undefined" && userInfo !== "null");
   } catch {
     return false;
   }
 };
 
-interface SignInComponentProps {
-  children?: ReactNode;
+interface ReactSignedInProps {
+  children: ReactNode;
+  fallback?: ReactNode;
 }
 
-// SignInComponent - only renders if userInfo exists
-export const ReactSignedIn: React.FC<SignInComponentProps> = ({
+/**
+ * ReactSignedIn
+ * Renders children only when the user is signed in.
+ * Uses inline-flex styling for consistent alignment inside navigation bars or flex layouts.
+ */
+export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
   children,
+  fallback = null,
 }) => {
-  if (!checkAuth()) return null;
+  if (!isUserSignedIn()) return <>{fallback}</>;
 
   return (
-    <div>
-      {children ?? (
-        <div
-          style={{
-            padding: "20px",
-            border: "2px solid green",
-            margin: "10px",
-            borderRadius: "8px",
-          }}
-        >
-          <h2>Signed In Content</h2>
-          <p>This content only shows when user is signed in.</p>
-        </div>
-      )}
-    </div>
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        verticalAlign: "middle",
+      }}
+    >
+      {children}
+    </span>
   );
 };
