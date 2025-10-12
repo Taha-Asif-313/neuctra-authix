@@ -494,14 +494,14 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
   const handleProfileClick = () => {
     const url = getProfileUrl();
     if (url) {
-      window.open(url, "_blank", "noopener,noreferrer");
+      window.open(url, "_self", "noopener,noreferrer");
     }
   };
 
   // Handle settings click - navigate to URL if provided
   const handleSettingsClick = () => {
     if (settingsUrl) {
-      window.open(settingsUrl, "_blank", "noopener,noreferrer");
+      window.open(settingsUrl, "_self", "noopener,noreferrer");
     }
   };
 
@@ -712,7 +712,7 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
                 {showViewProfileMenuItem && user.profileUrl && (
                   <a
                     href={user.profileUrl}
-                    target="_blank"
+                    target="_self"
                     rel="noopener noreferrer"
                     style={styles.menuItem}
                     onMouseOver={(e) => {

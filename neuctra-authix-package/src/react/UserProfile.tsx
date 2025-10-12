@@ -19,6 +19,8 @@ import {
   Send,
   KeyRound,
   LogOut,
+  Home,
+  MoreVertical,
 } from "lucide-react";
 import { getSdkConfig } from "../sdk/config.js";
 import DeleteAccountModal from "./components/DeleteAccountModal.js";
@@ -30,6 +32,7 @@ interface UserProfileProps {
   token: string;
   user?: UserInfo | null;
   darkMode?: boolean;
+  homeUrl?: string;
   primaryColor?: string;
   onLogout: () => void;
 }
@@ -38,8 +41,9 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   token,
   user: propUser = null,
   darkMode = true,
+  homeUrl,
   onLogout,
-  primaryColor = "#00C214",
+  primaryColor = "#00C212",
 }) => {
   const { baseUrl, apiKey, appId } = getSdkConfig();
   const [user, setUser] = useState<UserInfo | null>(propUser);
@@ -50,6 +54,9 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [showVerifyEmail, setShowVerifyEmail] = useState(false);
+  // ✅ NEW STATES FOR DROPDOWN
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [dropdownClosing, setDropdownClosing] = useState(false);
   const [notification, setNotification] = useState<{
     type: "success" | "error";
     message: string;
@@ -68,6 +75,47 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
     setNotification({ type, message });
     setTimeout(() => setNotification(null), 3000);
   };
+
+  // ✅ Close dropdown with animation
+  const closeDropdown = () => {
+    setDropdownClosing(true);
+
+    // Allow time for the closing animation to finish before unmounting
+    const timeout = setTimeout(() => {
+      setMoreMenuOpen(false);
+      setDropdownClosing(false);
+    }, 150);
+
+    // Cleanup in case component unmounts early
+    return () => clearTimeout(timeout);
+  };
+
+  // ✅ Handle dropdown toggle with animation
+  const toggleDropdown = () => {
+    if (moreMenuOpen) {
+      closeDropdown();
+    } else {
+      setMoreMenuOpen(true);
+    }
+  };
+
+  // ✅ Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const dropdown = document.querySelector(".dropdown-container");
+      if (dropdown && !dropdown.contains(event.target as Node)) {
+        closeDropdown();
+      }
+    };
+
+    if (moreMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [moreMenuOpen]);
 
   // ✅ Send OTP for verification
   const handleSendOTP = async () => {
@@ -264,7 +312,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   const colors = darkMode
     ? {
         background: "#000000",
-        surface: "#18181b",
+        surface: "#09090b",
         surfaceLight: "#27272a",
         surfaceLighter: "#3f3f46",
         textPrimary: "#ffffff",
@@ -420,7 +468,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
             display: "flex",
             alignItems: "center",
             gap: "8px",
-            fontSize: "14px",
+            fontSize: "12px",
             fontWeight: 500,
             maxWidth: "400px",
             animation: "slideIn 0.3s ease-out",
@@ -472,11 +520,11 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
             gridTemplateColumns: "1fr",
             ...(window.innerWidth >= 1024 && {
               gridTemplateColumns: "1fr 2fr",
-              gap: "20px",
+              gap: "10px",
             }),
             ...(window.innerWidth >= 768 &&
               window.innerWidth < 1024 && {
-                gap: "20px",
+                gap: "10px",
               }),
             ...(window.innerWidth >= 600 &&
               window.innerWidth < 768 && {
@@ -490,20 +538,41 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
               display: "flex",
               flexDirection: "column",
               gap: "6px",
+              height: "100%",
             }}
           >
             <section
               style={{
                 backgroundColor: colors.surface,
                 borderRadius: "16px",
+                position: "relative",
                 padding: "24px",
                 boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
                 textAlign: "center",
                 display: "flex",
                 flexDirection: "column",
+                justifyContent: "center",
                 alignItems: "center",
+                flex: 1,
+                minHeight: "300px",
               }}
             >
+              {homeUrl && (
+                <a
+                  href={homeUrl ? homeUrl : "/"}
+                  target="_self"
+                  rel="noopener noreferrer"
+                  style={{ position: "absolute", top: "18px", left: "18px" }}
+                >
+                  <Home
+                    size={20}
+                    style={{
+                      color: darkMode ? "#ffffff" : "#000000",
+                    }}
+                  />
+                </a>
+              )}
+
               <div
                 style={{
                   position: "relative",
@@ -531,6 +600,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                   height={128}
                   loading="eager"
                 />
+
                 <button
                   onClick={() => setAvatarModal(true)}
                   style={{
@@ -555,6 +625,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                   <Camera size={16} aria-hidden="true" />
                 </button>
               </div>
+
               <h2
                 style={{
                   fontSize: "24px",
@@ -565,6 +636,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
               >
                 {user.name}
               </h2>
+
               <p
                 style={{
                   color: colors.textTertiary,
@@ -613,6 +685,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
               </div>
             </section>
 
+            {/* Action Buttons */}
             <nav
               style={{
                 display: "flex",
@@ -628,19 +701,19 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                       backgroundColor: colors.surfaceLight,
                       border: `1px solid ${colors.border}`,
                       color: colors.textPrimary,
-                      padding: "12px 20px",
-                      borderRadius: "8px",
+                      padding: "10px 20px",
+                      borderRadius: "6px",
                       borderStyle: "solid",
                       cursor: "pointer",
                       transition: "all 0.2s ease",
-                      fontSize: "14px",
+                      fontSize: "12px",
                       fontWeight: 500,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       gap: "8px",
                       textDecoration: "none",
-                      minHeight: "44px",
+                      minHeight: "36px",
                       flex: window.innerWidth < 1024 ? "1" : "auto",
                     }}
                   >
@@ -654,19 +727,19 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                       background: `linear-gradient(to right, ${colors.accent}, ${colors.accentHover})`,
                       opacity: saving ? 0.7 : 1,
                       color: "white",
-                      padding: "12px 20px",
-                      borderRadius: "8px",
+                      padding: "10px 20px",
+                      borderRadius: "6px",
                       border: "none",
                       cursor: saving ? "not-allowed" : "pointer",
                       transition: "all 0.2s ease",
-                      fontSize: "14px",
+                      fontSize: "12px",
                       fontWeight: 500,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       gap: "8px",
                       textDecoration: "none",
-                      minHeight: "44px",
+                      minHeight: "36px",
                       flex: window.innerWidth < 1024 ? "1" : "auto",
                     }}
                   >
@@ -689,192 +762,240 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                     style={{
                       background: `linear-gradient(to right, ${colors.accent}, ${colors.accentHover})`,
                       color: "white",
-                      padding: "12px 20px",
-                      borderRadius: "8px",
+                      padding: "10px 20px",
+                      borderRadius: "6px",
                       border: "none",
                       cursor: "pointer",
                       transition: "all 0.2s ease",
-                      fontSize: "14px",
+                      fontSize: "12px",
                       fontWeight: 500,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       gap: "8px",
                       textDecoration: "none",
-                      minHeight: "44px",
+                      minHeight: "36px",
                       flex: window.innerWidth < 1024 ? "1" : "auto",
                     }}
                   >
                     <Edit3 size={16} aria-hidden="true" />
                     Edit Profile
                   </button>
-                  <button
-                    onClick={() => setShowChangePassword(true)}
-                    style={{
-                      backgroundColor: colors.surfaceLight,
-                      color: colors.textPrimary,
-                      padding: "12px 20px",
-                      borderRadius: "8px",
-                      border: "none",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease",
-                      fontSize: "14px",
-                      fontWeight: 500,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                      textDecoration: "none",
-                      minHeight: "44px",
-                      flex: window.innerWidth < 1024 ? "1" : "auto",
-                    }}
-                  >
-                    <Key size={14} aria-hidden="true" />
-                    Change Password
-                  </button>
 
-                  {/* Resend Verification Button in Sidebar */}
-                  {!user.isVerified && (
+                  {/* Actions Dropdown */}
+                  <div style={{ position: "relative" }}>
                     <button
-                      onClick={() => setShowVerifyEmail(true)}
-                      disabled={sendingVerification}
                       style={{
-                        backgroundColor: darkMode
-                          ? "rgba(245, 158, 11, 0.1)"
-                          : "rgba(245, 158, 11, 0.05)",
-                        color: colors.warning,
-                        border: `1px solid ${
-                          darkMode
-                            ? "rgba(245, 158, 11, 0.3)"
-                            : "rgba(245, 158, 11, 0.2)"
-                        }`,
-                        padding: "12px 20px",
-                        borderRadius: "8px",
-                        borderStyle: "solid",
-                        cursor: sendingVerification ? "not-allowed" : "pointer",
-                        transition: "all 0.2s ease",
-                        fontSize: "14px",
-                        fontWeight: 500,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "8px",
-                        minHeight: "44px",
-                        flex: window.innerWidth < 1024 ? "1" : "auto",
-                        opacity: sendingVerification ? 0.6 : 1,
-                      }}
-                    >
-                      {sendingVerification ? (
-                        <Loader2
-                          size={16}
-                          style={{ animation: "spin 1s linear infinite" }}
-                          aria-hidden="true"
-                        />
-                      ) : (
-                        <Send size={16} aria-hidden="true" />
-                      )}
-                      {sendingVerification ? "Sending..." : "Verify Email"}
-                    </button>
-                  )}
-
-                  {onLogout && (
-                    <button
-                      onClick={onLogout}
-                      style={{
-                        backgroundColor: darkMode
-                          ? "rgba(239, 68, 68, 0.12)"
-                          : "rgba(239, 68, 68, 0.08)",
-                        color: darkMode ? "#fca5a5" : "#dc2626",
-                        border: `1px solid ${
-                          darkMode
-                            ? "rgba(248, 113, 113, 0.4)"
-                            : "rgba(239, 68, 68, 0.25)"
-                        }`,
-                        padding: "12px 20px",
-                        borderRadius: "10px",
+                        backgroundColor: colors.surfaceLight,
+                        color: colors.textPrimary,
+                        padding: "10px 20px",
+                        borderRadius: "6px",
+                        border: "none",
                         cursor: "pointer",
-                        transition: "all 0.25s ease",
-                        fontSize: "14px",
+                        transition: "all 0.2s ease",
+                        fontSize: "12px",
                         fontWeight: 500,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         gap: "8px",
                         textDecoration: "none",
-                        minHeight: "44px",
-                        flex: window.innerWidth < 1024 ? "1" : "auto",
+                        minHeight: "36px",
+                        width: "100%",
+                        boxSizing: "border-box",
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = darkMode
-                          ? "rgba(239, 68, 68, 0.2)"
-                          : "rgba(239, 68, 68, 0.18)";
-                        e.currentTarget.style.borderColor = darkMode
-                          ? "rgba(248, 113, 113, 0.6)"
-                          : "rgba(239, 68, 68, 0.45)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = darkMode
-                          ? "rgba(239, 68, 68, 0.12)"
-                          : "rgba(239, 68, 68, 0.08)";
-                        e.currentTarget.style.borderColor = darkMode
-                          ? "rgba(248, 113, 113, 0.4)"
-                          : "rgba(239, 68, 68, 0.25)";
-                      }}
+                      onClick={() => setMoreMenuOpen(!moreMenuOpen)}
                     >
-                      <LogOut size={16} aria-hidden="true" />
-                      Logout
+                      <MoreVertical size={16} aria-hidden="true" />
+                      More Actions
                     </button>
-                  )}
 
-                  {/* Delete Account Button – solid dark red, critical danger */}
-                  <button
-                    onClick={() => setShowDeleteAccount(true)}
-                    style={{
-                      backgroundColor: darkMode ? "#b91c1c" : "#b91c1c", // deep dark red base
-                      color: "#ffffff",
-                      padding: "12px 20px",
-                      borderRadius: "10px",
-                      cursor: "pointer",
-                      transition: "all 0.25s ease",
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                      textDecoration: "none",
-                      minHeight: "44px",
-                      flex: window.innerWidth < 1024 ? "1" : "auto",
-                      boxShadow: darkMode
-                        ? "0 0 10px rgba(220, 38, 38, 0.25)"
-                        : "0 2px 8px rgba(185, 28, 28, 0.25)",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = darkMode
-                        ? "#7f1d1d"
-                        : "#991b1b";
-                      e.currentTarget.style.boxShadow = darkMode
-                        ? "0 0 14px rgba(239, 68, 68, 0.4)"
-                        : "0 3px 10px rgba(185, 28, 28, 0.35)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = darkMode
-                        ? "#b91c1c"
-                        : "#b91c1c";
-                      e.currentTarget.style.boxShadow = darkMode
-                        ? "0 0 10px rgba(220, 38, 38, 0.25)"
-                        : "0 2px 8px rgba(185, 28, 28, 0.25)";
-                    }}
-                    onMouseDown={(e) => {
-                      e.currentTarget.style.transform = "scale(0.97)";
-                    }}
-                    onMouseUp={(e) => {
-                      e.currentTarget.style.transform = "scale(1)";
-                    }}
-                  >
-                    <Trash2 size={16} aria-hidden="true" />
-                    Delete Account
-                  </button>
+                    {/* Dropdown Menu */}
+                    {moreMenuOpen && (
+                      <div
+                        className={`dropdown-container ${
+                          dropdownClosing ? "closing" : ""
+                        }`}
+                        style={{
+                          position: "absolute",
+                          bottom: "100%", // 👈 appears above the button
+                          left: 0,
+                          right: 0,
+                          backgroundColor: colors.surface,
+                          border: `1px solid ${colors.border}`,
+                          borderRadius: "12px 12px 0 0", // 👈 more drawer-like (rounded top)
+                          boxShadow: "0 -8px 24px rgba(0, 0, 0, 0.25)", // 👈 softer shadow
+                          zIndex: 200,
+                          marginBottom: "6px",
+                          overflow: "hidden",
+                          animation: `${
+                            dropdownClosing
+                              ? "drawerSlideDown"
+                              : "drawerSlideUp"
+                          } 0.25s ease-out forwards`,
+                        }}
+                      >
+                        {/* Change Password */}
+                        <button
+                          onClick={() => {
+                            setShowChangePassword(true);
+                            closeDropdown();
+                          }}
+                          style={{
+                            width: "100%",
+                            padding: "14px 18px",
+                            backgroundColor: "transparent",
+                            border: "none",
+                            color: colors.textPrimary,
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                            fontSize: "13px",
+                            fontWeight: 500,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            textAlign: "left",
+                          }}
+                          onMouseEnter={(e) =>
+                            (e.currentTarget.style.backgroundColor =
+                              colors.surfaceLight)
+                          }
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.backgroundColor =
+                              "transparent")
+                          }
+                        >
+                          <Key size={14} aria-hidden="true" />
+                          Change Password
+                        </button>
+
+                        {/* Verify Email */}
+                        {!user.isVerified && (
+                          <button
+                            onClick={() => {
+                              setShowVerifyEmail(true);
+                              closeDropdown();
+                            }}
+                            disabled={sendingVerification}
+                            style={{
+                              width: "100%",
+                              padding: "14px 18px",
+                              backgroundColor: "transparent",
+                              border: "none",
+                              color: sendingVerification
+                                ? colors.textTertiary
+                                : colors.warning,
+                              cursor: sendingVerification
+                                ? "not-allowed"
+                                : "pointer",
+                              transition: "all 0.2s ease",
+                              fontSize: "13px",
+                              fontWeight: 500,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                              textAlign: "left",
+                              opacity: sendingVerification ? 0.6 : 1,
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!sendingVerification)
+                                e.currentTarget.style.backgroundColor =
+                                  colors.surfaceLight;
+                            }}
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "transparent")
+                            }
+                          >
+                            {sendingVerification ? (
+                              <Loader2
+                                size={14}
+                                style={{ animation: "spin 1s linear infinite" }}
+                                aria-hidden="true"
+                              />
+                            ) : (
+                              <Send size={14} aria-hidden="true" />
+                            )}
+                            {sendingVerification
+                              ? "Sending..."
+                              : "Verify Email"}
+                          </button>
+                        )}
+
+                        {/* Logout */}
+                        {onLogout && (
+                          <button
+                            onClick={() => {
+                              onLogout();
+                              closeDropdown();
+                            }}
+                            style={{
+                              width: "100%",
+                              padding: "14px 18px",
+                              backgroundColor: "transparent",
+                              border: "none",
+                              color: darkMode ? "#fca5a5" : "#dc2626",
+                              cursor: "pointer",
+                              transition: "all 0.2s ease",
+                              fontSize: "13px",
+                              fontWeight: 500,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                              textAlign: "left",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = darkMode
+                                ? "rgba(239, 68, 68, 0.1)"
+                                : "rgba(239, 68, 68, 0.05)";
+                            }}
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "transparent")
+                            }
+                          >
+                            <LogOut size={14} aria-hidden="true" />
+                            Logout
+                          </button>
+                        )}
+
+                        {/* Delete Account */}
+                        <button
+                          onClick={() => {
+                            setShowDeleteAccount(true);
+                            closeDropdown();
+                          }}
+                          style={{
+                            width: "100%",
+                            padding: "14px 18px",
+                            backgroundColor: "transparent",
+                            border: "none",
+                            color: "#ef4444",
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                            fontSize: "13px",
+                            fontWeight: 600,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            textAlign: "left",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = darkMode
+                              ? "rgba(239, 68, 68, 0.1)"
+                              : "rgba(239, 68, 68, 0.05)";
+                          }}
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.backgroundColor =
+                              "transparent")
+                          }
+                        >
+                          <Trash2 size={14} aria-hidden="true" />
+                          Delete Account
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </>
               )}
             </nav>
@@ -937,7 +1058,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                       <label
                         style={{
                           color: colors.textTertiary,
-                          fontSize: "14px",
+                          fontSize: "12px",
                           fontWeight: 500,
                           display: "flex",
                           alignItems: "center",
@@ -965,7 +1086,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                             border: `1px solid ${primaryColor}`,
                             backgroundColor: "transparent",
                             color: colors.textPrimary,
-                            fontSize: "14px",
+                            fontSize: "12px",
                             outline: "none",
                             transition: "border-color 0.2s ease",
                             minHeight: "44px",
@@ -981,7 +1102,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                             padding: "12px",
                             borderRadius: "8px",
                             border: "1px solid transparent",
-                            fontSize: "14px",
+                            fontSize: "12px",
                             minHeight: "44px",
                             display: "flex",
                             alignItems: "center",
@@ -1110,7 +1231,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                     <p
                       style={{
                         color: colors.textTertiary,
-                        fontSize: "14px",
+                        fontSize: "12px",
                         margin: 0,
                       }}
                     >
@@ -1180,56 +1301,94 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
       />
 
       <style>{`
-        @keyframes slideIn {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
 
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
 
-        /* Responsive design using container queries as fallback */
-        @media (max-width: 599px) {
-          .profile-main-container {
-            padding: 0 12px;
-          }
-        }
+  @keyframes drawerSlideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
 
-        @media (min-width: 600px) and (max-width: 767px) {
-          .profile-main-container {
-            padding: 0 20px;
-          }
-        }
+@keyframes drawerSlideDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
 
-        @media (min-width: 768px) and (max-width: 1023px) {
-          .profile-main-container {
-            padding: 0 24px;
-          }
-        }
 
-        @media (min-width: 1024px) {
-          .profile-main-container {
-            padding: 0 32px;
-          }
-        }
+  @keyframes slideUp {
+    from {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
 
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-          * {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-          }
-        }
-      `}</style>
+  /* Responsive design using container queries as fallback */
+  @media (max-width: 599px) {
+    .profile-main-container {
+      padding: 0 12px;
+    }
+  }
+
+  @media (min-width: 600px) and (max-width: 767px) {
+    .profile-main-container {
+      padding: 0 20px;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .profile-main-container {
+      padding: 0 24px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .profile-main-container {
+      padding: 0 32px;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+`}</style>
     </div>
   );
 };
