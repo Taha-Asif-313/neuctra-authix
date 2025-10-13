@@ -9,20 +9,17 @@ import appRoutes from "./routes/appRoutes.js";
 const app = express();
 app.use(express.json());
 
-// 🔹 Global CORS middleware (applies to all routes)
-app.use(
-  cors({
-    origin: "*", // public access
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-API-KEY"],
-  })
-);
+// 🔹 CORS configs
+const adminCors = cors({
+  origin: [process.env.CLIENT_URL], // only admin client
+  credentials: true,
+});
 
-// ❌ Remove app.options("*", cors()); — not needed and causes crash in Express 5
+const userCors = cors(); // allow all origins (default: reflects request origin)
 
-// 🔹 Mount all routes
-app.use("/api/admin", adminAuthRoutes);
-app.use("/api/apps", appRoutes);
-app.use("/api/users", userRoutes);
+// 🔹 Routes with specific CORS
+app.use("/api/admin", adminCors, adminAuthRoutes);
+app.use("/api/apps", adminCors, appRoutes);
+app.use("/api/users", userCors, userRoutes);
 
 export default app;
