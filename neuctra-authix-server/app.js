@@ -15,20 +15,17 @@ const adminCors = cors({
   credentials: true,
 });
 
-// 🔹 CORS setup for users (public, open access)
+// 🔹 CORS setup for users (public)
 const userCors = cors({
-  origin: "*", // anyone can access
+  origin: "*",
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-API-KEY"],
 });
 
-// 🔹 Apply CORS to each route group
+// 🔹 Routes
 app.use("/api/admin", adminCors, adminAuthRoutes);
 app.use("/api/apps", adminCors, appRoutes);
 app.use("/api/users", userCors, userRoutes);
 
-// Optional: general OPTIONS preflight handler
-app.options("*", cors());
-
-// 🔹 Export the configured app
+// ✅ Export the configured app
 export default app;
