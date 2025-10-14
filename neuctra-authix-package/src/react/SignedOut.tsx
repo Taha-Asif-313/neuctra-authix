@@ -10,32 +10,32 @@ const isUserSignedIn = (): boolean => {
 };
 
 interface ReactSignedOutProps {
-  children?: ReactNode;
+  children: ReactNode;
   fallback?: ReactNode;
+  width?: string;
+  height?: string;
 }
 
 /**
  * ReactSignedOut
- * Shows children only when the user is *not* signed in.
- * Inline styles are used for consistent alignment with flex/inline elements.
+ * Renders its children only when the user is NOT signed in.
+ * Uses inline-flex for consistent alignment within navbars or flex layouts.
  */
 export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
   children,
   fallback = null,
+  width,
+  height,
 }) => {
-  if (isUserSignedIn()) return null;
+  if (isUserSignedIn()) return <>{fallback}</>;
 
-  return (
-    <span
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "inline-flex",
-        alignItems: "center",
-        verticalAlign: "middle",
-      }}
-    >
-      {children ?? fallback}
-    </span>
-  );
+  const style: React.CSSProperties = {
+    display: "inline-flex",
+    alignItems: "center",
+    verticalAlign: "middle",
+    ...(width ? { width } : {}),
+    ...(height ? { height } : {}),
+  };
+
+  return <span style={style}>{children}</span>;
 };
