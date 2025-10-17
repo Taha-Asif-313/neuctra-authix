@@ -508,7 +508,6 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
         style={{
           maxWidth: "1200px",
           margin: "0 auto",
-          padding: "16px",
           width: "100%",
           boxSizing: "border-box",
         }}
