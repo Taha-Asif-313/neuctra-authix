@@ -524,42 +524,47 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
           aria-haspopup="true"
           aria-expanded={open}
           aria-label="Toggle user menu"
-       
         >
-          {user?.avatarUrl ? (
-            <img
-              src={user.avatarUrl}
-              alt={`${user.name}'s avatar`}
-              style={{
-                width: isMobile ? "34px" : "40px",
-                height: isMobile ? "34px" : "40px",
-                borderRadius: "50%",
-                objectFit: "cover" as const,
-                border: `2px solid ${colors.borderLight}`,
-                flexShrink: 0,
-              }}
-              loading="lazy"
-              onError={(e) => {
-                // Fallback to default avatar on error
-                const target = e.target as HTMLImageElement;
-                target.src = `https://api.dicebear.com/9.x/glass/svg?seed=Kingston`;
-              }}
-            />
-          ) : (
-            <img
-              src={`https://api.dicebear.com/9.x/glass/svg?seed=Kingston`}
-              alt="Default user avatar"
-              style={{
-                width: isMobile ? "34px" : "40px",
-                height: isMobile ? "34px" : "40px",
-                borderRadius: "50%",
-                objectFit: "cover" as const,
-                border: `2px solid ${colors.borderLight}`,
-                flexShrink: 0,
-              }}
-              loading="lazy"
-            />
-          )}
+        {user?.avatarUrl ? (
+  <img
+    src={user.avatarUrl}
+    alt={`${user?.name || "User"}'s avatar`}
+    style={{
+      width: isMobile ? "34px" : "40px",
+      height: isMobile ? "34px" : "40px",
+      borderRadius: "50%",
+      objectFit: "cover" as const,
+      border: `2px solid ${colors.borderLight}`,
+      flexShrink: 0,
+    }}
+    loading="lazy"
+    onError={(e) => {
+      // ✅ Safe fallback to DiceBear initials avatar
+      const target = e.target as HTMLImageElement;
+      target.onerror = null; // prevent infinite loop
+      target.src = `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
+        user?.name || "User"
+      )}`;
+    }}
+  />
+) : (
+  <img
+    src={`https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
+      user?.name || "User"
+    )}`}
+    alt="Default user avatar"
+    style={{
+      width: isMobile ? "34px" : "40px",
+      height: isMobile ? "34px" : "40px",
+      borderRadius: "50%",
+      objectFit: "cover" as const,
+      border: `2px solid ${colors.borderLight}`,
+      flexShrink: 0,
+    }}
+    loading="lazy"
+  />
+)}
+
         </div>
       ) : (
         <div
