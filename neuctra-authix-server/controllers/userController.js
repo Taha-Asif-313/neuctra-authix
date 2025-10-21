@@ -1067,30 +1067,51 @@ export const getSingleUserData = async (req, res) => {
 };
 
 /**
- * @desc    Add a new JSON object to user's data array
+ * @desc    Add new data to a user's account (only if the user is verified)
  * @route   POST /api/users/:id/data
  * @access  Private (Admin only)
  */
 export const addUserData = async (req, res) => {
   try {
     const { id } = req.params;
-    const newObject = req.body; // expects a JSON object
+    const newObject = req.body; // should be a valid JSON object
 
-    const user = await prisma.user.findFirst({
-      where: { id, adminId: req.admin.id },
-    });
-    if (!user) {
-      return res.status(404).json({
+    // 🧩 Basic validation
+    if (!newObject || typeof newObject !== "object" || Array.isArray(newObject)) {
+      return res.status(400).json({
         success: false,
-        message: "User not found or unauthorized",
+        message: "Please send valid data in JSON format.",
       });
     }
 
-    // 👇 Attach a unique ID before saving
-    const objectWithId = { id: generateId(), ...newObject };
+    // 🔍 Check if user exists, belongs to this admin, and is verified
+    const user = await prisma.user.findFirst({
+      where: {
+        id,
+        adminId: req.admin.id,
+      },
+    });
 
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "We couldn’t find this user under your account.",
+      });
+    }
+
+    if (!user.isVerified) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Please verify the account from profile",
+      });
+    }
+
+    // ✅ Add unique ID to the object before saving
+    const objectWithId = { id: generateId(), ...newObject };
     const updatedData = [...(user.data || []), objectWithId];
 
+    // 🧠 Update the user record
     await prisma.user.update({
       where: { id },
       data: { data: updatedData },
@@ -1098,16 +1119,28 @@ export const addUserData = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Data added successfully",
+      message: "Your data was added successfully!",
       data: updatedData,
     });
-  } catch (err) {
-    console.error("AddUserData Error:", err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+  } catch (error) {
+    console.error("❌ addUserData Error:", error);
+
+    // 🧱 Prisma or validation-related errors
+    if (error.code === "P2025") {
+      return res.status(404).json({
+        success: false,
+        message: "The user you are trying to update does not exist.",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Something went wrong while saving the data. Please try again later.",
+    });
   }
 };
+
 
 /**
  * @desc    Update a JSON object in user's data array by object id
