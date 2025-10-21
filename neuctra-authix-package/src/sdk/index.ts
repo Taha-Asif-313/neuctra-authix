@@ -155,50 +155,72 @@ export class NeuctraAuthix {
   }
 
   /**
-   * Universal request helper with error handling
-   * @param method HTTP method (GET, POST, PUT, DELETE)
-   * @param path API endpoint path
-   * @param data optional request body
-   * @param extraHeaders optional headers
-   */
-  private async request<T = any, D extends object = Record<string, unknown>>(
-    method: Method,
-    path: string,
-    data?: D,
-    extraHeaders: Record<string, string> = {}
-  ): Promise<T> {
-    if (!method) throw new Error("HTTP method is required");
-    if (!path) throw new Error("Request path is required");
+ * 🌐 Universal request helper with structured responses and error handling
+ * @param method HTTP method (GET, POST, PUT, DELETE)
+ * @param path API endpoint path
+ * @param data optional request body
+ * @param extraHeaders optional headers
+ */
+private async request<T = any, D extends object = Record<string, unknown>>(
+  method: Method,
+  path: string,
+  data?: D,
+  extraHeaders: Record<string, string> = {}
+): Promise<{ success: boolean; data?: T; message: string }> {
+  if (!method) return { success: false, message: "HTTP method is required" };
+  if (!path) return { success: false, message: "Request path is required" };
 
-    try {
-      // Merge appId with request body
-      const body = {
-        ...(this.appId ? { appId: this.appId } : {}),
-        ...(data || {}),
+  try {
+    // 🧩 Merge appId into request body if available
+    const body = {
+      ...(this.appId ? { appId: this.appId } : {}),
+      ...(data || {}),
+    };
+
+    const res = await this.client.request<T>({
+      url: path,
+      method,
+      data: body,
+      headers: extraHeaders,
+    });
+
+    return {
+      success: true,
+      data: res.data,
+      message: "✅ Request completed successfully",
+    };
+  } catch (err: any) {
+    console.error("❌ [Request Error]:", err);
+
+    // 🔍 Network errors (e.g., no internet)
+    if (err.isAxiosError && !err.response) {
+      return {
+        success: false,
+        message: `🌐 Network error: ${err.message}`,
       };
-
-      const res = await this.client.request<T>({
-        url: path,
-        method,
-        data: body,
-        headers: extraHeaders,
-      });
-
-      return res.data;
-    } catch (err: any) {
-      if (err.isAxiosError && !err.response) {
-        throw new Error(`Network error: ${err.message}`);
-      }
-      if (err.response) {
-        const status = err.response.status;
-        const msg = err.response.data?.message || err.response.statusText;
-        throw new Error(`API Error (${status}): ${msg}`);
-      }
-      throw new Error(
-        err.message || "Unknown error occurred during API request"
-      );
     }
+
+    // 🧱 API errors (with response)
+    if (err.response) {
+      const status = err.response.status;
+      const msg =
+        err.response.data?.message ||
+        err.response.statusText ||
+        "Server returned an error";
+      return {
+        success: false,
+        message: `⚠️ Request failed (${status}): ${msg}`,
+      };
+    }
+
+    // 🔄 Unknown / unexpected error
+    return {
+      success: false,
+      message: `🚨 Unexpected error: ${err.message || "Something went wrong"}`,
+    };
   }
+}
+
 
   // ================= USERS =================
 
