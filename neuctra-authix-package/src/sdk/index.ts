@@ -155,72 +155,70 @@ export class NeuctraAuthix {
   }
 
   /**
- * 🌐 Universal request helper with structured responses and error handling
- * @param method HTTP method (GET, POST, PUT, DELETE)
- * @param path API endpoint path
- * @param data optional request body
- * @param extraHeaders optional headers
- */
-private async request<T = any, D extends object = Record<string, unknown>>(
-  method: Method,
-  path: string,
-  data?: D,
-  extraHeaders: Record<string, string> = {}
-): Promise<{ success: boolean; data?: T; message: string }> {
-  if (!method) return { success: false, message: "HTTP method is required" };
-  if (!path) return { success: false, message: "Request path is required" };
+   * 🌐 Universal request helper with structured responses and error handling
+   * @param method HTTP method (GET, POST, PUT, DELETE)
+   * @param path API endpoint path
+   * @param data optional request body
+   * @param extraHeaders optional headers
+   */
+  private async request<T = any, D extends object = Record<string, unknown>>(
+    method: Method,
+    path: string,
+    data?: D,
+    extraHeaders: Record<string, string> = {}
+  ): Promise<{ success: boolean; data?: T; message: string }> {
+    if (!method) return { success: false, message: "HTTP method is required" };
+    if (!path) return { success: false, message: "Request path is required" };
 
-  try {
-    // 🧩 Merge appId into request body if available
-    const body = {
-      ...(this.appId ? { appId: this.appId } : {}),
-      ...(data || {}),
-    };
+    try {
+      // 🧩 Merge appId into request body if available
+      const body = {
+        ...(this.appId ? { appId: this.appId } : {}),
+        ...(data || {}),
+      };
 
-    const res = await this.client.request<T>({
-      url: path,
-      method,
-      data: body,
-      headers: extraHeaders,
-    });
+      const res = await this.client.request<T>({
+        url: path,
+        method,
+        data: body,
+        headers: extraHeaders,
+      });
 
-    return {
-      success: true,
-      data: res.data,
-      message: "✅ Request completed successfully",
-    };
-  } catch (err: any) {
-    console.error("❌ [Request Error]:", err);
+      return {
+        success: true,
+        data: res.data,
+        message: "Request completed successfully",
+      };
+    } catch (err: any) {
+      console.error("[Request Error]:", err);
 
-    // 🔍 Network errors (e.g., no internet)
-    if (err.isAxiosError && !err.response) {
+      // 🔍 Network errors (e.g., no internet)
+      if (err.isAxiosError && !err.response) {
+        return {
+          success: false,
+          message: `Network error: ${err.message}`,
+        };
+      }
+
+      // 🧱 API errors (with response)
+      if (err.response) {
+        const msg =
+          err.response.data?.message ||
+          err.response.statusText ||
+          "Server returned an error";
+        return {
+          success: false,
+          message: `Request failed: ${msg}`,
+        };
+      }
+
+      // 🔄 Unknown / unexpected error
       return {
         success: false,
-        message: `🌐 Network error: ${err.message}`,
+        message: `Unexpected error: ${err.message || "Something went wrong"}`,
       };
     }
-
-    // 🧱 API errors (with response)
-    if (err.response) {
-      const status = err.response.status;
-      const msg =
-        err.response.data?.message ||
-        err.response.statusText ||
-        "Server returned an error";
-      return {
-        success: false,
-        message: `⚠️ Request failed (${status}): ${msg}`,
-      };
-    }
-
-    // 🔄 Unknown / unexpected error
-    return {
-      success: false,
-      message: `🚨 Unexpected error: ${err.message || "Something went wrong"}`,
-    };
   }
-}
-
 
   // ================= USERS =================
 
@@ -318,81 +316,79 @@ private async request<T = any, D extends object = Record<string, unknown>>(
     );
   }
 
-
   // ================= USERS SECURITY =================
 
-/**
- * Send verification OTP (requires logged-in user token)
- * @param params requires token
- */
-async sendVerifyOTP(params: { token: string; appId?: string }) {
-  const { token, appId } = params;
-  if (!token) throw new Error("sendVerifyOTP: 'token' is required");
+  /**
+   * Send verification OTP (requires logged-in user token)
+   * @param params requires token
+   */
+  async sendVerifyOTP(params: { token: string; appId?: string }) {
+    const { token, appId } = params;
+    if (!token) throw new Error("sendVerifyOTP: 'token' is required");
 
-  return this.request(
-    "POST",
-    "/users/send-verify-otp",
-    { appId: appId || this.appId },
-    { Authorization: `Bearer ${token}` }
-  );
-}
-
-/**
- * Verify email with OTP (requires logged-in user token)
- * @param params requires token + otp
- */
-async verifyEmail(params: { token: string; otp: string; appId?: string }) {
-  const { token, otp, appId } = params;
-  if (!token) throw new Error("verifyEmail: 'token' is required");
-  if (!otp) throw new Error("verifyEmail: 'otp' is required");
-
-  return this.request(
-    "POST",
-    "/users/verify-email",
-    { otp, appId: appId || this.appId },
-    { Authorization: `Bearer ${token}` }
-  );
-}
-
-/**
- * Forgot password (public route)
- * @param params requires email
- */
-async forgotPassword(params: { email: string; appId?: string }) {
-  const { email, appId } = params;
-  if (!email) throw new Error("forgotPassword: 'email' is required");
-
-  return this.request("POST", "/users/forgot-password", {
-    email,
-    appId: appId || this.appId,
-  });
-}
-
-/**
- * Reset password (public route)
- * @param params requires email, otp, newPassword
- */
-async resetPassword(params: {
-  email: string;
-  otp: string;
-  newPassword: string;
-  appId?: string;
-}) {
-  const { email, otp, newPassword, appId } = params;
-  if (!email || !otp || !newPassword) {
-    throw new Error(
-      "resetPassword: 'email', 'otp' and 'newPassword' are required"
+    return this.request(
+      "POST",
+      "/users/send-verify-otp",
+      { appId: appId || this.appId },
+      { Authorization: `Bearer ${token}` }
     );
   }
 
-  return this.request("POST", "/users/reset-password", {
-    email,
-    otp,
-    newPassword,
-    appId: appId || this.appId,
-  });
-}
+  /**
+   * Verify email with OTP (requires logged-in user token)
+   * @param params requires token + otp
+   */
+  async verifyEmail(params: { token: string; otp: string; appId?: string }) {
+    const { token, otp, appId } = params;
+    if (!token) throw new Error("verifyEmail: 'token' is required");
+    if (!otp) throw new Error("verifyEmail: 'otp' is required");
 
+    return this.request(
+      "POST",
+      "/users/verify-email",
+      { otp, appId: appId || this.appId },
+      { Authorization: `Bearer ${token}` }
+    );
+  }
+
+  /**
+   * Forgot password (public route)
+   * @param params requires email
+   */
+  async forgotPassword(params: { email: string; appId?: string }) {
+    const { email, appId } = params;
+    if (!email) throw new Error("forgotPassword: 'email' is required");
+
+    return this.request("POST", "/users/forgot-password", {
+      email,
+      appId: appId || this.appId,
+    });
+  }
+
+  /**
+   * Reset password (public route)
+   * @param params requires email, otp, newPassword
+   */
+  async resetPassword(params: {
+    email: string;
+    otp: string;
+    newPassword: string;
+    appId?: string;
+  }) {
+    const { email, otp, newPassword, appId } = params;
+    if (!email || !otp || !newPassword) {
+      throw new Error(
+        "resetPassword: 'email', 'otp' and 'newPassword' are required"
+      );
+    }
+
+    return this.request("POST", "/users/reset-password", {
+      email,
+      otp,
+      newPassword,
+      appId: appId || this.appId,
+    });
+  }
 
   // ================= USER EXTRA DATA =================
 
