@@ -1120,7 +1120,7 @@ export const addUserData = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Your data was added successfully!",
-      data: updatedData,
+      data: objectWithId,
     });
   } catch (error) {
     console.error("❌ addUserData Error:", error);

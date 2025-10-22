@@ -154,71 +154,58 @@ export class NeuctraAuthix {
     });
   }
 
-  /**
-   * 🌐 Universal request helper with structured responses and error handling
-   * @param method HTTP method (GET, POST, PUT, DELETE)
-   * @param path API endpoint path
-   * @param data optional request body
-   * @param extraHeaders optional headers
-   */
-  private async request<T = any, D extends object = Record<string, unknown>>(
-    method: Method,
-    path: string,
-    data?: D,
-    extraHeaders: Record<string, string> = {}
-  ): Promise<{ success: boolean; data?: T; message: string }> {
-    if (!method) return { success: false, message: "HTTP method is required" };
-    if (!path) return { success: false, message: "Request path is required" };
+/**
+ * 🌐 Universal request helper with structured responses and error handling
+ * @param method HTTP method (GET, POST, PUT, DELETE)
+ * @param path API endpoint path
+ * @param data Optional request body
+ * @param extraHeaders Optional custom headers
+ */
+private async request<T = any, D extends object = Record<string, unknown>>(
+  method: Method,
+  path: string,
+  data?: D,
+  extraHeaders: Record<string, string> = {}
+): Promise<T> {
+  if (!method) throw new Error("HTTP method is required");
+  if (!path) throw new Error("Request path is required");
 
-    try {
-      // 🧩 Merge appId into request body if available
-      const body = {
-        ...(this.appId ? { appId: this.appId } : {}),
-        ...(data || {}),
-      };
+  try {
+    // 🧩 Merge appId into request body if available
+    const body = {
+      ...(this.appId ? { appId: this.appId } : {}),
+      ...(data || {}),
+    };
 
-      const res = await this.client.request<T>({
-        url: path,
-        method,
-        data: body,
-        headers: extraHeaders,
-      });
+    const res = await this.client.request<T>({
+      url: path,
+      method,
+      data: body,
+      headers: extraHeaders,
+    });
 
-      return {
-        success: true,
-        data: res.data,
-        message: "Request completed successfully",
-      };
-    } catch (err: any) {
-      console.error("[Request Error]:", err);
+    // ✅ Return only response data
+    return res.data;
 
-      // 🔍 Network errors (e.g., no internet)
-      if (err.isAxiosError && !err.response) {
-        return {
-          success: false,
-          message: `Network error: ${err.message}`,
-        };
-      }
+  } catch (err: any) {
+    console.error("❌ [Request Error]:", err);
 
-      // 🧱 API errors (with response)
-      if (err.response) {
-        const msg =
-          err.response.data?.message ||
-          err.response.statusText ||
-          "Server returned an error";
-        return {
-          success: false,
-          message: `Request failed: ${msg}`,
-        };
-      }
+    // 🔍 Handle Axios and network errors properly
+    if (err.isAxiosError) {
+      const status = err.response?.status || 0;
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "Unknown Axios error occurred";
 
-      // 🔄 Unknown / unexpected error
-      return {
-        success: false,
-        message: `Unexpected error: ${err.message || "Something went wrong"}`,
-      };
+      throw new Error(`Request failed (${status}): ${message}`);
     }
+
+    // 🔄 Handle unexpected runtime errors
+    throw new Error(`Unexpected error: ${err.message || "Unknown failure"}`);
   }
+}
+
 
   // ================= USERS =================
 
