@@ -17,7 +17,6 @@ import {
   Key,
   Shield,
   Send,
-  KeyRound,
   LogOut,
   Home,
   MoreVertical,
@@ -35,6 +34,9 @@ interface UserProfileProps {
   homeUrl?: string;
   primaryColor?: string;
   onLogout: () => void;
+
+  // ✅ New props
+  onVerify?: (user: UserInfo) => void;
 }
 
 export const ReactUserProfile: React.FC<UserProfileProps> = ({
@@ -43,6 +45,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   darkMode = true,
   homeUrl,
   onLogout,
+  onVerify,
   primaryColor = "#00C212",
 }) => {
   const { baseUrl, apiKey, appId } = getSdkConfig();
@@ -163,7 +166,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
       );
       if (res.data.success) {
         showNotification("success", res.data.message || "Email verified!");
-        // Update user verification status
+
         if (user) {
           const updatedUser = { ...user, isVerified: true };
           setUser(updatedUser);
@@ -171,6 +174,11 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
             "userInfo",
             JSON.stringify({ ...updatedUser, token })
           );
+
+          // 🔹 Call parent handler if provided
+          if (typeof onVerify === "function") {
+            onVerify(updatedUser);
+          }
         }
         setVerifyFormData({ email: "", otp: "", appId });
         setOtpSent(false);

@@ -46,7 +46,7 @@ router.put("/update/:id", authMiddleware, updateUser);
 router.put("/change-password/:id", authMiddleware, changeUserPassword);
 
 // 🔹 Delete user (requires admin auth)
-router.delete("/delete/:id", authMiddleware, deleteUser);
+router.delete("/delete/:userId", authMiddleware, deleteUser);
 
 // 🔹 Check user (requires admin auth)
 router.get("/check-user/:id", authMiddleware, checkUser);
