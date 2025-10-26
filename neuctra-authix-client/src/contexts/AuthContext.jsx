@@ -6,19 +6,27 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
   const [token, setToken] = useState(null);
+  const [isVerified, setIsVerified] = useState(false); // ✅ new field
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Load from localStorage on mount
+  // ✅ Load from localStorage on mount
   useEffect(() => {
     try {
       const storedAdmin = localStorage.getItem("admin");
       const storedToken = localStorage.getItem("token");
 
       if (storedAdmin && storedToken) {
-        setAdmin(JSON.parse(storedAdmin));
+        const parsedAdmin = JSON.parse(storedAdmin);
+
+        setAdmin(parsedAdmin);
         setToken(storedToken);
         setIsAuthenticated(true);
+
+        // ✅ If admin has isVerified key, set it
+        if (parsedAdmin?.isVerified !== undefined) {
+          setIsVerified(Boolean(parsedAdmin.isVerified));
+        }
       }
     } catch (err) {
       console.error("Invalid admin data in localStorage:", err);
@@ -29,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Login
+  // ✅ Login
   const login = (adminData, jwtToken) => {
     if (!jwtToken) {
       console.error("JWT Token is missing!");
@@ -39,22 +47,29 @@ export const AuthProvider = ({ children }) => {
     setAdmin(adminData);
     setToken(jwtToken);
     setIsAuthenticated(true);
+    setIsVerified(Boolean(adminData?.isVerified)); // ✅ set from admin data
 
     localStorage.setItem("admin", JSON.stringify(adminData || {}));
     localStorage.setItem("token", jwtToken);
   };
 
-  // Update Profile (you can call this after handleSubmit)
+  // ✅ Update Profile
   const updateProfile = (updatedAdmin) => {
     setAdmin(updatedAdmin);
     localStorage.setItem("admin", JSON.stringify(updatedAdmin));
+
+    // Update verification status if included
+    if (updatedAdmin?.isVerified !== undefined) {
+      setIsVerified(Boolean(updatedAdmin.isVerified));
+    }
   };
 
-  // Logout
+  // ✅ Logout
   const logout = () => {
     setAdmin(null);
     setToken(null);
     setIsAuthenticated(false);
+    setIsVerified(false);
 
     localStorage.removeItem("admin");
     localStorage.removeItem("token");
@@ -66,13 +81,14 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         admin,
-        setAdmin, // still exposed in case you want manual control
         token,
         loading,
         isAuthenticated,
+        isVerified, // ✅ exposed to context
         login,
         logout,
-        updateProfile, // <— added this helper
+        updateProfile,
+        setAdmin, // optional
       }}
     >
       {children}
@@ -80,5 +96,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Custom hook
+// ✅ Custom hook
 export const useAuth = () => useContext(AuthContext);

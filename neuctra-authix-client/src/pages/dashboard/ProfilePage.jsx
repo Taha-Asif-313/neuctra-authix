@@ -603,7 +603,7 @@ const ProfilePage = () => {
           <img
             src={
               formData.avatarUrl ||
-              "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
+              `https://api.dicebear.com/9.x/initials/svg?seed=${admin.name}`
             }
             alt="Profile"
             className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-primary object-cover shadow-lg"

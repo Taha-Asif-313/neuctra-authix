@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Eye, EyeOff, Mail, Lock, User, ShieldCheck } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
 
 const SignupPage = () => {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -83,15 +85,18 @@ const SignupPage = () => {
     try {
       setIsLoading(true);
 
-      const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/admin/signup`, {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      });
-
+      const res = await axios.post(
+        `${import.meta.env.VITE_SERVER_URL}/api/admin/signup`,
+        {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }
+      );
       if (res.data.success) {
+        login(res.data.userData.admin, res.data.userData.token);
         toast.success(res.data.message || "Signup successful!");
-        navigate("/login");
+        navigate("/verify-email");
       } else {
         toast.error(res.data.message || "Signup failed");
       }

@@ -180,16 +180,15 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
             className="flex items-center space-x-3 p-3 text-gray-300 rounded-lg transition-colors"
           >
             <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex items-center justify-center">
-              {admin?.avatarUrl ? (
-                <img
-                  className="w-full h-full object-cover"
-                  src={admin.avatarUrl}
-                  alt="avatar"
-                />
-              ) : null}
-              {!admin?.avatarUrl && (
-                <User size={20} className="text-gray-400" />
-              )}
+              <img
+                className="w-full h-full object-cover"
+                src={
+                  admin.avatarUrl
+                    ? admin.avatarUrl
+                    : `https://api.dicebear.com/9.x/initials/svg?seed=${admin.name}`
+                }
+                alt="avatar"
+              />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">
@@ -201,7 +200,7 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
           <button
             onClick={() => setShowLogoutModal(true)}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-sm rounded-lg bg-red-500/5 text-red-500 transition-colors"
+            className="w-full cursor-pointer flex items-center space-x-3 px-4 py-3 text-sm rounded-lg bg-red-500/5 text-red-500 transition-colors"
           >
             <LogOut size={18} />
             <span>Logout</span>

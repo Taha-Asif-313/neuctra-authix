@@ -173,15 +173,7 @@ const LoginPage = () => {
 
               {/* Remember & Forgot */}
               <div className="flex items-center justify-between">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 text-[#00c420] border-gray-300 rounded"
-                  />
-                  <span className="ml-2 text-sm text-gray-300">
-                    Remember me
-                  </span>
-                </label>
+               
                 <Link
                   to="/forgot-password"
                   className="text-sm font-medium text-[#00c420] hover:text-green-500"

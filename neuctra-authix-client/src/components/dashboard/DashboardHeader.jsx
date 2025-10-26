@@ -3,8 +3,8 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, Settings, HelpCircle, LogOut } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 
-const DashboardHeader = ({sidebarOpen, setSidebarOpen}) => {
-  const { admin , logout } = useAuth();
+const DashboardHeader = ({ sidebarOpen, setSidebarOpen }) => {
+  const { admin, logout } = useAuth();
   const [expandedItems, setExpandedItems] = useState({});
   const location = useLocation();
 
@@ -32,24 +32,28 @@ const DashboardHeader = ({sidebarOpen, setSidebarOpen}) => {
         </div>
 
         <div className="flex gap-3 items-center ">
-          <button onClick={()=>logout()} className="p-2 rounded-full hover:bg-gray-800 relative">
+          <button
+            onClick={() => logout()}
+            className="p-2 rounded-full hover:bg-gray-800 relative"
+          >
             <LogOut size={20} />
           </button>
-          <Link to={"/dashboard/support"} className="p-2 rounded-full hover:bg-gray-800 relative">
+          <Link
+            to={"/dashboard/support"}
+            className="p-2 rounded-full hover:bg-gray-800 relative"
+          >
             <HelpCircle size={20} />
           </Link>
           <Link className="p-2" to={"/dashboard/profile"}>
-            {admin.avatarUrl ? (
-              <img
-                src={admin.avatarUrl}
-                alt="logo"
-                className="w-8 h-8 rounded-full object-cover object-top"
-              />
-            ) : (
-              <span className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-medium">
-                {admin.name.slice(0, 2)}
-              </span>
-            )}
+            <img
+              src={
+                admin.avatarUrl
+                  ? admin.avatarUrl
+                  : `https://api.dicebear.com/9.x/initials/svg?seed=${admin.name}`
+              }
+              alt="logo"
+              className="w-8 h-8 rounded-full object-cover object-top"
+            />
           </Link>
         </div>
       </header>

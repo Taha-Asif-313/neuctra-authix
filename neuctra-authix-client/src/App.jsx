@@ -48,18 +48,29 @@ import Installation from "./pages/docs/installation";
 import ScrollToTop from "./components/ScrollToTop";
 import About from "./pages/public/About";
 
-// ✅ Protected wrapper inside same file
 const ProtectedRoute = ({ Component }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, isVerified, loading } = useAuth();
 
+  // Show loader while checking auth state
   if (loading) {
-    return <div className="text-white p-6">Loading...</div>; // spinner/loader
+    return (
+      <div className="flex items-center justify-center min-h-screen text-white">
+        Loading...
+      </div>
+    );
   }
 
+  // ✅ Step 1: Not logged in → go to login
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
+  // ✅ Step 2: Logged in but not verified → go to verify email
+  if (!isVerified) {
+    return <Navigate to="/verify-email" replace />;
+  }
+
+  // ✅ Step 3: Authenticated + verified → show route
   return Component ? (
     <Component>
       <Outlet />
@@ -69,6 +80,7 @@ const ProtectedRoute = ({ Component }) => {
   );
 };
 
+// ✅ Main AppContent
 function AppContent() {
   const { isAuthenticated } = useAuth();
 
@@ -122,7 +134,7 @@ function AppContent() {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         </Route>
 
-        {/* Protected dashboard */}
+        {/* ✅ Protected Dashboard Routes */}
         <Route
           path="/dashboard"
           element={<ProtectedRoute Component={DashboardLayout} />}
@@ -137,7 +149,7 @@ function AppContent() {
           <Route path="support" element={<SupportPage />} />
         </Route>
 
-        {/* Public Docs */}
+        {/* ✅ Public Docs */}
         <Route path="/docs" element={<DocsLayout />}>
           <Route index element={<Introduction />} />
           <Route path="installation" element={<Installation />} />
@@ -181,10 +193,10 @@ function AppContent() {
           />
         </Route>
 
-        {/* SIngle Pages */}
+        {/* ✅ Email Verification Page */}
         <Route path="/verify-email" element={<VerifyEmailPage />} />
 
-        {/* Catch-all */}
+        {/* ✅ Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>

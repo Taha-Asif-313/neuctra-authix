@@ -1,20 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Mail, KeyRound } from "lucide-react";
+import { Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 const VerifyEmailPage = () => {
   const navigate = useNavigate();
+    const { login } = useAuth();
   const [formData, setFormData] = useState({ email: "", otp: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
+  const [otpArray, setOtpArray] = useState(new Array(6).fill(""));
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  // ✅ Load admin user from localStorage
+  useEffect(() => {
+    const storedUser = localStorage.getItem("admin");
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        if (parsedUser?.email) {
+          setFormData((prev) => ({ ...prev, email: parsedUser.email }));
+        }
+      } catch (err) {
+        console.error("Invalid adminUser in localStorage");
+      }
+    }
+  }, []);
+
+  // ✅ Handle OTP box input
+  const handleOtpChange = (value, index) => {
+    if (!/^[0-9]*$/.test(value)) return; // Only allow numbers
+    const newOtp = [...otpArray];
+    newOtp[index] = value.slice(-1); // only one digit
+    setOtpArray(newOtp);
+    setFormData((prev) => ({ ...prev, otp: newOtp.join("") }));
+
+    // Move focus to next input
+    if (value && index < 5) {
+      const next = document.getElementById(`otp-${index + 1}`);
+      next?.focus();
+    }
   };
 
-  // Send OTP
+  // ✅ Send OTP
   const handleSendOTP = async () => {
     if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
       toast.error("Please enter a valid email");
@@ -30,6 +59,7 @@ const VerifyEmailPage = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
+
       if (res.data.success) {
         toast.success(res.data.message || "OTP sent to email!");
         setOtpSent(true);
@@ -43,7 +73,7 @@ const VerifyEmailPage = () => {
     }
   };
 
-  // Verify Email
+  // ✅ Verify OTP
   const handleVerify = async (e) => {
     e.preventDefault();
 
@@ -58,10 +88,12 @@ const VerifyEmailPage = () => {
         `${import.meta.env.VITE_SERVER_URL}/api/admin/verify-email`,
         formData
       );
+
       if (res.data.success) {
+        login(res.data.userData.admin, res.data.userData.token);
         toast.success(res.data.message || "Email verified!");
-        // reset form
         setFormData({ email: "", otp: "" });
+        setOtpArray(new Array(6).fill(""));
         setOtpSent(false);
         navigate("/dashboard/profile");
       } else {
@@ -88,54 +120,55 @@ const VerifyEmailPage = () => {
           Verify Your Email
         </h2>
 
-        <form className="space-y-4" onSubmit={handleVerify}>
-          {/* Email */}
+        <form className="space-y-4 w-full" onSubmit={handleVerify}>
+          {/* Email (read-only) */}
           <div>
             <label className="block text-sm font-medium text-gray-300">
               Email
             </label>
             <div className="mt-1 relative">
-              <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <Mail className="absolute left-3 top-3 h-5 w-5 text-primary" />
               <input
                 type="email"
                 name="email"
-                placeholder="Enter your email"
                 value={formData.email}
-                onChange={handleChange}
-                className="block w-full pl-10 pr-3 py-2.5 rounded-md border bg-black text-white"
-                required
+                readOnly
+                className="block w-full pl-10 pr-3 py-2.5 rounded-md border bg-black text-white opacity-70 cursor-not-allowed"
               />
             </div>
           </div>
 
-          {/* OTP (only show after sending) */}
+          {/* Modern OTP input boxes */}
           {otpSent && (
-            <div>
-              <label className="block text-sm font-medium text-gray-300">
-                OTP
+            <div className="flex flex-col w-full">
+              <label className="block text-sm text-start font-medium text-gray-300 mb-2">
+                Enter OTP
               </label>
-              <div className="mt-1 relative">
-                <KeyRound className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  name="otp"
-                  placeholder="Enter OTP"
-                  value={formData.otp}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-2.5 rounded-md border bg-black text-white"
-                  required
-                />
+              <div className="flex justify-between gap-2">
+                {otpArray.map((digit, index) => (
+                  <input
+                    key={index}
+                    id={`otp-${index}`}
+                    type="text"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) =>
+                      handleOtpChange(e.target.value, index)
+                    }
+                    className="w-12 h-12 text-center text-lg font-semibold rounded-md bg-black border border-gray-700 text-white focus:border-[#00c420] focus:ring-1 focus:ring-[#00c420] outline-none transition"
+                  />
+                ))}
               </div>
             </div>
           )}
 
-          {/* Actions */}
+          {/* Buttons */}
           {!otpSent ? (
             <button
               type="button"
               onClick={handleSendOTP}
               disabled={isLoading}
-              className="w-full py-2 rounded-md bg-gray-700 text-white hover:bg-gray-600 disabled:opacity-70"
+              className="w-full py-2 rounded-md bg-primary text-white hover:bg-primary/80 cursor-pointer disabled:opacity-70"
             >
               {isLoading ? "Sending..." : "Send OTP"}
             </button>
@@ -143,7 +176,7 @@ const VerifyEmailPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2 rounded-md bg-[#00c420] text-white hover:bg-primary/80 disabled:opacity-70"
+              className="w-full py-2 rounded-md bg-[#00c420] text-white hover:bg-[#00a81b] disabled:opacity-70 transition"
             >
               {isLoading ? "Verifying..." : "Verify Email"}
             </button>

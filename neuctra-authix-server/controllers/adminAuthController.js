@@ -18,7 +18,7 @@ export const signupAdmin = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // 🧩 1. Basic field validation
+    // 🧩 1. Basic validation
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -26,42 +26,39 @@ export const signupAdmin = async (req, res) => {
       });
     }
 
-    // 📧 2. Validate email format (to prevent invalid inputs)
+    // 📧 2. Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({
         success: false,
         message: "Please enter a valid email address.",
-        errors: { email: "Invalid email format" },
       });
     }
 
-    // 🔒 3. Enforce strong password policy
+    // 🔒 3. Strong password policy
     const strongPassword =
       /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!strongPassword.test(password)) {
       return res.status(400).json({
         success: false,
         message:
-          "Password must be at least 8 characters long, include uppercase, lowercase, a number, and a special character.",
-        errors: { password: "Weak password" },
+          "Password must be at least 8 characters long and include uppercase, lowercase, a number, and a special character.",
       });
     }
 
-    // 🚫 4. Check if email is already in use
+    // 🚫 4. Check if admin already exists
     const existingAdmin = await prisma.adminUser.findUnique({ where: { email } });
     if (existingAdmin) {
       return res.status(400).json({
         success: false,
-        message: "Try signing in or use another email.",
-        errors: { email: "Email already registered" },
+        message: "Email already registered. Try signing in instead.",
       });
     }
 
-    // 🔑 5. Hash password before saving
+    // 🔑 5. Hash password
     const hashedPassword = await hashPassword(password);
 
-    // 🧠 6. Create new admin user
+    // 🧠 6. Create admin in database
     const admin = await prisma.adminUser.create({
       data: {
         id: generateId(),
@@ -69,20 +66,42 @@ export const signupAdmin = async (req, res) => {
         email,
         password: hashedPassword,
         apiKey: generateApiKey(),
+        isVerified: false, // 👈 default false
       },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        createdAt: true,
+      include: {
+        apps: {
+          select: { id: true, applicationName: true, isActive: true },
+        },
+        users: {
+          select: { id: true, name: true, email: true },
+        },
       },
     });
 
-    // 🎉 7. Respond cleanly without leaking sensitive info
+    // 🎟 7. Generate JWT
+    const token = generateToken({ id: admin.id, email: admin.email });
+
+    // 🎉 8. Return consistent response (like login)
     return res.status(201).json({
       success: true,
-      message: "Signup successful! Welcome aboard 👋",
-      data: admin,
+      message: "Signup successful! Please verify your email to continue.",
+      userData: {
+        token,
+        admin: {
+          id: admin.id,
+          name: admin.name,
+          email: admin.email,
+          phone: admin.phone || null,
+          address: admin.address || null,
+          avatarUrl: admin.avatarUrl || null,
+          apiKey: admin.apiKey,
+          isActive: admin.isActive,
+          isVerified: admin.isVerified, // 👈 included
+          createdAt: admin.createdAt,
+          apps: admin.apps,
+          users: admin.users,
+        },
+      },
     });
   } catch (err) {
     console.error("SignupAdmin Error:", err);
@@ -93,6 +112,7 @@ export const signupAdmin = async (req, res) => {
     });
   }
 };
+
 
 
 /**
@@ -327,35 +347,81 @@ export const sendVerifyOTP = async (req, res) => {
 /**
  * @desc Verify email with OTP
  * @route POST /api/admin/verify-email
+ * @access Public
  */
 export const verifyEmail = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    const admin = await prisma.adminUser.findUnique({ where: { email } });
+    // 🔍 1. Find admin by email
+    const admin = await prisma.adminUser.findUnique({
+      where: { email },
+      include: {
+        apps: {
+          select: { id: true, applicationName: true, isActive: true },
+        },
+        users: {
+          select: { id: true, name: true, email: true },
+        },
+      },
+    });
+
+    // ⚠️ 2. Validate OTP and expiry
     if (!admin || admin.otp !== otp || new Date() > admin.otpExpiry) {
       return res.status(400).json({
         success: false,
-        message: "Invalid or expired OTP",
+        message: "Invalid or expired OTP.",
       });
     }
 
-    await prisma.adminUser.update({
+    // ✅ 3. Mark verified and clear OTP fields
+    const updatedAdmin = await prisma.adminUser.update({
       where: { email },
       data: { isVerified: true, otp: null, otpExpiry: null },
+      include: {
+        apps: {
+          select: { id: true, applicationName: true, isActive: true },
+        },
+        users: {
+          select: { id: true, name: true, email: true },
+        },
+      },
     });
 
+    // 🎟 4. Generate fresh JWT
+    const token = generateToken({ id: updatedAdmin.id, email: updatedAdmin.email });
+
+    // 🎉 5. Return same structure as login/signup
     return res.status(200).json({
       success: true,
-      message: "Email verified successfully",
+      message: "Email verified successfully 🎉",
+      userData: {
+        token,
+        admin: {
+          id: updatedAdmin.id,
+          name: updatedAdmin.name,
+          email: updatedAdmin.email,
+          phone: updatedAdmin.phone || null,
+          address: updatedAdmin.address || null,
+          avatarUrl: updatedAdmin.avatarUrl || null,
+          apiKey: updatedAdmin.apiKey,
+          isActive: updatedAdmin.isActive,
+          isVerified: updatedAdmin.isVerified, // ✅ true now
+          createdAt: updatedAdmin.createdAt,
+          apps: updatedAdmin.apps,
+          users: updatedAdmin.users,
+        },
+      },
     });
   } catch (err) {
     console.error("VerifyEmail Error:", err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error. Please try again later.",
+    });
   }
 };
+
 
 /**
  * @desc Send reset password OTP
