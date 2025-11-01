@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://authix.neuctra.com/sitemap.xml
