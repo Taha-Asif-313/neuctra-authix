@@ -1,6 +1,8 @@
-import React, { ReactNode } from "react";
+"use client";
+import React, { ReactNode, useEffect, useState } from "react";
 
 const isUserSignedIn = (): boolean => {
+  if (typeof window === "undefined") return false;
   try {
     const userInfo = localStorage.getItem("userInfo");
     return Boolean(userInfo && userInfo !== "undefined" && userInfo !== "null");
@@ -16,26 +18,34 @@ interface ReactSignedInProps {
   height?: string;
 }
 
-/**
- * ReactSignedIn
- * Renders children only when the user is signed in.
- * Provides optional width/height props for consistent alignment in layouts.
- */
 export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
   children,
   fallback = null,
   width,
   height,
 }) => {
-  if (!isUserSignedIn()) return <>{fallback}</>;
+  const [signedIn, setSignedIn] = useState(false);
 
-  const style: React.CSSProperties = {
-    display: "inline-flex",
-    alignItems: "center",
-    verticalAlign: "middle",
-    ...(width ? { width } : {}),
-    ...(height ? { height } : {}),
-  };
+  useEffect(() => {
+    const check = () => setSignedIn(isUserSignedIn());
+    check();
+    window.addEventListener("storage", check);
+    return () => window.removeEventListener("storage", check);
+  }, []);
 
-  return <span style={style}>{children}</span>;
+  if (!signedIn) return <>{fallback}</>;
+
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        verticalAlign: "middle",
+        width,
+        height,
+      }}
+    >
+      {children}
+    </span>
+  );
 };

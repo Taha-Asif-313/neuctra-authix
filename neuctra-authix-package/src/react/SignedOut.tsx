@@ -1,6 +1,8 @@
-import React, { ReactNode } from "react";
+"use client";
+import React, { ReactNode, useEffect, useState } from "react";
 
 const isUserSignedIn = (): boolean => {
+  if (typeof window === "undefined") return false;
   try {
     const userInfo = localStorage.getItem("userInfo");
     return Boolean(userInfo && userInfo !== "undefined" && userInfo !== "null");
@@ -19,7 +21,7 @@ interface ReactSignedOutProps {
 /**
  * ReactSignedOut
  * Renders its children only when the user is NOT signed in.
- * Uses inline-flex for consistent alignment within navbars or flex layouts.
+ * Safe for SSR and reactive to auth changes.
  */
 export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
   children,
@@ -27,15 +29,30 @@ export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
   width,
   height,
 }) => {
-  if (isUserSignedIn()) return <>{fallback}</>;
+  const [signedOut, setSignedOut] = useState(!isUserSignedIn());
 
-  const style: React.CSSProperties = {
-    display: "inline-flex",
-    alignItems: "center",
-    verticalAlign: "middle",
-    ...(width ? { width } : {}),
-    ...(height ? { height } : {}),
-  };
+  useEffect(() => {
+    const check = () => setSignedOut(!isUserSignedIn());
+    check();
 
-  return <span style={style}>{children}</span>;
+    // Sync with other tabs or when auth state changes
+    window.addEventListener("storage", check);
+    return () => window.removeEventListener("storage", check);
+  }, []);
+
+  if (!signedOut) return <>{fallback}</>;
+
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        verticalAlign: "middle",
+        width,
+        height,
+      }}
+    >
+      {children}
+    </span>
+  );
 };

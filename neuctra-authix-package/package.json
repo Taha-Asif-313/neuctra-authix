@@ -1,29 +1,28 @@
 {
   "name": "@neuctra/authix",
-  "version": "1.1.1",
-  "description": "Authentication SDK and UI components library for React and Vue with TailwindCSS",
+  "version": "1.1.10",
+  "description": "Universal authentication SDK and UI components for React (v16–v19) with TailwindCSS.",
   "author": "Taha Asif",
   "license": "MIT",
   "type": "module",
-  "main": "dist/neuctra-authix.cjs.js",
-  "module": "dist/neuctra-authix.es.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/neuctra-authix.umd.js",
+  "module": "./dist/neuctra-authix.es.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/neuctra-authix.es.js",
-      "require": "./dist/neuctra-authix.cjs.js"
+      "require": "./dist/neuctra-authix.umd.js"
     },
     "./react": {
-      "import": "./dist/react/index.js",
-      "types": "./dist/react/index.d.ts"
-    },
-    "./vue": {
-      "import": "./dist/vue/index.js",
-      "types": "./dist/vue/index.d.ts"
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.es.js",
+      "require": "./dist/react/index.umd.js"
     },
     "./sdk": {
-      "import": "./dist/sdk/index.js",
-      "types": "./dist/sdk/index.d.ts"
+      "types": "./dist/sdk/index.d.ts",
+      "import": "./dist/sdk/index.es.js",
+      "require": "./dist/sdk/index.umd.js"
     }
   },
   "files": [
@@ -31,42 +30,42 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build && tsc --emitDeclarationOnly",
+    "clean": "rimraf dist",
+    "build": "npm run clean && vite build && tsc --emitDeclarationOnly",
     "preview": "vite preview",
-    "clean": "rm -rf dist",
     "release": "npm publish --access public"
   },
+  "peerDependencies": {
+    "react": ">=16.8.0 <20",
+    "react-dom": ">=16.8.0 <20"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.13",
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^5.0.3",
+    "autoprefixer": "^10.4.21",
+    "axios": "^1.12.2",
+    "lucide-react": "^0.544.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.13",
+    "typescript": "^5.6.3",
+    "vite": "^7.1.7",
+    "rimraf": "^5.0.5"
+  },
   "keywords": [
+    "neuctra",
+    "authix",
     "ui-components",
     "react",
-    "vue",
     "tailwind",
     "vite",
     "library",
     "authentication",
-    "sdk",
     "jwt",
-    "otp"
-  ],
-  "devDependencies": {
-    "@tailwindcss/vite": "^4.1.13",
-    "@types/node": "^20.0.0",
-    "@types/react": "^18.2.48",
-    "@types/react-dom": "^18.2.18",
-    "@vitejs/plugin-react": "^5.0.3",
-    "@vitejs/plugin-vue": "^6.0.1",
-    "autoprefixer": "^10.4.21",
-    "axios": "^1.12.2",
-    "lucide-react": "^0.544.0",
-    "lucide-vue-next": "^0.544.0",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.13",
-    "typescript": "^5.9.2",
-    "vite": "^7.1.7"
-  },
-  "peerDependencies": {
-    "react": ">=16",
-    "react-dom": ">=16",
-    "vue": ">=3"
-  }
+    "otp",
+    "sdk",
+    "auth"
+  ]
 }
