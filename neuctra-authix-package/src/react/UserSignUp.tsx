@@ -26,7 +26,8 @@ interface SignupFormProps {
 
   // Only avatar is optional
   showAvatar?: boolean;
-
+  roles?: string[]; // user-supplied roles
+  showRoleSelector?: boolean; // whether to show role selector
   loginUrl?: string;
   onSuccess?: (user: any) => void;
   onError?: (error: any) => void;
@@ -37,6 +38,7 @@ interface FormData {
   name: string;
   email: string;
   password: string;
+  role: string;
   avatarUrl?: string;
 }
 
@@ -52,7 +54,8 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
 
   // Only avatar is optional
   showAvatar = false,
-
+  roles = [], // 🔥 FIXED
+  showRoleSelector = false, // 🔥 FIXED
   loginUrl,
   onSuccess,
   onError,
@@ -64,6 +67,7 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
     name: "",
     email: "",
     password: "",
+    role: roles.length ? roles[0] : "user",
     ...(showAvatar && { avatarUrl: "" }),
   };
 
@@ -173,7 +177,7 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
           fontFamily:
             "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           backgroundColor: darkMode ? "#000000" : "#ffffff",
-          padding: isMobile ? "30px 24px" : "18px 28px",
+          padding: isMobile ? "30px 24px" : "20px 28px",
         }}
       >
         {/* Header */}
@@ -186,7 +190,11 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
           }}
         >
           {logoUrl ? (
-            <a href={logoLinkUrl ? logoLinkUrl : "/"} target="_self" rel="noopener noreferrer">
+            <a
+              href={logoLinkUrl ? logoLinkUrl : "/"}
+              target="_self"
+              rel="noopener noreferrer"
+            >
               <img
                 src={logoUrl}
                 alt="Logo"
@@ -252,6 +260,115 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
           onSubmit={handleSignup}
           style={{ display: "flex", flexDirection: "column", gap: "14px" }}
         >
+
+          {/* Role Selector  */}
+          {showRoleSelector && roles && roles.length === 2 && (
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+            >
+              <label
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  color: textColor,
+                }}
+              >
+                Select Role
+              </label>
+              <div
+                style={{
+                  position: "relative",
+                  display: "flex",
+                  borderRadius: "10px",
+                  border: `1px solid ${inputBorder}`,
+                  backgroundColor: inputBg,
+                  overflow: "hidden",
+                  cursor: "pointer",
+                  height: "42px",
+                }}
+              >
+                {/* Animated background */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "50%",
+                    height: "100%",
+                    backgroundColor: darkMode ? "#000000" : "#ffffff", // dark/light background
+                    boxShadow: darkMode
+                      ? "0 1px 3px rgba(255,255,255,0.05)"
+                      : "0 1px 3px rgba(0,0,0,0.1)", // subtle shadow
+                    borderRadius: "10px",
+                    transition:
+                      "transform 0.3s ease, background-color 0.3s ease",
+                    transform:
+                      formData.role === roles[1]
+                        ? "translateX(100%)"
+                        : "translateX(0)",
+                    zIndex: 0,
+                  }}
+                />
+
+                {/* Button 1 */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData((prev) => ({ ...prev, role: roles[0] }))
+                  }
+                  style={{
+                    flex: 1,
+                    zIndex: 10,
+                    border: "none",
+                    background: "transparent",
+                    color:
+                      formData.role === roles[0]
+                        ? primaryColor
+                        : darkMode
+                        ? "#9ca3af"
+                        : "#6b7280", // theme-aware inactive color
+                    fontWeight: formData.role === roles[0] ? 600 : 500,
+                    fontSize: "14px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "color 0.2s ease",
+                  }}
+                >
+                  {roles[0].charAt(0).toUpperCase() + roles[0].slice(1)}
+                </button>
+
+                {/* Button 2 */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData((prev) => ({ ...prev, role: roles[1] }))
+                  }
+                  style={{
+                    flex: 1,
+                    zIndex: 10,
+                    border: "none",
+                    background: "transparent",
+                    color:
+                      formData.role === roles[1]
+                        ? primaryColor
+                        : darkMode
+                        ? "#9ca3af"
+                        : "#6b7280",
+                    fontWeight: formData.role === roles[1] ? 600 : 500,
+                    fontSize: "14px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "color 0.2s ease",
+                  }}
+                >
+                  {roles[1].charAt(0).toUpperCase() + roles[1].slice(1)}
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Name */}
           <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
             <label
