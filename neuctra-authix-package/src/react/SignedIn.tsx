@@ -1,16 +1,6 @@
 "use client";
 import React, { ReactNode, useEffect, useState } from "react";
 
-const isUserSignedIn = (): boolean => {
-  if (typeof window === "undefined") return false;
-  try {
-    const userInfo = localStorage.getItem("userInfo");
-    return Boolean(userInfo && userInfo !== "undefined" && userInfo !== "null");
-  } catch {
-    return false;
-  }
-};
-
 interface ReactSignedInProps {
   children: ReactNode;
   fallback?: ReactNode;
@@ -27,10 +17,31 @@ export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
   const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
+    const isUserSignedIn = () => {
+      if (typeof window === "undefined") return false; // SSR guard
+      try {
+        const userInfo = localStorage.getItem("userInfo");
+        return Boolean(
+          userInfo && userInfo !== "undefined" && userInfo !== "null"
+        );
+      } catch {
+        return false;
+      }
+    };
+
     const check = () => setSignedIn(isUserSignedIn());
     check();
-    window.addEventListener("storage", check);
-    return () => window.removeEventListener("storage", check);
+
+    // Safe: runs only in browser
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", check);
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("storage", check);
+      }
+    };
   }, []);
 
   if (!signedIn) return <>{fallback}</>;

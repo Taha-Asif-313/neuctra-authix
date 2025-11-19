@@ -70,17 +70,6 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
   const [alignRight, setAlignRight] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Check mobile viewport
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
   // Validate user with backend with error handling
   const validateUser = async (userId: string) => {
     try {
@@ -120,6 +109,20 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
     }
   };
 
+  // Check mobile viewport
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   // Initialize user with comprehensive error handling
   useEffect(() => {
     const initUser = async () => {
@@ -134,19 +137,21 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
           setUser(propUser);
           await validateUser(propUser.id);
         } else {
-          const stored = localStorage.getItem("userInfo");
-          if (stored) {
-            try {
-              const parsed: UserInfo = JSON.parse(stored);
-              if (!parsed.id || !parsed.name || !parsed.email) {
-                throw new Error("Invalid stored user data");
+          if (typeof window !== "undefined") {
+            const stored = localStorage.getItem("userInfo");
+            if (stored) {
+              try {
+                const parsed: UserInfo = JSON.parse(stored);
+                if (!parsed.id || !parsed.name || !parsed.email) {
+                  throw new Error("Invalid stored user data");
+                }
+                setUser(parsed);
+                await validateUser(parsed.id);
+              } catch (parseError) {
+                console.error("Failed to parse stored user data:", parseError);
+                localStorage.removeItem("userInfo");
+                setError("Invalid user data");
               }
-              setUser(parsed);
-              await validateUser(parsed.id);
-            } catch (parseError) {
-              console.error("Failed to parse stored user data:", parseError);
-              localStorage.removeItem("userInfo");
-              setError("Invalid user data");
             }
           }
         }
@@ -163,29 +168,26 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
 
   // Dropdown alignment and viewport boundary check
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const updateDropdownPosition = () => {
-      if (open && buttonRef.current) {
-        const rect = buttonRef.current.getBoundingClientRect();
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
+      if (!open || !buttonRef.current) return;
 
-        // Check if dropdown would overflow viewport
-        const dropdownWidth = 280;
-        const dropdownHeight = 300; // Approximate height
-        const spaceOnRight = windowWidth - rect.right;
-        const spaceOnLeft = rect.left;
-        const spaceBelow = windowHeight - rect.bottom;
+      const rect = buttonRef.current.getBoundingClientRect();
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
 
-        // Align based on available space
-        const shouldAlignRight =
-          spaceOnRight >= dropdownWidth || spaceOnRight > spaceOnLeft;
-        setAlignRight(shouldAlignRight);
+      const dropdownWidth = 280;
+      const dropdownHeight = 300;
 
-        // Adjust if dropdown would go below viewport
-        if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
-          // Would implement upward opening if needed
-        }
-      }
+      const spaceOnRight = windowWidth - rect.right;
+      const spaceOnLeft = rect.left;
+      const spaceBelow = windowHeight - rect.bottom;
+
+      const shouldAlignRight =
+        spaceOnRight >= dropdownWidth || spaceOnRight > spaceOnLeft;
+
+      setAlignRight(shouldAlignRight);
     };
 
     updateDropdownPosition();
@@ -195,6 +197,9 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
 
   // Close dropdown on outside click, escape key, and scroll
   useEffect(() => {
+    if (typeof window === "undefined" || typeof document === "undefined")
+      return;
+
     const handleClickOutside = (e: MouseEvent) => {
       if (
         dropdownRef.current &&
@@ -206,21 +211,17 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
     };
 
     const handleEscapeKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setOpen(false);
-      }
+      if (e.key === "Escape") setOpen(false);
     };
 
     const handleScroll = () => {
-      if (open) {
-        setOpen(false);
-      }
+      if (open) setOpen(false);
     };
 
     if (open) {
       document.addEventListener("mousedown", handleClickOutside);
       document.addEventListener("keydown", handleEscapeKey);
-      window.addEventListener("scroll", handleScroll, { passive: true });
+      window.addEventListener("scroll", handleScroll);
     }
 
     return () => {

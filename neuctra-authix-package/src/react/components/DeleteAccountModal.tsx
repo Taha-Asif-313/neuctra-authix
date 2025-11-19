@@ -59,15 +59,18 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
   const [isMobile, setIsMobile] = useState(false);
 
   // Check mobile screen size
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
+ useEffect(() => {
+  if (typeof window === "undefined") return;
 
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth < 640);
+  };
+
+  checkMobile();
+  window.addEventListener("resize", checkMobile);
+  return () => window.removeEventListener("resize", checkMobile);
+}, []);
+
 
   if (!isOpen) return null;
 

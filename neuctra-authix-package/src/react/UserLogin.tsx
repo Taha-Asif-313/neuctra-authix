@@ -66,11 +66,21 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
   });
 
   // Theme
-  const isMobile = window.innerWidth < 768;
+  const [isMobile, setIsMobile] = useState(false);
+
   const textColor = darkMode ? "#ffffff" : "#111827";
   const subTextColor = darkMode ? "#a1a1aa" : "#6b7280";
   const inputBg = darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)";
   const inputBorder = darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const check = () => setIsMobile(window.innerWidth < 768);
+      check();
+      window.addEventListener("resize", check);
+      return () => window.removeEventListener("resize", check);
+    }
+  }, []);
 
   // Handlers
   const handleLogin = async (e: React.FormEvent) => {
@@ -203,7 +213,11 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
           }}
         >
           {logoUrl ? (
-            <a href={logoLinkUrl ? logoLinkUrl : "/"} target="_self" rel="noopener noreferrer">
+            <a
+              href={logoLinkUrl ? logoLinkUrl : "/"}
+              target="_self"
+              rel="noopener noreferrer"
+            >
               <img
                 src={logoUrl}
                 alt="Logo"

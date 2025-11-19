@@ -1,16 +1,6 @@
 "use client";
 import React, { ReactNode, useEffect, useState } from "react";
 
-const isUserSignedIn = (): boolean => {
-  if (typeof window === "undefined") return false;
-  try {
-    const userInfo = localStorage.getItem("userInfo");
-    return Boolean(userInfo && userInfo !== "undefined" && userInfo !== "null");
-  } catch {
-    return false;
-  }
-};
-
 interface ReactSignedOutProps {
   children: ReactNode;
   fallback?: ReactNode;
@@ -20,8 +10,8 @@ interface ReactSignedOutProps {
 
 /**
  * ReactSignedOut
- * Renders its children only when the user is NOT signed in.
- * Safe for SSR and reactive to auth changes.
+ * Renders children ONLY when user is NOT signed in.
+ * Fully SSR-safe and window-safe.
  */
 export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
   children,
@@ -29,13 +19,26 @@ export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
   width,
   height,
 }) => {
-  const [signedOut, setSignedOut] = useState(!isUserSignedIn());
+  // Prevent SSR window access by defaulting to "signed out"
+  const [signedOut, setSignedOut] = useState(true);
 
   useEffect(() => {
-    const check = () => setSignedOut(!isUserSignedIn());
-    check();
+    const isUserSignedIn = () => {
+      try {
+        const userInfo = localStorage.getItem("userInfo");
+        return Boolean(
+          userInfo && userInfo !== "undefined" && userInfo !== "null"
+        );
+      } catch {
+        return false;
+      }
+    };
 
-    // Sync with other tabs or when auth state changes
+    const check = () => setSignedOut(!isUserSignedIn());
+
+    check(); // Run on mount
+
+    // Sync with other tabs
     window.addEventListener("storage", check);
     return () => window.removeEventListener("storage", check);
   }, []);

@@ -48,12 +48,15 @@ const AvatarModal: React.FC<AvatarModalProps> = ({
 
   // Check mobile screen size
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640);
     };
 
     checkMobile();
     window.addEventListener("resize", checkMobile);
+
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 

@@ -56,6 +56,8 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   const [isMobile, setIsMobile] = useState(false);
 
   React.useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640);
     };
@@ -516,4 +518,4 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   );
 };
 
-export default ChangePasswordModal
+export default ChangePasswordModal;

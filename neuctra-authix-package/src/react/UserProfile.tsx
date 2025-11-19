@@ -49,6 +49,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   primaryColor = "#00C212",
 }) => {
   const { baseUrl, apiKey, appId } = getSdkConfig();
+  const [screenWidth, setScreenWidth] = useState<number | null>(null);
   const [user, setUser] = useState<UserInfo | null>(propUser);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
@@ -72,6 +73,15 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   });
   const [otpSent, setOtpSent] = useState(false);
   const [verifying, setVerifying] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const updateWidth = () => setScreenWidth(window.innerWidth);
+      updateWidth();
+      window.addEventListener("resize", updateWidth);
+      return () => window.removeEventListener("resize", updateWidth);
+    }
+  }, []);
 
   // ✅ Notification helper
   const showNotification = (type: "success" | "error", message: string) => {
@@ -525,15 +535,20 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
             display: "grid",
             gap: "24px",
             gridTemplateColumns: "1fr",
-            ...(window.innerWidth >= 1024 && {
-              gridTemplateColumns: "1fr 2fr",
-              gap: "10px",
-            }),
-            ...(window.innerWidth >= 768 &&
+            ...(screenWidth &&
+              window.innerWidth >= 1024 && {
+                gridTemplateColumns: "1fr 2fr",
+                gap: "10px",
+              }),
+            ...(screenWidth &&
+              window.innerWidth >= 768 &&
+              screenWidth &&
               window.innerWidth < 1024 && {
                 gap: "10px",
               }),
-            ...(window.innerWidth >= 600 &&
+            ...(screenWidth &&
+              window.innerWidth >= 600 &&
+              screenWidth &&
               window.innerWidth < 768 && {
                 gap: "28px",
               }),
@@ -721,7 +736,8 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                       gap: "8px",
                       textDecoration: "none",
                       minHeight: "36px",
-                      flex: window.innerWidth < 1024 ? "1" : "auto",
+                      flex:
+                        screenWidth && window.innerWidth < 1024 ? "1" : "auto",
                     }}
                   >
                     <X size={16} aria-hidden="true" />
@@ -747,7 +763,8 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                       gap: "8px",
                       textDecoration: "none",
                       minHeight: "36px",
-                      flex: window.innerWidth < 1024 ? "1" : "auto",
+                      flex:
+                        screenWidth && window.innerWidth < 1024 ? "1" : "auto",
                     }}
                   >
                     {saving ? (
@@ -764,224 +781,235 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                 </>
               ) : (
                 <>
-  {/* 🧩 Edit Profile Button */}
-  <button
-    onClick={() => setEditMode(true)}
-    style={{
-      background: `linear-gradient(to right, ${colors.accent}, ${colors.accentHover})`,
-      color: "white",
-      padding: "10px 20px",
-      borderRadius: "6px",
-      border: "none",
-      cursor: "pointer",
-      transition: "all 0.2s ease",
-      fontSize: "12px",
-      fontWeight: 500,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: "8px",
-      textDecoration: "none",
-      minHeight: "36px",
-      flex: window.innerWidth < 1024 ? "1" : "auto",
-    }}
-  >
-    <Edit3 size={16} aria-hidden="true" />
-    Edit Profile
-  </button>
+                  {/* 🧩 Edit Profile Button */}
+                  <button
+                    onClick={() => setEditMode(true)}
+                    style={{
+                      background: `linear-gradient(to right, ${colors.accent}, ${colors.accentHover})`,
+                      color: "white",
+                      padding: "10px 20px",
+                      borderRadius: "6px",
+                      border: "none",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      fontSize: "12px",
+                      fontWeight: 500,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      textDecoration: "none",
+                      minHeight: "36px",
+                      flex:
+                        screenWidth && window.innerWidth < 1024 ? "1" : "auto",
+                    }}
+                  >
+                    <Edit3 size={16} aria-hidden="true" />
+                    Edit Profile
+                  </button>
 
-  {/* 🟡 Verify Email Button (Moved Out of Dropdown) */}
-  {!user.isVerified && (
-    <button
-      onClick={() => setShowVerifyEmail(true)}
-      disabled={sendingVerification}
-      style={{
-        background: `linear-gradient(to right, #fbbf24, #f59e0b)`, // amber gradient
-        color: "white",
-        padding: "10px 20px",
-        borderRadius: "6px",
-        border: "none",
-        cursor: sendingVerification ? "not-allowed" : "pointer",
-        transition: "all 0.2s ease",
-        fontSize: "12px",
-        fontWeight: 500,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "8px",
-        minHeight: "36px",
-        opacity: sendingVerification ? 0.7 : 1,
-        flex: window.innerWidth < 1024 ? "1" : "auto",
-      }}
-    >
-      {sendingVerification ? (
-        <Loader2
-          size={14}
-          style={{ animation: "spin 1s linear infinite" }}
-          aria-hidden="true"
-        />
-      ) : (
-        <Send size={14} aria-hidden="true" />
-      )}
-      {sendingVerification ? "Sending..." : "Verify Email"}
-    </button>
-  )}
+                  {/* 🟡 Verify Email Button (Moved Out of Dropdown) */}
+                  {!user.isVerified && (
+                    <button
+                      onClick={() => setShowVerifyEmail(true)}
+                      disabled={sendingVerification}
+                      style={{
+                        background: `linear-gradient(to right, #fbbf24, #f59e0b)`, // amber gradient
+                        color: "white",
+                        padding: "10px 20px",
+                        borderRadius: "6px",
+                        border: "none",
+                        cursor: sendingVerification ? "not-allowed" : "pointer",
+                        transition: "all 0.2s ease",
+                        fontSize: "12px",
+                        fontWeight: 500,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                        minHeight: "36px",
+                        opacity: sendingVerification ? 0.7 : 1,
+                        flex:
+                          screenWidth && window.innerWidth < 1024
+                            ? "1"
+                            : "auto",
+                      }}
+                    >
+                      {sendingVerification ? (
+                        <Loader2
+                          size={14}
+                          style={{ animation: "spin 1s linear infinite" }}
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <Send size={14} aria-hidden="true" />
+                      )}
+                      {sendingVerification ? "Sending..." : "Verify Email"}
+                    </button>
+                  )}
 
-  {/* ⚙️ More Actions Dropdown */}
-  <div style={{ position: "relative" }}>
-    <button
-      style={{
-        backgroundColor: colors.surfaceLight,
-        color: colors.textPrimary,
-        padding: "10px 20px",
-        borderRadius: "6px",
-        border: "none",
-        cursor: "pointer",
-        transition: "all 0.2s ease",
-        fontSize: "12px",
-        fontWeight: 500,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "8px",
-        textDecoration: "none",
-        minHeight: "36px",
-        width: "100%",
-        boxSizing: "border-box",
-      }}
-      onClick={() => setMoreMenuOpen(!moreMenuOpen)}
-    >
-      <MoreVertical size={16} aria-hidden="true" />
-      More Actions
-    </button>
+                  {/* ⚙️ More Actions Dropdown */}
+                  <div style={{ position: "relative" }}>
+                    <button
+                      style={{
+                        backgroundColor: colors.surfaceLight,
+                        color: colors.textPrimary,
+                        padding: "10px 20px",
+                        borderRadius: "6px",
+                        border: "none",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                        fontSize: "12px",
+                        fontWeight: 500,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                        textDecoration: "none",
+                        minHeight: "36px",
+                        width: "100%",
+                        boxSizing: "border-box",
+                      }}
+                      onClick={() => setMoreMenuOpen(!moreMenuOpen)}
+                    >
+                      <MoreVertical size={16} aria-hidden="true" />
+                      More Actions
+                    </button>
 
-    {/* Dropdown Menu */}
-    {moreMenuOpen && (
-      <div
-        className={`dropdown-container ${dropdownClosing ? "closing" : ""}`}
-        style={{
-          position: "absolute",
-          bottom: "100%",
-          left: 0,
-          right: 0,
-          backgroundColor: colors.surface,
-          border: `1px solid ${colors.border}`,
-          borderRadius: "12px 12px 0 0",
-          boxShadow: "0 -8px 24px rgba(0, 0, 0, 0.25)",
-          zIndex: 200,
-          marginBottom: "6px",
-          overflow: "hidden",
-          animation: `${
-            dropdownClosing ? "drawerSlideDown" : "drawerSlideUp"
-          } 0.25s ease-out forwards`,
-        }}
-      >
-        {/* Change Password */}
-        <button
-          onClick={() => {
-            setShowChangePassword(true);
-            closeDropdown();
-          }}
-          style={{
-            width: "100%",
-            padding: "14px 18px",
-            backgroundColor: "transparent",
-            border: "none",
-            color: colors.textPrimary,
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-            fontSize: "13px",
-            fontWeight: 500,
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            textAlign: "left",
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = colors.surfaceLight)
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
-        >
-          <Key size={14} aria-hidden="true" />
-          Change Password
-        </button>
+                    {/* Dropdown Menu */}
+                    {moreMenuOpen && (
+                      <div
+                        className={`dropdown-container ${
+                          dropdownClosing ? "closing" : ""
+                        }`}
+                        style={{
+                          position: "absolute",
+                          bottom: "100%",
+                          left: 0,
+                          right: 0,
+                          backgroundColor: colors.surface,
+                          border: `1px solid ${colors.border}`,
+                          borderRadius: "12px 12px 0 0",
+                          boxShadow: "0 -8px 24px rgba(0, 0, 0, 0.25)",
+                          zIndex: 200,
+                          marginBottom: "6px",
+                          overflow: "hidden",
+                          animation: `${
+                            dropdownClosing
+                              ? "drawerSlideDown"
+                              : "drawerSlideUp"
+                          } 0.25s ease-out forwards`,
+                        }}
+                      >
+                        {/* Change Password */}
+                        <button
+                          onClick={() => {
+                            setShowChangePassword(true);
+                            closeDropdown();
+                          }}
+                          style={{
+                            width: "100%",
+                            padding: "14px 18px",
+                            backgroundColor: "transparent",
+                            border: "none",
+                            color: colors.textPrimary,
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                            fontSize: "13px",
+                            fontWeight: 500,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            textAlign: "left",
+                          }}
+                          onMouseEnter={(e) =>
+                            (e.currentTarget.style.backgroundColor =
+                              colors.surfaceLight)
+                          }
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.backgroundColor =
+                              "transparent")
+                          }
+                        >
+                          <Key size={14} aria-hidden="true" />
+                          Change Password
+                        </button>
 
-        {/* Logout */}
-        {onLogout && (
-          <button
-            onClick={() => {
-              onLogout();
-              closeDropdown();
-            }}
-            style={{
-              width: "100%",
-              padding: "14px 18px",
-              backgroundColor: "transparent",
-              border: "none",
-              color: darkMode ? "#fca5a5" : "#dc2626",
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-              fontSize: "13px",
-              fontWeight: 500,
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              textAlign: "left",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = darkMode
-                ? "rgba(239, 68, 68, 0.1)"
-                : "rgba(239, 68, 68, 0.05)";
-            }}
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "transparent")
-            }
-          >
-            <LogOut size={14} aria-hidden="true" />
-            Logout
-          </button>
-        )}
+                        {/* Logout */}
+                        {onLogout && (
+                          <button
+                            onClick={() => {
+                              onLogout();
+                              closeDropdown();
+                            }}
+                            style={{
+                              width: "100%",
+                              padding: "14px 18px",
+                              backgroundColor: "transparent",
+                              border: "none",
+                              color: darkMode ? "#fca5a5" : "#dc2626",
+                              cursor: "pointer",
+                              transition: "all 0.2s ease",
+                              fontSize: "13px",
+                              fontWeight: 500,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                              textAlign: "left",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = darkMode
+                                ? "rgba(239, 68, 68, 0.1)"
+                                : "rgba(239, 68, 68, 0.05)";
+                            }}
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "transparent")
+                            }
+                          >
+                            <LogOut size={14} aria-hidden="true" />
+                            Logout
+                          </button>
+                        )}
 
-        {/* Delete Account */}
-        <button
-          onClick={() => {
-            setShowDeleteAccount(true);
-            closeDropdown();
-          }}
-          style={{
-            width: "100%",
-            padding: "14px 18px",
-            backgroundColor: "transparent",
-            border: "none",
-            color: "#ef4444",
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-            fontSize: "13px",
-            fontWeight: 600,
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            textAlign: "left",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = darkMode
-              ? "rgba(239, 68, 68, 0.1)"
-              : "rgba(239, 68, 68, 0.05)";
-          }}
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
-        >
-          <Trash2 size={14} aria-hidden="true" />
-          Delete Account
-        </button>
-      </div>
-    )}
-  </div>
-</>
-
+                        {/* Delete Account */}
+                        <button
+                          onClick={() => {
+                            setShowDeleteAccount(true);
+                            closeDropdown();
+                          }}
+                          style={{
+                            width: "100%",
+                            padding: "14px 18px",
+                            backgroundColor: "transparent",
+                            border: "none",
+                            color: "#ef4444",
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                            fontSize: "13px",
+                            fontWeight: 600,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            textAlign: "left",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = darkMode
+                              ? "rgba(239, 68, 68, 0.1)"
+                              : "rgba(239, 68, 68, 0.05)";
+                          }}
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.backgroundColor =
+                              "transparent")
+                          }
+                        >
+                          <Trash2 size={14} aria-hidden="true" />
+                          Delete Account
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
             </nav>
           </div>
@@ -1023,10 +1051,11 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                   display: "grid",
                   gap: "20px",
                   gridTemplateColumns: "1fr",
-                  ...(window.innerWidth >= 600 && {
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: "20px",
-                  }),
+                  ...(screenWidth &&
+                    window.innerWidth >= 600 && {
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "20px",
+                    }),
                 }}
               >
                 {userFields.map((field) => {
