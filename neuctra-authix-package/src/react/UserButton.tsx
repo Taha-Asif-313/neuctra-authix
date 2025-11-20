@@ -70,42 +70,30 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
   const [alignRight, setAlignRight] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Validate user with backend with error handling
+  // ✅ Validate user with backend (safe version, no false logout)
   const validateUser = async (userId: string) => {
     try {
-      if (!userId) {
-        throw new Error("Invalid user ID");
-      }
-
       const { data } = await axios.get(
         `${baseUrl}/users/check-user/${userId}?appId=${appId}`,
-        {
-          headers: { "x-api-key": apiKey },
-          timeout: 10000, // 10 second timeout
-        }
+        { headers: { "x-api-key": apiKey } }
       );
 
-      if (!data.success || !data.exists) {
-        console.warn("User not found, clearing session...");
+      // ❗ Only logout if backend explicitly says user DOES NOT exist
+      if (data?.success === true && data?.exists === false) {
+        console.warn("❌ User does not exist on server. Clearing session...");
         localStorage.removeItem("userInfo");
         setUser(null);
-        setError("Session expired");
       }
-    } catch (err: any) {
-      console.error("User validation failed:", err);
-      const errorMessage =
-        err.response?.status === 404
-          ? "User not found"
-          : err.code === "NETWORK_ERROR"
-          ? "Network error"
-          : "Validation failed";
 
-      setError(errorMessage);
-      // Don't clear user on network errors, only on 404
-      if (err.response?.status === 404) {
-        localStorage.removeItem("userInfo");
-        setUser(null);
-      }
+      // ❗ If success is false but exists is undefined,
+      // DO NOT LOGOUT — backend may be down or misconfigured.
+    } catch (err) {
+      // ❗ Do NOT logout on error — prevents false logouts
+      console.error("⚠️ User validation request failed:", err);
+
+      // Keep user logged in; do not clear storage
+      // localStorage.removeItem("userInfo"); ❌ removed
+      // setUser(null); ❌ removed
     }
   };
 
@@ -462,21 +450,28 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
     },
   };
 
-  const handleRetry = () => {
+  const handleRetry = async () => {
     setError(null);
     setLoading(true);
-    // Re-initialize user
-    const stored = localStorage.getItem("userInfo");
-    if (stored) {
-      try {
+
+    try {
+      const stored = localStorage.getItem("userInfo");
+      if (stored) {
         const parsed: UserInfo = JSON.parse(stored);
         setUser(parsed);
-        validateUser(parsed.id);
-      } catch {
-        setError("Invalid user data");
+        await validateUser(parsed.id);
+      } else if (propUser) {
+        setUser(propUser);
+        await validateUser(propUser.id);
       }
+    } catch (parseError) {
+      console.error("Retry failed:", parseError);
+      setError("Invalid user data");
+      localStorage.removeItem("userInfo");
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent, action: () => void) => {

@@ -1,0 +1,2 @@
+declare module "@neuctra/authix";
+

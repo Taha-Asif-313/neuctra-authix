@@ -1,6 +1,6 @@
 {
   "name": "@neuctra/authix",
-  "version": "1.1.15",
+  "version": "1.1.21",
   "description": "Universal authentication SDK and UI components for React (v16–v19) with TailwindCSS.",
   "author": "Taha Asif",
   "license": "MIT",
@@ -10,17 +10,14 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "import": "./dist/neuctra-authix.es.js",
       "require": "./dist/neuctra-authix.umd.js"
     },
     "./react": {
-      "types": "./dist/react/index.d.ts",
       "import": "./dist/react/index.es.js",
       "require": "./dist/react/index.umd.js"
     },
     "./sdk": {
-      "types": "./dist/sdk/index.d.ts",
       "import": "./dist/sdk/index.es.js",
       "require": "./dist/sdk/index.umd.js"
     }

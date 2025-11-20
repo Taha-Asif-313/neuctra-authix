@@ -3,13 +3,15 @@
     "target": "ESNext",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "jsx": "react-jsx",               // 👈 enables React JSX transform
+    "jsx": "react-jsx",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strict": true,
-    "declaration": true,
-    "outDir": "dist",
+    "declaration": true,              // ✅ emit .d.ts files
+    "declarationMap": true,
+    "outDir": "dist",                 // ✅ output types to dist
+    "rootDir": "src",                 // ✅ source root
     "types": ["node", "react"]
   },
-  "include": ["src", "vite.config.ts","src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue"]
+  "include": ["src/**/*"]
 }
