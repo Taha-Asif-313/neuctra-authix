@@ -266,7 +266,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
     }
   };
 
-  // ✅ Validate user with backend
+  // ✅ Validate user with backend (safe version, no false logout)
   const validateUser = async (userId: string) => {
     try {
       const { data } = await axios.get(
@@ -274,15 +274,22 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
         { headers: { "x-api-key": apiKey } }
       );
 
-      if (!data.success || !data.exists) {
-        console.warn("User not found, clearing session...");
+      // ❗ Only logout if backend explicitly says user DOES NOT exist
+      if (data?.success === true && data?.exists === false) {
+        console.warn("❌ User does not exist on server. Clearing session...");
         localStorage.removeItem("userInfo");
         setUser(null);
       }
+
+      // ❗ If success is false but exists is undefined,
+      // DO NOT LOGOUT — backend may be down or misconfigured.
     } catch (err) {
-      console.error("User check failed:", err);
-      localStorage.removeItem("userInfo");
-      setUser(null);
+      // ❗ Do NOT logout on error — prevents false logouts
+      console.error("⚠️ User validation request failed:", err);
+
+      // Keep user logged in; do not clear storage
+      // localStorage.removeItem("userInfo"); ❌ removed
+      // setUser(null); ❌ removed
     }
   };
 
