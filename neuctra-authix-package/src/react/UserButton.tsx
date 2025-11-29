@@ -70,33 +70,6 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
   const [alignRight, setAlignRight] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // ✅ Validate user with backend (safe version, no false logout)
-  const validateUser = async (userId: string) => {
-    try {
-      const { data } = await axios.get(
-        `${baseUrl}/users/check-user/${userId}?appId=${appId}`,
-        { headers: { "x-api-key": apiKey } }
-      );
-
-      // ❗ Only logout if backend explicitly says user DOES NOT exist
-      if (data?.success === true && data?.exists === false) {
-        console.warn("❌ User does not exist on server. Clearing session...");
-        localStorage.removeItem("userInfo");
-        setUser(null);
-      }
-
-      // ❗ If success is false but exists is undefined,
-      // DO NOT LOGOUT — backend may be down or misconfigured.
-    } catch (err) {
-      // ❗ Do NOT logout on error — prevents false logouts
-      console.error("⚠️ User validation request failed:", err);
-
-      // Keep user logged in; do not clear storage
-      // localStorage.removeItem("userInfo"); ❌ removed
-      // setUser(null); ❌ removed
-    }
-  };
-
   // Check mobile viewport
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -123,7 +96,6 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
             throw new Error("Invalid user data provided");
           }
           setUser(propUser);
-          await validateUser(propUser.id);
         } else {
           if (typeof window !== "undefined") {
             const stored = localStorage.getItem("userInfo");
@@ -134,7 +106,6 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
                   throw new Error("Invalid stored user data");
                 }
                 setUser(parsed);
-                await validateUser(parsed.id);
               } catch (parseError) {
                 console.error("Failed to parse stored user data:", parseError);
                 localStorage.removeItem("userInfo");
@@ -459,10 +430,8 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
       if (stored) {
         const parsed: UserInfo = JSON.parse(stored);
         setUser(parsed);
-        await validateUser(parsed.id);
       } else if (propUser) {
         setUser(propUser);
-        await validateUser(propUser.id);
       }
     } catch (parseError) {
       console.error("Retry failed:", parseError);

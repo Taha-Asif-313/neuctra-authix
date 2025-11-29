@@ -6,7 +6,6 @@ import { generateId, hashOTP, verifyHashedOTP } from "../utils/crypto.js";
 import { sendEmail, sendOTPEmail } from "../utils/mailer.js";
 import { comparePassword, hashPassword } from "../utils/password.js";
 
-
 // ------------------------------------------------------------
 // @desc    Register a new user for a specific app
 // @route   POST /api/users/signup
@@ -989,6 +988,52 @@ export const getProfile = async (req, res) => {
 };
 
 /**
+ * @desc    Get ALL users' data for a specific app
+ * @route   GET /api/users/app/:appId/data
+ * @access  Private (Admin only)
+ */
+export const getAllUsersData = async (req, res) => {
+  try {
+    const appId  = req.params.id;
+
+    // Find all users belonging to this admin + matched appId
+    const users = await prisma.user.findMany({
+      where: {
+        adminId: req.admin.id,
+        appId: appId,
+      },
+      select: {
+        id: true,
+        data: true,
+      },
+    });
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No users found for this app",
+      });
+    }
+
+    // Combine all user.data arrays into one array
+    const allData = users.flatMap((u) => u.data || []);
+
+    return res.status(200).json({
+      success: true,
+      message: "All users' data fetched successfully",
+      totalUsers: users.length,
+      totalItems: allData.length,
+      data: allData,
+    });
+  } catch (err) {
+    console.error("GetAllUsersData Error:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+/**
  * @desc    Get user's data (array of JSON objects)
  * @route   GET /api/users/:id/data
  * @access  Private (Admin only)
@@ -1077,7 +1122,11 @@ export const addUserData = async (req, res) => {
     const newObject = req.body; // should be a valid JSON object
 
     // 🧩 Basic validation
-    if (!newObject || typeof newObject !== "object" || Array.isArray(newObject)) {
+    if (
+      !newObject ||
+      typeof newObject !== "object" ||
+      Array.isArray(newObject)
+    ) {
       return res.status(400).json({
         success: false,
         message: "Please send valid data in JSON format.",
@@ -1102,8 +1151,7 @@ export const addUserData = async (req, res) => {
     if (!user.isVerified) {
       return res.status(403).json({
         success: false,
-        message:
-          "Please verify the account from profile",
+        message: "Please verify the account from profile",
       });
     }
 
@@ -1140,7 +1188,6 @@ export const addUserData = async (req, res) => {
     });
   }
 };
-
 
 /**
  * @desc    Update a JSON object in user's data array by object id

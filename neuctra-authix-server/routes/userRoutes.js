@@ -17,6 +17,7 @@ import {
   userResetPassword,
   changeUserPassword,
   checkUser,
+  getAllUsersData,
 } from "../controllers/userController.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -54,6 +55,9 @@ router.get("/check-user/:id", authMiddleware, checkUser);
 /* ===================================================
    📂 USER EXTRA DATA ROUTES
    =================================================== */
+
+// GET all users' data for specific app
+router.get("/all-data/:id/data", authMiddleware, getAllUsersData);
 
 // 🔹 Get all extra data of a user
 router.get("/:id/data", authMiddleware, getUserData);

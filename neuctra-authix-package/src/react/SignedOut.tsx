@@ -4,6 +4,7 @@ import React, { ReactNode, useEffect, useState } from "react";
 interface ReactSignedOutProps {
   children: ReactNode;
   fallback?: ReactNode;
+  className?: string;
   width?: string;
   height?: string;
 }
@@ -16,6 +17,7 @@ interface ReactSignedOutProps {
 export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
   children,
   fallback = null,
+  className,
   width,
   height,
 }) => {
@@ -47,6 +49,7 @@ export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
 
   return (
     <span
+      className={className}
       style={{
         display: "inline-flex",
         alignItems: "center",

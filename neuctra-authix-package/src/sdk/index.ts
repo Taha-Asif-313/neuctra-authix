@@ -122,6 +122,10 @@ interface DeleteUserDataParams {
   dataId: string;
 }
 
+interface GetAllUsersDataParams {
+  appId: string;
+}
+
 /**
  * Main SDK class for interacting with Neuctra Authix API
  */
@@ -154,58 +158,56 @@ export class NeuctraAuthix {
     });
   }
 
-/**
- * 🌐 Universal request helper with structured responses and error handling
- * @param method HTTP method (GET, POST, PUT, DELETE)
- * @param path API endpoint path
- * @param data Optional request body
- * @param extraHeaders Optional custom headers
- */
-private async request<T = any, D extends object = Record<string, unknown>>(
-  method: Method,
-  path: string,
-  data?: D,
-  extraHeaders: Record<string, string> = {}
-): Promise<T> {
-  if (!method) throw new Error("HTTP method is required");
-  if (!path) throw new Error("Request path is required");
+  /**
+   * 🌐 Universal request helper with structured responses and error handling
+   * @param method HTTP method (GET, POST, PUT, DELETE)
+   * @param path API endpoint path
+   * @param data Optional request body
+   * @param extraHeaders Optional custom headers
+   */
+  private async request<T = any, D extends object = Record<string, unknown>>(
+    method: Method,
+    path: string,
+    data?: D,
+    extraHeaders: Record<string, string> = {}
+  ): Promise<T> {
+    if (!method) throw new Error("HTTP method is required");
+    if (!path) throw new Error("Request path is required");
 
-  try {
-    // 🧩 Merge appId into request body if available
-    const body = {
-      ...(this.appId ? { appId: this.appId } : {}),
-      ...(data || {}),
-    };
+    try {
+      // 🧩 Merge appId into request body if available
+      const body = {
+        ...(this.appId ? { appId: this.appId } : {}),
+        ...(data || {}),
+      };
 
-    const res = await this.client.request<T>({
-      url: path,
-      method,
-      data: body,
-      headers: extraHeaders,
-    });
+      const res = await this.client.request<T>({
+        url: path,
+        method,
+        data: body,
+        headers: extraHeaders,
+      });
 
-    // ✅ Return only response data
-    return res.data;
+      // ✅ Return only response data
+      return res.data;
+    } catch (err: any) {
+      console.error("❌ [Request Error]:", err);
 
-  } catch (err: any) {
-    console.error("❌ [Request Error]:", err);
+      // 🔍 Handle Axios and network errors properly
+      if (err.isAxiosError) {
+        const status = err.response?.status || 0;
+        const message =
+          err.response?.data?.message ||
+          err.message ||
+          "Unknown Axios error occurred";
 
-    // 🔍 Handle Axios and network errors properly
-    if (err.isAxiosError) {
-      const status = err.response?.status || 0;
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Unknown Axios error occurred";
+        throw new Error(`Request failed (${status}): ${message}`);
+      }
 
-      throw new Error(`Request failed (${status}): ${message}`);
+      // 🔄 Handle unexpected runtime errors
+      throw new Error(`Unexpected error: ${err.message || "Unknown failure"}`);
     }
-
-    // 🔄 Handle unexpected runtime errors
-    throw new Error(`Unexpected error: ${err.message || "Unknown failure"}`);
   }
-}
-
 
   // ================= USERS =================
 
@@ -378,6 +380,17 @@ private async request<T = any, D extends object = Record<string, unknown>>(
   }
 
   // ================= USER EXTRA DATA =================
+
+  /**
+   * Fetch ALL users' merged data for a specific app
+   * @param params requires appId
+   */
+  async getAllUsersData() {
+    if (!this.appId)
+      throw new Error("getAllUsersData: SDK 'appId' is missing in config");
+
+    return this.request("GET", `/users/all-data/${this.appId}/data`);
+  }
 
   /**
    * Get all data objects for a user

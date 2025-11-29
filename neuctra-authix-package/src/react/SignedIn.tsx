@@ -4,6 +4,7 @@ import React, { ReactNode, useEffect, useState } from "react";
 interface ReactSignedInProps {
   children: ReactNode;
   fallback?: ReactNode;
+  className?: string;
   width?: string;
   height?: string;
 }
@@ -11,6 +12,7 @@ interface ReactSignedInProps {
 export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
   children,
   fallback = null,
+  className,
   width,
   height,
 }) => {
@@ -48,6 +50,7 @@ export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
 
   return (
     <span
+      className={className}
       style={{
         display: "inline-flex",
         alignItems: "center",
