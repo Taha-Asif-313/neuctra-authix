@@ -164,6 +164,8 @@ export const ReactEmailVerification: React.FC<ReactEmailVerificationProps> = ({
     <form
       onSubmit={handleVerify}
       style={{
+        width:"100%",
+        height:"100%",
         display: "flex",
         flexDirection: "column",
         gap: 16,
