@@ -18,6 +18,8 @@ import {
   changeUserPassword,
   checkUser,
   getAllUsersData,
+  searchAllUsersData,
+  searchUserData,
 } from "../controllers/userController.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -55,6 +57,12 @@ router.get("/check-user/:id", authMiddleware, checkUser);
 /* ===================================================
    📂 USER EXTRA DATA ROUTES
    =================================================== */
+
+// GET all users' data for specific app
+router.get("/:userId/data/search", authMiddleware, searchUserData);
+
+// GET all users' data for specific app
+router.get("/:appId/data/search", authMiddleware, searchAllUsersData);
 
 // GET all users' data for specific app
 router.get("/all-data/:id/data", authMiddleware, getAllUsersData);

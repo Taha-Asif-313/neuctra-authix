@@ -381,6 +381,32 @@ export class NeuctraAuthix {
 
   // ================= USER EXTRA DATA =================
 
+  async searchAllUsersData(params: {
+    category: string;
+    id?: string;
+    q?: string;
+  }) {
+    if (!this.appId) throw new Error("searchAllUsersData: appId missing");
+
+    const query = new URLSearchParams(params as any).toString();
+
+    return this.request("GET", `/users/${this.appId}/data/search?${query}`);
+  }
+
+  async searchUserData(params: {
+    userId: string;
+    category: string;
+    id?: string;
+    q?: string;
+  }) {
+    const { userId, ...queryParams } = params;
+    if (!userId) throw new Error("userId required");
+
+    const query = new URLSearchParams(queryParams as any).toString();
+
+    return this.request("GET", `/users/${userId}/data/search?${query}`);
+  }
+
   /**
    * Fetch ALL users' merged data for a specific app
    * @param params requires appId

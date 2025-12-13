@@ -1112,6 +1112,142 @@ export const getSingleUserData = async (req, res) => {
 };
 
 /**
+ * @desc    Search ALL users' data for a specific app
+ * @route   GET /api/users/app/:appId/data/search
+ * @access  Private (Admin only)
+ */
+export const searchAllUsersData = async (req, res) => {
+  try {
+    const { appId } = req.params;
+    const { id, q, category } = req.query;
+
+    if (!category) {
+      return res.status(400).json({
+        success: false,
+        message: "category query param is required",
+      });
+    }
+
+    const users = await prisma.user.findMany({
+      where: {
+        adminId: req.admin.id,
+        appId,
+      },
+      select: {
+        data: true,
+      },
+    });
+
+    if (!users.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No users found",
+      });
+    }
+
+    let allData = users.flatMap((u) => u.data || []);
+
+    // 🎯 Filter by category FIRST (big bandwidth win)
+    allData = allData.filter(
+      (item) =>
+        item?.dataCategory?.toLowerCase() === category.toLowerCase()
+    );
+
+    // 🔍 Filter by data id
+    if (id) {
+      allData = allData.filter((item) => item.id === id);
+    }
+
+    // 🔎 Keyword search
+    if (q) {
+      const keyword = q.toLowerCase();
+      allData = allData.filter((item) =>
+        JSON.stringify(item).toLowerCase().includes(keyword)
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      category,
+      totalItems: allData.length,
+      data: allData,
+    });
+  } catch (err) {
+    console.error("SearchAllUsersData Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/**
+ * @desc    Search data for a single user
+ * @route   GET /api/users/:id/data/search
+ * @access  Private (Admin only)
+ */
+export const searchUserData = async (req, res) => {
+  try {
+    const { id: userId } = req.params;
+    const { id, q, category } = req.query;
+
+    if (!category) {
+      return res.status(400).json({
+        success: false,
+        message: "category query param is required",
+      });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        id: userId,
+        adminId: req.admin.id,
+      },
+      select: { data: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found or unauthorized",
+      });
+    }
+
+    let data = user.data || [];
+
+    // 🎯 Filter by category FIRST
+    data = data.filter(
+      (item) =>
+        item?.dataCategory?.toLowerCase() === category.toLowerCase()
+    );
+
+    if (id) {
+      data = data.filter((item) => item.id === id);
+    }
+
+    if (q) {
+      const keyword = q.toLowerCase();
+      data = data.filter((item) =>
+        JSON.stringify(item).toLowerCase().includes(keyword)
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      category,
+      totalItems: data.length,
+      data,
+    });
+  } catch (err) {
+    console.error("SearchUserData Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/**
  * @desc    Add new data to a user's account (only if the user is verified)
  * @route   POST /api/users/:id/data
  * @access  Private (Admin only)
