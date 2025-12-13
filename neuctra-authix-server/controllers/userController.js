@@ -994,7 +994,7 @@ export const getProfile = async (req, res) => {
  */
 export const getAllUsersData = async (req, res) => {
   try {
-    const appId  = req.params.id;
+    const appId = req.params.id;
 
     // Find all users belonging to this admin + matched appId
     const users = await prisma.user.findMany({
@@ -1119,23 +1119,28 @@ export const getSingleUserData = async (req, res) => {
 export const searchAllUsersData = async (req, res) => {
   try {
     const { appId } = req.params;
-    const { id, q, category } = req.query;
+    let { id, q, category } = req.query;
 
-    if (!category) {
+    // ✅ Normalize category (string | string[])
+    if (Array.isArray(category)) {
+      category = category[0];
+    }
+
+    if (!category || typeof category !== "string") {
       return res.status(400).json({
         success: false,
         message: "category query param is required",
       });
     }
 
+    const normalizedCategory = category.toLowerCase().trim();
+
     const users = await prisma.user.findMany({
       where: {
         adminId: req.admin.id,
         appId,
       },
-      select: {
-        data: true,
-      },
+      select: { data: true },
     });
 
     if (!users.length) {
@@ -1147,10 +1152,10 @@ export const searchAllUsersData = async (req, res) => {
 
     let allData = users.flatMap((u) => u.data || []);
 
-    // 🎯 Filter by category FIRST (big bandwidth win)
+    // 🎯 Category filter (FIXED)
     allData = allData.filter(
       (item) =>
-        item?.dataCategory?.toLowerCase() === category.toLowerCase()
+        item?.dataCategory?.toLowerCase?.() === normalizedCategory
     );
 
     // 🔍 Filter by data id
@@ -1160,7 +1165,7 @@ export const searchAllUsersData = async (req, res) => {
 
     // 🔎 Keyword search
     if (q) {
-      const keyword = q.toLowerCase();
+      const keyword = String(q).toLowerCase();
       allData = allData.filter((item) =>
         JSON.stringify(item).toLowerCase().includes(keyword)
       );
@@ -1168,7 +1173,7 @@ export const searchAllUsersData = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      category,
+      category: normalizedCategory,
       totalItems: allData.length,
       data: allData,
     });
@@ -1189,14 +1194,21 @@ export const searchAllUsersData = async (req, res) => {
 export const searchUserData = async (req, res) => {
   try {
     const { id: userId } = req.params;
-    const { id, q, category } = req.query;
+    let { id, q, category } = req.query;
 
-    if (!category) {
+    // ✅ Normalize category (string | string[])
+    if (Array.isArray(category)) {
+      category = category[0];
+    }
+
+    if (!category || typeof category !== "string") {
       return res.status(400).json({
         success: false,
         message: "category query param is required",
       });
     }
+
+    const normalizedCategory = category.toLowerCase().trim();
 
     const user = await prisma.user.findFirst({
       where: {
@@ -1215,18 +1227,20 @@ export const searchUserData = async (req, res) => {
 
     let data = user.data || [];
 
-    // 🎯 Filter by category FIRST
+    // 🎯 Category filter
     data = data.filter(
       (item) =>
-        item?.dataCategory?.toLowerCase() === category.toLowerCase()
+        item?.dataCategory?.toLowerCase?.() === normalizedCategory
     );
 
+    // 🔍 Filter by data id
     if (id) {
       data = data.filter((item) => item.id === id);
     }
 
+    // 🔎 Keyword search
     if (q) {
-      const keyword = q.toLowerCase();
+      const keyword = String(q).toLowerCase();
       data = data.filter((item) =>
         JSON.stringify(item).toLowerCase().includes(keyword)
       );
@@ -1234,7 +1248,7 @@ export const searchUserData = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      category,
+      category: normalizedCategory,
       totalItems: data.length,
       data,
     });
@@ -1340,7 +1354,6 @@ export const addUserData = async (req, res) => {
     });
   }
 };
-
 
 /**
  * @desc    Update a JSON object in user's data array by object id
