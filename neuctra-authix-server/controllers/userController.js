@@ -1255,21 +1255,30 @@ export const searchUserData = async (req, res) => {
 export const addUserData = async (req, res) => {
   try {
     const { id } = req.params;
-    const newObject = req.body; // should be a valid JSON object
+    const { dataCategory, ...payload } = req.body;
 
-    // 🧩 Basic validation
-    if (
-      !newObject ||
-      typeof newObject !== "object" ||
-      Array.isArray(newObject)
-    ) {
+    /* ---------------------------------------------------------------------- */
+    /* 🧩 VALIDATION */
+    /* ---------------------------------------------------------------------- */
+
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
       return res.status(400).json({
         success: false,
         message: "Please send valid data in JSON format.",
       });
     }
 
-    // 🔍 Check if user exists, belongs to this admin, and is verified
+    if (!dataCategory || typeof dataCategory !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "dataCategory is required and must be a string.",
+      });
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* 🔍 USER VALIDATION */
+    /* ---------------------------------------------------------------------- */
+
     const user = await prisma.user.findFirst({
       where: {
         id,
@@ -1291,11 +1300,19 @@ export const addUserData = async (req, res) => {
       });
     }
 
-    // ✅ Add unique ID to the object before saving
-    const objectWithId = { id: generateId(), ...newObject };
+    /* ---------------------------------------------------------------------- */
+    /* ✅ SAVE DATA */
+    /* ---------------------------------------------------------------------- */
+
+    const objectWithId = {
+      id: generateId(),
+      dataCategory: dataCategory.toLowerCase(),
+      createdAt: new Date().toISOString(),
+      ...payload,
+    };
+
     const updatedData = [...(user.data || []), objectWithId];
 
-    // 🧠 Update the user record
     await prisma.user.update({
       where: { id },
       data: { data: updatedData },
@@ -1309,7 +1326,6 @@ export const addUserData = async (req, res) => {
   } catch (error) {
     console.error("❌ addUserData Error:", error);
 
-    // 🧱 Prisma or validation-related errors
     if (error.code === "P2025") {
       return res.status(404).json({
         success: false,
@@ -1324,6 +1340,7 @@ export const addUserData = async (req, res) => {
     });
   }
 };
+
 
 /**
  * @desc    Update a JSON object in user's data array by object id

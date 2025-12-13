@@ -100,6 +100,7 @@ interface GetSingleUserDataParams {
  */
 interface AddUserDataParams {
   userId: string;
+  dataCategory: string;
   /** The object to add */
   data: Record<string, any>;
 }
@@ -446,11 +447,17 @@ export class NeuctraAuthix {
    * @param params requires userId and data object
    */
   async addUserData(params: AddUserDataParams) {
-    const { userId, data } = params;
+    const { userId, dataCategory, data } = params;
+
     if (!userId) throw new Error("addUserData: 'userId' is required");
+    if (!dataCategory)
+      throw new Error("addUserData: 'dataCategory' is required");
     if (!data) throw new Error("addUserData: 'data' is required");
 
-    return this.request("POST", `/users/${userId}/data`, data);
+    return this.request("POST", `/users/${userId}/data`, {
+      dataCategory,
+      ...data,
+    });
   }
 
   /**
