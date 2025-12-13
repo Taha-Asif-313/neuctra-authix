@@ -62,10 +62,10 @@ router.get("/check-user/:id", authMiddleware, checkUser);
 router.get("/:userId/data/search", authMiddleware, searchUserData);
 
 // GET all users' data for specific app
-router.get("/:appId/data/search", authMiddleware, searchAllUsersData);
+router.get("/all-data/:id/data", authMiddleware, getAllUsersData);
 
 // GET all users' data for specific app
-router.get("/all-data/:id/data", authMiddleware, getAllUsersData);
+router.get("/:id/data/search", authMiddleware, searchAllUsersData);
 
 // 🔹 Get all extra data of a user
 router.get("/:id/data", authMiddleware, getUserData);

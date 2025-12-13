@@ -1154,8 +1154,7 @@ export const searchAllUsersData = async (req, res) => {
 
     // 🎯 Category filter (FIXED)
     allData = allData.filter(
-      (item) =>
-        item?.dataCategory?.toLowerCase?.() === normalizedCategory
+      (item) => item?.dataCategory?.toLowerCase?.() === normalizedCategory
     );
 
     // 🔍 Filter by data id
@@ -1193,7 +1192,7 @@ export const searchAllUsersData = async (req, res) => {
  */
 export const searchUserData = async (req, res) => {
   try {
-    const { id: userId } = req.params;
+    const userId = req.params.userId;
     let { id, q, category } = req.query;
 
     // ✅ Normalize category (string | string[])
@@ -1211,11 +1210,8 @@ export const searchUserData = async (req, res) => {
     const normalizedCategory = category.toLowerCase().trim();
 
     const user = await prisma.user.findFirst({
-      where: {
-        id: userId,
-        adminId: req.admin.id,
-      },
-      select: { data: true },
+      where: { id: userId, adminId: req.admin.id },
+      select: { id: true, data: true },
     });
 
     if (!user) {
@@ -1229,8 +1225,7 @@ export const searchUserData = async (req, res) => {
 
     // 🎯 Category filter
     data = data.filter(
-      (item) =>
-        item?.dataCategory?.toLowerCase?.() === normalizedCategory
+      (item) => item?.dataCategory?.toLowerCase?.() === normalizedCategory
     );
 
     // 🔍 Filter by data id
