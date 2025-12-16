@@ -1,19 +1,15 @@
 "use client";
+
 import React, { ReactNode, useEffect, useState } from "react";
 
 interface ReactSignedOutProps {
   children: ReactNode;
-  fallback?: ReactNode;
+  fallback?: ReactNode | (() => ReactNode);
   className?: string;
   width?: string;
   height?: string;
 }
 
-/**
- * ReactSignedOut
- * Renders children ONLY when user is NOT signed in.
- * Fully SSR-safe and window-safe.
- */
 export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
   children,
   fallback = null,
@@ -21,44 +17,46 @@ export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
   width,
   height,
 }) => {
-  // Prevent SSR window access by defaulting to "signed out"
-  const [signedOut, setSignedOut] = useState(true);
+  const [signedOut, setSignedOut] = useState(() => {
+    if (typeof window === "undefined") return true;
+    try {
+      const userInfo = localStorage.getItem("userInfo");
+      return !userInfo || userInfo === "undefined" || userInfo === "null";
+    } catch {
+      return true;
+    }
+  });
 
   useEffect(() => {
-    const isUserSignedIn = () => {
+    const check = () => {
       try {
         const userInfo = localStorage.getItem("userInfo");
-        return Boolean(
-          userInfo && userInfo !== "undefined" && userInfo !== "null"
+        setSignedOut(
+          !userInfo || userInfo === "undefined" || userInfo === "null"
         );
       } catch {
-        return false;
+        setSignedOut(true);
       }
     };
 
-    const check = () => setSignedOut(!isUserSignedIn());
-
-    check(); // Run on mount
-
-    // Sync with other tabs
+    check();
     window.addEventListener("storage", check);
     return () => window.removeEventListener("storage", check);
   }, []);
 
-  if (!signedOut) return <>{fallback}</>;
+  if (!signedOut) return typeof fallback === "function" ? fallback() : fallback;
 
   return (
-    <span
+    <div
       className={className}
       style={{
-        display: "inline-flex",
+        display: "flex",
         alignItems: "center",
-        verticalAlign: "middle",
         width,
         height,
       }}
     >
       {children}
-    </span>
+    </div>
   );
 };
