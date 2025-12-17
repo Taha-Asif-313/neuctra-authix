@@ -123,8 +123,9 @@ interface DeleteUserDataParams {
   dataId: string;
 }
 
-interface GetAllUsersDataParams {
-  appId: string;
+interface CheckUserResponse {
+  success: boolean;
+  exists: boolean;
 }
 
 /**
@@ -378,6 +379,26 @@ export class NeuctraAuthix {
       newPassword,
       appId: appId || this.appId,
     });
+  }
+
+  /**
+   * Check if a user exists for this app (lightweight)
+   * @param userId user id to check
+   * @returns { exists: boolean }
+   */
+  async checkUser(userId: string): Promise<CheckUserResponse> {
+    if (!userId) {
+      throw new Error("checkUser: 'userId' is required");
+    }
+
+    if (!this.appId) {
+      throw new Error("checkUser: SDK 'appId' is missing in config");
+    }
+
+    return this.request<CheckUserResponse>(
+      "GET",
+      `/users/check-user/${userId}?appId=${this.appId}`
+    );
   }
 
   // ================= USER EXTRA DATA =================
