@@ -8,6 +8,7 @@ interface ReactSignedInProps {
   className?: string;
   width?: string;
   height?: string;
+  appId: string; // 🔑 required
 }
 
 export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
@@ -16,40 +17,70 @@ export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
   className,
   width,
   height,
+  appId,
 }) => {
-  const [signedIn, setSignedIn] = useState(() => {
-    if (typeof window === "undefined") return false;
-    try {
-      const userInfo = localStorage.getItem("userInfo");
-      return Boolean(
-        userInfo && userInfo !== "undefined" && userInfo !== "null"
-      );
-    } catch {
-      return false;
-    }
-  });
+  const [signedIn, setSignedIn] = useState(false);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const check = () => {
-      if (typeof window === "undefined") return;
+    let cancelled = false;
+
+    const checkUserExists = async () => {
       try {
-        const userInfo = localStorage.getItem("userInfo");
-        setSignedIn(
-          Boolean(userInfo && userInfo !== "undefined" && userInfo !== "null")
+        const raw = localStorage.getItem("userInfo");
+        if (!raw || raw === "undefined" || raw === "null") {
+          setSignedIn(false);
+          return;
+        }
+
+        const user = JSON.parse(raw);
+        if (!user?.id) {
+          setSignedIn(false);
+          return;
+        }
+
+        const res = await fetch(
+          `https://server.authix.neuctra.com/api/users/check-user/${user.id}?appId=${appId}`,
+          {
+            credentials: "include",
+          }
         );
+
+        if (!res.ok) {
+          setSignedIn(false);
+          return;
+        }
+
+        const data = await res.json();
+
+        if (!cancelled) {
+          setSignedIn(Boolean(data?.exists));
+        }
       } catch {
-        setSignedIn(false);
+        if (!cancelled) setSignedIn(false);
+      } finally {
+        if (!cancelled) setChecking(false);
       }
     };
 
-    window.addEventListener("storage", check);
+    checkUserExists();
+
+    // 🔄 re-check when localStorage changes (login/logout in another tab)
+    const onStorage = () => checkUserExists();
+    window.addEventListener("storage", onStorage);
 
     return () => {
-      window.removeEventListener("storage", check);
+      cancelled = true;
+      window.removeEventListener("storage", onStorage);
     };
-  }, []);
+  }, [appId]);
 
-  if (!signedIn) return typeof fallback === "function" ? fallback() : fallback;
+  // ⏳ Prevent flicker
+  if (checking) return null;
+
+  if (!signedIn) {
+    return typeof fallback === "function" ? fallback() : fallback;
+  }
 
   return (
     <div

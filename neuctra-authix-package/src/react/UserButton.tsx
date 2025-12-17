@@ -495,8 +495,8 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
               src={user.avatarUrl}
               alt={`${user?.name || "User"}'s avatar`}
               style={{
-                width: isMobile ? "34px" : "40px",
-                height: isMobile ? "34px" : "40px",
+                width: isMobile ? "34px" : "36px",
+                height: isMobile ? "34px" : "36px",
                 borderRadius: "50%",
                 objectFit: "cover" as const,
                 border: `2px solid ${colors.borderLight}`,

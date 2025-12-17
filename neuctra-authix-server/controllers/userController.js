@@ -438,80 +438,61 @@ export const deleteUser = async (req, res) => {
 export const checkUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const { appId } = req.query; // ✅ safer for GET requests
+    const { appId } = req.query;
 
-    // ✅ 1. Ensure admin context exists
+    // 1️⃣ Ensure admin context
     const adminId = req.admin?.id;
     if (!adminId) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized: Admin credentials missing.",
+        exists: false,
+        message: "Unauthorized",
       });
     }
 
-    // ✅ 2. Validate appId presence
+    // 2️⃣ Validate appId
     if (!appId) {
       return res.status(400).json({
         success: false,
-        message: "App ID is required.",
+        exists: false,
+        message: "App ID is required",
       });
     }
 
-    // ✅ 3. Verify app ownership by the logged-in admin
-    const app = await prisma.app.findFirst({
+    // 3️⃣ Verify app ownership
+    const appExists = await prisma.app.findFirst({
       where: { id: appId, adminId },
+      select: { id: true },
     });
 
-    if (!app) {
+    if (!appExists) {
       return res.status(404).json({
         success: false,
-        message: "App not found or does not belong to this admin.",
+        exists: false,
+        message: "App not found or access denied",
       });
     }
 
-    // ✅ 4. Check if user exists under this admin and app
-    const user = await prisma.user.findFirst({
+    // 4️⃣ Ultra-light existence check
+    const exists = await prisma.user.count({
       where: {
         id: userId,
         adminId,
         appId,
       },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        role: true,
-        isActive: true,
-        isVerified: true,
-        avatarUrl: true,
-        appId: true,
-        createdAt: true,
-        updatedAt: true,
-      },
     });
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        exists: false,
-        message: "User not found for this app or admin.",
-      });
-    }
-
-    // ✅ 5. Return success with user info
+    // 5️⃣ Return boolean ONLY
     return res.status(200).json({
       success: true,
-      exists: true,
-      message: "User exists and belongs to this app/admin.",
-      user,
+      exists: Boolean(exists),
     });
   } catch (err) {
     console.error("CheckUser Error:", err);
     return res.status(500).json({
       success: false,
-      message: "Internal server error.",
-      error: process.env.NODE_ENV === "development" ? err.message : undefined,
+      exists: false,
+      message: "Internal server error",
     });
   }
 };
