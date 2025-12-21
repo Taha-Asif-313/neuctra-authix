@@ -1339,11 +1339,39 @@ export const addUserData = async (req, res) => {
 export const updateUserData = async (req, res) => {
   try {
     const { id, dataId } = req.params;
-    const updatedObject = req.body; // expects JSON object
+    const updatedObject = req.body;
+
+    /* ---------------------------------------------------------------------- */
+    /* 🧩 VALIDATION */
+    /* ---------------------------------------------------------------------- */
+
+    if (
+      !updatedObject ||
+      typeof updatedObject !== "object" ||
+      Array.isArray(updatedObject)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide valid JSON data to update",
+      });
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* 🔍 USER VALIDATION */
+    /* ---------------------------------------------------------------------- */
 
     const user = await prisma.user.findFirst({
-      where: { id, adminId: req.admin.id },
+      where: {
+        id,
+        adminId: req.admin.id,
+      },
+      select: {
+        id: true,
+        data: true,
+        isVerified: true,
+      },
     });
+
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -1351,10 +1379,21 @@ export const updateUserData = async (req, res) => {
       });
     }
 
+    if (!user.isVerified) {
+      return res.status(403).json({
+        success: false,
+        message: "User account must be verified to update data",
+      });
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* 🔍 DATA VALIDATION & UPDATE */
+    /* ---------------------------------------------------------------------- */
+
     let dataArray = user.data || [];
     if (!Array.isArray(dataArray)) dataArray = [];
 
-    // find object by its id
+    // Find object by its id
     const index = dataArray.findIndex((obj) => obj.id === dataId);
     if (index === -1) {
       return res.status(404).json({
@@ -1363,8 +1402,23 @@ export const updateUserData = async (req, res) => {
       });
     }
 
-    // keep the same id, update rest
-    dataArray[index] = { ...dataArray[index], ...updatedObject };
+    // Preserve important fields, update others
+    const existingObject = dataArray[index];
+    const updatedData = {
+      ...existingObject,
+      ...updatedObject,
+      id: existingObject.id, // Preserve original ID
+      dataCategory: existingObject.dataCategory, // Preserve category
+      createdAt: existingObject.createdAt, // Preserve creation date
+      updatedAt: new Date().toISOString(), // Add update timestamp
+    };
+
+    // Replace the object
+    dataArray[index] = updatedData;
+
+    /* ---------------------------------------------------------------------- */
+    /* ✅ SAVE UPDATED DATA */
+    /* ---------------------------------------------------------------------- */
 
     await prisma.user.update({
       where: { id },
@@ -1374,18 +1428,27 @@ export const updateUserData = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Data updated successfully",
-      data: dataArray,
+      data: updatedData,
     });
   } catch (err) {
-    console.error("UpdateUserData Error:", err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    console.error("❌ UpdateUserData Error:", err);
+
+    if (err.code === "P2025") {
+      return res.status(404).json({
+        success: false,
+        message: "The user you are trying to update does not exist",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 
 /**
- * @desc    Delete a JSON object from user's data array by object id
+ * @desc    Delete a single JSON object from user's data array by object id
  * @route   DELETE /api/users/:id/data/:dataId
  * @access  Private (Admin only)
  */
@@ -1393,9 +1456,22 @@ export const deleteUserData = async (req, res) => {
   try {
     const { id, dataId } = req.params;
 
+    /* ---------------------------------------------------------------------- */
+    /* 🔍 USER VALIDATION */
+    /* ---------------------------------------------------------------------- */
+
     const user = await prisma.user.findFirst({
-      where: { id, adminId: req.admin.id },
+      where: {
+        id,
+        adminId: req.admin.id,
+      },
+      select: {
+        id: true,
+        data: true,
+        isVerified: true,
+      },
     });
+
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -1403,17 +1479,38 @@ export const deleteUserData = async (req, res) => {
       });
     }
 
+    if (!user.isVerified) {
+      return res.status(403).json({
+        success: false,
+        message: "User account must be verified to delete data",
+      });
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* 🔍 DATA VALIDATION & DELETION */
+    /* ---------------------------------------------------------------------- */
+
     let dataArray = user.data || [];
     if (!Array.isArray(dataArray)) dataArray = [];
 
-    // filter out by id
-    const newArray = dataArray.filter((obj) => obj.id !== dataId);
-    if (newArray.length === dataArray.length) {
+    // Check if object exists
+    const objectExists = dataArray.some((obj) => obj.id === dataId);
+    if (!objectExists) {
       return res.status(404).json({
         success: false,
         message: "Data object not found",
       });
     }
+
+    // Filter out the object to delete
+    const newArray = dataArray.filter((obj) => obj.id !== dataId);
+
+    // Get the deleted object for response
+    const deletedObject = dataArray.find((obj) => obj.id === dataId);
+
+    /* ---------------------------------------------------------------------- */
+    /* ✅ SAVE UPDATED DATA */
+    /* ---------------------------------------------------------------------- */
 
     await prisma.user.update({
       where: { id },
@@ -1423,12 +1520,126 @@ export const deleteUserData = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Data deleted successfully",
-      data: newArray,
+      deleted: deletedObject,
+      remainingCount: newArray.length,
     });
   } catch (err) {
-    console.error("DeleteUserData Error:", err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    console.error("❌ DeleteUserData Error:", err);
+
+    if (err.code === "P2025") {
+      return res.status(404).json({
+        success: false,
+        message: "The user you are trying to update does not exist",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/**
+ * @desc    Delete multiple JSON objects from user's data array by object ids
+ * @route   DELETE /api/users/:id/data/batch
+ * @access  Private (Admin only)
+ */
+export const deleteMultipleUserData = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { dataIds } = req.body; // Expects array of data IDs
+
+    /* ---------------------------------------------------------------------- */
+    /* 🧩 VALIDATION */
+    /* ---------------------------------------------------------------------- */
+
+    if (!Array.isArray(dataIds) || dataIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide an array of data IDs to delete",
+      });
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* 🔍 USER VALIDATION */
+    /* ---------------------------------------------------------------------- */
+
+    const user = await prisma.user.findFirst({
+      where: {
+        id,
+        adminId: req.admin.id,
+      },
+      select: {
+        id: true,
+        data: true,
+        isVerified: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found or unauthorized",
+      });
+    }
+
+    if (!user.isVerified) {
+      return res.status(403).json({
+        success: false,
+        message: "User account must be verified to delete data",
+      });
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* 🔍 DATA VALIDATION & DELETION */
+    /* ---------------------------------------------------------------------- */
+
+    let dataArray = user.data || [];
+    if (!Array.isArray(dataArray)) dataArray = [];
+
+    // Get objects to delete
+    const objectsToDelete = dataArray.filter((obj) => dataIds.includes(obj.id));
+
+    if (objectsToDelete.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No data objects found with the provided IDs",
+      });
+    }
+
+    // Filter out the objects to delete
+    const newArray = dataArray.filter((obj) => !dataIds.includes(obj.id));
+
+    /* ---------------------------------------------------------------------- */
+    /* ✅ SAVE UPDATED DATA */
+    /* ---------------------------------------------------------------------- */
+
+    await prisma.user.update({
+      where: { id },
+      data: { data: newArray },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Successfully deleted ${objectsToDelete.length} data object(s)`,
+      deleted: objectsToDelete,
+      deletedCount: objectsToDelete.length,
+      remainingCount: newArray.length,
+    });
+  } catch (err) {
+    console.error("❌ DeleteMultipleUserData Error:", err);
+
+    if (err.code === "P2025") {
+      return res.status(404).json({
+        success: false,
+        message: "The user you are trying to update does not exist",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
