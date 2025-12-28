@@ -1239,10 +1239,8 @@ export const searchUserData = async (req, res) => {
 
 export const searchUserDataByKeys = async (req, res) => {
   try {
-    const userId = req.params.userId;
-    let { category, q } = req.query;
-
-    if (Array.isArray(category)) category = category[0];
+    const { userId } = req.params;
+    let { category, q, ...filters } = req.query;
 
     if (!category || typeof category !== "string") {
       return res.status(400).json({
@@ -1254,8 +1252,14 @@ export const searchUserDataByKeys = async (req, res) => {
     const normalizedCategory = category.toLowerCase().trim();
 
     const user = await prisma.user.findFirst({
-      where: { id: userId, adminId: req.admin.id },
-      select: { id: true, data: true },
+      where: {
+        id: userId,
+        adminId: req.admin.id,
+      },
+      select: {
+        id: true,
+        data: true,
+      },
     });
 
     if (!user) {
@@ -1265,30 +1269,24 @@ export const searchUserDataByKeys = async (req, res) => {
       });
     }
 
-    let data = user.data || [];
+    let data = Array.isArray(user.data) ? user.data : [];
 
-    // 🎯 Category filter
+    // 1️⃣ Filter by category
     data = data.filter(
-      (item) => item?.dataCategory?.toLowerCase?.() === normalizedCategory
+      (item) =>
+        item?.dataCategory?.toLowerCase() === normalizedCategory
     );
 
-    // 🚀 Dynamic key-based filtering
-    const reservedKeys = ["category", "q"];
-
-    const dynamicFilters = Object.entries(req.query).filter(
-      ([key]) => !reservedKeys.includes(key)
-    );
-
-    if (dynamicFilters.length > 0) {
+    // 2️⃣ Dynamic key-value search
+    if (Object.keys(filters).length > 0) {
       data = data.filter((item) =>
-        dynamicFilters.every(([key, value]) => {
-          if (item[key] === undefined) return false;
-          return String(item[key]) === String(value);
-        })
+        Object.entries(filters).every(([key, value]) =>
+          deepMatch(item, key, value)
+        )
       );
     }
 
-    // 🔎 Keyword full-text search (optional)
+    // 3️⃣ Full-text keyword search (optional)
     if (q) {
       const keyword = String(q).toLowerCase();
       data = data.filter((item) =>
@@ -1302,14 +1300,15 @@ export const searchUserDataByKeys = async (req, res) => {
       totalItems: data.length,
       data,
     });
-  } catch (err) {
-    console.error("SearchUserData Error:", err);
+  } catch (error) {
+    console.error("SearchUserData Error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
     });
   }
 };
+
 
 /**
  * @desc    Add new data to a user's account (only if the user is verified)
