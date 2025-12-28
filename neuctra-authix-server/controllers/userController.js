@@ -1240,12 +1240,29 @@ export const searchUserData = async (req, res) => {
 export const searchUserDataByKeys = async (req, res) => {
   try {
     const { userId } = req.params;
-    let { category, q, ...filters } = req.query;
+    let { ...filters } = req.query;
 
-    const normalizedCategory =
-      typeof category === "string"
-        ? category.toLowerCase().trim()
-        : null;
+    const deepMatch = (obj, key, value) => {
+      if (obj == null) return false;
+
+      // Direct match
+      if (
+        Object.prototype.hasOwnProperty.call(obj, key) &&
+        String(obj[key]) === String(value)
+      ) {
+        return true;
+      }
+
+      // Search nested objects / arrays
+      if (typeof obj === "object") {
+        return Object.values(obj).some((v) =>
+          typeof v === "object" ? deepMatch(v, key, value) : false
+        );
+      }
+
+      return false;
+    };
+
 
     const user = await prisma.user.findFirst({
       where: {
@@ -1267,28 +1284,12 @@ export const searchUserDataByKeys = async (req, res) => {
 
     let data = Array.isArray(user.data) ? user.data : [];
 
-    // 1️⃣ OPTIONAL category filter
-    if (normalizedCategory) {
-      data = data.filter(
-        (item) =>
-          item?.dataCategory?.toLowerCase() === normalizedCategory
-      );
-    }
-
     // 2️⃣ Dynamic key-value filters (OPTIONAL)
     if (Object.keys(filters).length > 0) {
       data = data.filter((item) =>
         Object.entries(filters).every(([key, value]) =>
           deepMatch(item, key, value)
         )
-      );
-    }
-
-    // 3️⃣ Full-text search (OPTIONAL)
-    if (q) {
-      const keyword = String(q).toLowerCase();
-      data = data.filter((item) =>
-        JSON.stringify(item).toLowerCase().includes(keyword)
       );
     }
 
@@ -1305,8 +1306,6 @@ export const searchUserDataByKeys = async (req, res) => {
     });
   }
 };
-
-
 
 /**
  * @desc    Add new data to a user's account (only if the user is verified)
