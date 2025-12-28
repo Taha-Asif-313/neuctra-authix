@@ -1237,6 +1237,80 @@ export const searchUserData = async (req, res) => {
   }
 };
 
+export const searchUserDataByKeys = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    let { category, q } = req.query;
+
+    if (Array.isArray(category)) category = category[0];
+
+    if (!category || typeof category !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "category query param is required",
+      });
+    }
+
+    const normalizedCategory = category.toLowerCase().trim();
+
+    const user = await prisma.user.findFirst({
+      where: { id: userId, adminId: req.admin.id },
+      select: { id: true, data: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found or unauthorized",
+      });
+    }
+
+    let data = user.data || [];
+
+    // 🎯 Category filter
+    data = data.filter(
+      (item) => item?.dataCategory?.toLowerCase?.() === normalizedCategory
+    );
+
+    // 🚀 Dynamic key-based filtering
+    const reservedKeys = ["category", "q"];
+
+    const dynamicFilters = Object.entries(req.query).filter(
+      ([key]) => !reservedKeys.includes(key)
+    );
+
+    if (dynamicFilters.length > 0) {
+      data = data.filter((item) =>
+        dynamicFilters.every(([key, value]) => {
+          if (item[key] === undefined) return false;
+          return String(item[key]) === String(value);
+        })
+      );
+    }
+
+    // 🔎 Keyword full-text search (optional)
+    if (q) {
+      const keyword = String(q).toLowerCase();
+      data = data.filter((item) =>
+        JSON.stringify(item).toLowerCase().includes(keyword)
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      category: normalizedCategory,
+      totalItems: data.length,
+      data,
+    });
+  } catch (err) {
+    console.error("SearchUserData Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
 /**
  * @desc    Add new data to a user's account (only if the user is verified)
  * @route   POST /api/users/:id/data

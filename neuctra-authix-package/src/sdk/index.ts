@@ -430,6 +430,45 @@ export class NeuctraAuthix {
   }
 
   /**
+   * Search user's extra data by dynamic reference keys
+   * @example
+   * searchUserDataByKeys({
+   *   userId: "123",
+   *   category: "orders",
+   *   shopId: 12,
+   *   productId: 99,
+   *   status: "active"
+   * })
+   */
+  async searchUserDataByKeys(params: {
+    userId: string;
+    category: string;
+    q?: string;
+    [key: string]: any; // 🔥 allow ANY dynamic key
+  }) {
+    const { userId, ...queryParams } = params;
+
+    if (!userId) {
+      throw new Error("searchUserDataByKeys: 'userId' is required");
+    }
+
+    if (!queryParams.category) {
+      throw new Error("searchUserDataByKeys: 'category' is required");
+    }
+
+    const query = new URLSearchParams(
+      Object.entries(queryParams).reduce((acc, [key, value]) => {
+        if (value !== undefined && value !== null) {
+          acc[key] = String(value);
+        }
+        return acc;
+      }, {} as Record<string, string>)
+    ).toString();
+
+    return this.request("GET", `/users/${userId}/data/searchbyref?${query}`);
+  }
+
+  /**
    * Fetch ALL users' merged data for a specific app
    * @param params requires appId
    */

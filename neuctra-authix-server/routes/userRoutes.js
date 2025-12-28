@@ -20,6 +20,7 @@ import {
   getAllUsersData,
   searchAllUsersData,
   searchUserData,
+  searchUserDataByKeys,
 } from "../controllers/userController.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -60,6 +61,9 @@ router.get("/check-user/:id", authMiddleware, checkUser);
 
 // GET all users' data for specific app
 router.get("/:userId/data/search", authMiddleware, searchUserData);
+
+// 🔹 Get a single object from user's data array by keys
+router.get("/:userId/data/searchbyref", authMiddleware, searchUserDataByKeys);
 
 // GET all users' data for specific app
 router.get("/all-data/:id/data", authMiddleware, getAllUsersData);
