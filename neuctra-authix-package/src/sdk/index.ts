@@ -451,10 +451,6 @@ export class NeuctraAuthix {
       throw new Error("searchUserDataByKeys: 'userId' is required");
     }
 
-    if (!queryParams.category) {
-      throw new Error("searchUserDataByKeys: 'category' is required");
-    }
-
     const query = new URLSearchParams(
       Object.entries(queryParams).reduce((acc, [key, value]) => {
         if (value !== undefined && value !== null) {
