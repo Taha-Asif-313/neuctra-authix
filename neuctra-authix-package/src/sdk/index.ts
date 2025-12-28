@@ -442,7 +442,6 @@ export class NeuctraAuthix {
    */
   async searchUserDataByKeys(params: {
     userId: string;
-    category: string;
     q?: string;
     [key: string]: any; // 🔥 allow ANY dynamic key
   }) {

@@ -1242,14 +1242,10 @@ export const searchUserDataByKeys = async (req, res) => {
     const { userId } = req.params;
     let { category, q, ...filters } = req.query;
 
-    if (!category || typeof category !== "string") {
-      return res.status(400).json({
-        success: false,
-        message: "category query param is required",
-      });
-    }
-
-    const normalizedCategory = category.toLowerCase().trim();
+    const normalizedCategory =
+      typeof category === "string"
+        ? category.toLowerCase().trim()
+        : null;
 
     const user = await prisma.user.findFirst({
       where: {
@@ -1271,13 +1267,15 @@ export const searchUserDataByKeys = async (req, res) => {
 
     let data = Array.isArray(user.data) ? user.data : [];
 
-    // 1️⃣ Filter by category
-    data = data.filter(
-      (item) =>
-        item?.dataCategory?.toLowerCase() === normalizedCategory
-    );
+    // 1️⃣ OPTIONAL category filter
+    if (normalizedCategory) {
+      data = data.filter(
+        (item) =>
+          item?.dataCategory?.toLowerCase() === normalizedCategory
+      );
+    }
 
-    // 2️⃣ Dynamic key-value search
+    // 2️⃣ Dynamic key-value filters (OPTIONAL)
     if (Object.keys(filters).length > 0) {
       data = data.filter((item) =>
         Object.entries(filters).every(([key, value]) =>
@@ -1286,7 +1284,7 @@ export const searchUserDataByKeys = async (req, res) => {
       );
     }
 
-    // 3️⃣ Full-text keyword search (optional)
+    // 3️⃣ Full-text search (OPTIONAL)
     if (q) {
       const keyword = String(q).toLowerCase();
       data = data.filter((item) =>
@@ -1296,7 +1294,6 @@ export const searchUserDataByKeys = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      category: normalizedCategory,
       totalItems: data.length,
       data,
     });
@@ -1308,6 +1305,7 @@ export const searchUserDataByKeys = async (req, res) => {
     });
   }
 };
+
 
 
 /**
