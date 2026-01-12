@@ -66,8 +66,8 @@ router.get("/:userId/data/search", authMiddleware, searchUserData);
 // 🔹 Get a single object from user's data array by keys
 router.get("/:userId/data/searchbyref", authMiddleware, searchUserDataByKeys);
 
-// 🔹 Get a single object from all user's data array by keys
-router.get("/:userId/data/searchbyref/all", authMiddleware, searchAllUsersDataByKeys);
+// 🔹 Get a single object from all user's from app data array by keys
+router.get("/:appId/data/searchbyref/all", authMiddleware, searchAllUsersDataByKeys);
 
 // GET all users' data for specific app
 router.get("/all-data/:id/data", authMiddleware, getAllUsersData);
