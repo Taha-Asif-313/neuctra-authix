@@ -499,7 +499,7 @@ export class NeuctraAuthix {
     // 🔹 Request endpoint for all users' data within this app
     return this.request(
       "GET",
-      `/users/${encodeURIComponent(appId)}/data/searchbykeys/all?${query}`
+      `/users/${encodeURIComponent(appId)}/data/searchbyref/all?${query}`
     );
   }
 
