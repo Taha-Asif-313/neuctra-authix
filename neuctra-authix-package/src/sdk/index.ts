@@ -464,6 +464,46 @@ export class NeuctraAuthix {
   }
 
   /**
+   * 🌐 Search ALL users' data by dynamic keys for the current app
+   * @example
+   * sdk.searchAllUsersDataByKeys({
+   *   category: "orders",
+   *   shopId: 12,
+   *   productId: 99,
+   *   status: "active",
+   *   q: "iphone"          // optional keyword search
+   * })
+   */
+  async searchAllUsersDataByKeys(params: {
+    q?: string; // optional keyword search
+    [key: string]: any; // 🔥 allow ANY dynamic key
+  }) {
+    const appId = this.appId;
+
+    if (!appId) {
+      throw new Error(
+        "searchAllUsersDataByKeys: 'appId' is required on SDK initialization"
+      );
+    }
+
+    // Build query string dynamically from keys
+    const query = new URLSearchParams(
+      Object.entries(params).reduce((acc, [key, value]) => {
+        if (value !== undefined && value !== null) {
+          acc[key] = String(value);
+        }
+        return acc;
+      }, {} as Record<string, string>)
+    ).toString();
+
+    // 🔹 Request endpoint for all users' data within this app
+    return this.request(
+      "GET",
+      `/users/${encodeURIComponent(appId)}/data/searchbykeys/all?${query}`
+    );
+  }
+
+  /**
    * Fetch ALL users' merged data for a specific app
    * @param params requires appId
    */

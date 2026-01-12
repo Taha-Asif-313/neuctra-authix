@@ -1308,6 +1308,78 @@ export const searchUserDataByKeys = async (req, res) => {
 };
 
 /**
+ * @desc    Search ALL users' data by dynamic keys within a specific app
+ * @route   GET /api/users/app/:appId/data/searchByKeys
+ * @access  Private (Admin only)
+ */
+export const searchAllUsersDataByKeys = async (req, res) => {
+  try {
+    const { appId } = req.params;
+    let filters = { ...req.query }; // dynamic key-value filters
+
+    // Fetch all users for this app & admin
+    const users = await prisma.user.findMany({
+      where: { adminId: req.admin.id, appId },
+      select: { id: true, data: true },
+    });
+
+    if (!users.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No users found for this app",
+      });
+    }
+
+    // Flatten all data and attach userId for context
+    let allData = users.flatMap((user) =>
+      (Array.isArray(user.data) ? user.data : []).map((item) => ({
+        ...item,
+        userId: user.id,
+      }))
+    );
+
+    // Deep match helper for nested objects
+    const deepMatch = (obj, key, value) => {
+      if (obj == null) return false;
+
+      // Direct match
+      if (Object.prototype.hasOwnProperty.call(obj, key) && String(obj[key]) === String(value)) {
+        return true;
+      }
+
+      // Recursively check nested objects / arrays
+      if (typeof obj === "object") {
+        return Object.values(obj).some((v) =>
+          typeof v === "object" ? deepMatch(v, key, value) : false
+        );
+      }
+
+      return false;
+    };
+
+    // Apply dynamic key-value filters
+    if (Object.keys(filters).length > 0) {
+      allData = allData.filter((item) =>
+        Object.entries(filters).every(([key, value]) => deepMatch(item, key, value))
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      totalItems: allData.length,
+      data: allData,
+    });
+  } catch (error) {
+    console.error("SearchAllUsersDataByKeys Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+
+/**
  * @desc    Add new data to a user's account (only if the user is verified)
  * @route   POST /api/users/:id/data
  * @access  Private (Admin only)
