@@ -193,7 +193,7 @@ export class NeuctraAuthix {
     method: Method,
     path: string,
     data?: D,
-    extraHeaders: Record<string, string> = {}
+    extraHeaders: Record<string, string> = {},
   ): Promise<T> {
     if (!method) throw new Error("HTTP method is required");
     if (!path) throw new Error("Request path is required");
@@ -289,7 +289,7 @@ export class NeuctraAuthix {
     if (!userId) throw new Error("changePassword: 'userId' is required");
     if (!currentPassword || !newPassword) {
       throw new Error(
-        "changePassword: both 'currentPassword' and 'newPassword' are required"
+        "changePassword: both 'currentPassword' and 'newPassword' are required",
       );
     }
 
@@ -325,7 +325,7 @@ export class NeuctraAuthix {
       "GET",
       "/users/profile",
       {},
-      { Authorization: `Bearer ${token}` }
+      { Authorization: `Bearer ${token}` },
     );
   }
 
@@ -343,7 +343,7 @@ export class NeuctraAuthix {
       "POST",
       "/users/send-verify-otp",
       { appId: appId || this.appId },
-      { Authorization: `Bearer ${token}` }
+      { Authorization: `Bearer ${token}` },
     );
   }
 
@@ -360,7 +360,7 @@ export class NeuctraAuthix {
       "POST",
       "/users/verify-email",
       { otp, appId: appId || this.appId },
-      { Authorization: `Bearer ${token}` }
+      { Authorization: `Bearer ${token}` },
     );
   }
 
@@ -391,7 +391,7 @@ export class NeuctraAuthix {
     const { email, otp, newPassword, appId } = params;
     if (!email || !otp || !newPassword) {
       throw new Error(
-        "resetPassword: 'email', 'otp' and 'newPassword' are required"
+        "resetPassword: 'email', 'otp' and 'newPassword' are required",
       );
     }
 
@@ -419,7 +419,7 @@ export class NeuctraAuthix {
 
     return this.request<CheckUserResponse>(
       "GET",
-      `/users/check-user/${userId}?appId=${this.appId}`
+      `/users/check-user/${userId}?appId=${this.appId}`,
     );
   }
 
@@ -474,12 +474,15 @@ export class NeuctraAuthix {
     }
 
     const query = new URLSearchParams(
-      Object.entries(queryParams).reduce((acc, [key, value]) => {
-        if (value !== undefined && value !== null) {
-          acc[key] = String(value);
-        }
-        return acc;
-      }, {} as Record<string, string>)
+      Object.entries(queryParams).reduce(
+        (acc, [key, value]) => {
+          if (value !== undefined && value !== null) {
+            acc[key] = String(value);
+          }
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
     ).toString();
 
     return this.request("GET", `/users/${userId}/data/searchbyref?${query}`);
@@ -504,24 +507,27 @@ export class NeuctraAuthix {
 
     if (!appId) {
       throw new Error(
-        "searchAllUsersDataByKeys: 'appId' is required on SDK initialization"
+        "searchAllUsersDataByKeys: 'appId' is required on SDK initialization",
       );
     }
 
     // Build query string dynamically from keys
     const query = new URLSearchParams(
-      Object.entries(params).reduce((acc, [key, value]) => {
-        if (value !== undefined && value !== null) {
-          acc[key] = String(value);
-        }
-        return acc;
-      }, {} as Record<string, string>)
+      Object.entries(params).reduce(
+        (acc, [key, value]) => {
+          if (value !== undefined && value !== null) {
+            acc[key] = String(value);
+          }
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
     ).toString();
 
     // 🔹 Request endpoint for all users' data within this app
     return this.request(
       "GET",
-      `/users/${encodeURIComponent(appId)}/data/searchbyref/all?${query}`
+      `/users/${encodeURIComponent(appId)}/data/searchbyref/all?${query}`,
     );
   }
 
@@ -629,7 +635,44 @@ export class NeuctraAuthix {
 
     return this.request<AppDataItem>(
       "GET",
-      `/app/${appId}/data/${params.dataId}`
+      `/app/${appId}/data/${params.dataId}`,
+    );
+  }
+
+  /**
+   * 🔍 Search app data items by dynamic keys
+   * @example
+   * sdk.searchAppDataByKeys({
+   *   dataCategory: "orders",
+   *   shopId: 12,
+   *   status: "active",
+   *   productId: "abc123"
+   * })
+   */
+  async searchAppDataByKeys(params: {
+    [key: string]: any; // 🔥 allow ANY dynamic key
+  }): Promise<AppDataItem[]> {
+    const appId = this.appId;
+    if (!appId) {
+      throw new Error("searchAppDataByKeys: 'appId' is required in SDK config");
+    }
+
+    // Build dynamic query string
+    const query = new URLSearchParams(
+      Object.entries(params).reduce(
+        (acc, [key, value]) => {
+          if (value !== undefined && value !== null) {
+            acc[key] = String(value);
+          }
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
+    ).toString();
+
+    return this.request<AppDataItem[]>(
+      "GET",
+      `/app/${encodeURIComponent(appId)}/data/searchByKeys${query ? `?${query}` : ""}`,
     );
   }
 
@@ -649,7 +692,7 @@ export class NeuctraAuthix {
     return this.request<AppDataItem>(
       "POST",
       `/app/${appId}/data/${encodeURIComponent(params.dataCategory)}`,
-      params.data
+      params.data,
     );
   }
 
@@ -668,7 +711,7 @@ export class NeuctraAuthix {
     return this.request<{ success: boolean; message: string }>(
       "PATCH",
       `/app/${appId}/data/${params.dataId}`,
-      params.data
+      params.data,
     );
   }
 
@@ -684,7 +727,7 @@ export class NeuctraAuthix {
 
     return this.request<{ success: boolean; message: string }>(
       "DELETE",
-      `/app/${appId}/data/${params.dataId}`
+      `/app/${appId}/data/${params.dataId}`,
     );
   }
 }

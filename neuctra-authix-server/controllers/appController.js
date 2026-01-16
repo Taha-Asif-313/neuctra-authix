@@ -566,6 +566,81 @@ export const getSingleAppDataItem = async (req, res) => {
 };
 
 /* =====================================================
+   🔍 SEARCH APP DATA BY DYNAMIC KEYS
+   @route   GET /api/apps/:appId/data/searchByKeys
+   @access  Private (Admin only)
+   @query   Any dynamic key-value pair (e.g. category, status, shopId, q)
+   @desc    Search app.appData[] by dynamic keys (deep match supported)
+   ===================================================== */
+export const searchAppDataByKeys = async (req, res) => {
+  try {
+    const { appId } = req.params;
+    const filters = { ...req.query }; // dynamic filters
+
+    const app = await prisma.app.findFirst({
+      where: {
+        id: appId,
+        adminId: req.admin.id,
+        isActive: true,
+      },
+      select: { appData: true },
+    });
+
+    if (!app) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized or app not found",
+      });
+    }
+
+    let data = Array.isArray(app.appData) ? app.appData : [];
+
+    /* 🔁 Deep match helper (supports nested objects) */
+    const deepMatch = (obj, key, value) => {
+      if (obj == null) return false;
+
+      // direct match
+      if (
+        Object.prototype.hasOwnProperty.call(obj, key) &&
+        String(obj[key]) === String(value)
+      ) {
+        return true;
+      }
+
+      // recursive nested match
+      if (typeof obj === "object") {
+        return Object.values(obj).some((v) =>
+          typeof v === "object" ? deepMatch(v, key, value) : false,
+        );
+      }
+
+      return false;
+    };
+
+    /* 🔎 Apply dynamic filters */
+    if (Object.keys(filters).length > 0) {
+      data = data.filter((item) =>
+        Object.entries(filters).every(([key, value]) =>
+          deepMatch(item, key, value),
+        ),
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      totalItems: data.length,
+      data,
+    });
+  } catch (err) {
+    console.error("SearchAppDataByKeys Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/* =====================================================
    ✏️ UPDATE APP DATA ITEM
    @route   PATCH /api/apps/:appId/data/:itemId
    @access  Private (Admin only)

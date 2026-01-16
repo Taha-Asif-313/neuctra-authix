@@ -6,6 +6,7 @@ import {
   getSingleAppDataItem,
   updateAppDataItem,
   deleteAppDataItem,
+  searchAppDataByKeys,
 } from "../controllers/appController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 
@@ -28,6 +29,9 @@ router.get("/:appId/data", getAllAppData);
 
 /* 🔹 Get single appData item */
 router.get("/:appId/data/:itemId", getSingleAppDataItem);
+
+/* 🔹 Search appData by dynamic keys */
+router.get("/:appId/data/searchByKeys", searchAppDataByKeys);
 
 /* 🔹 Update appData item */
 router.patch("/:appId/data/:itemId", updateAppDataItem);
