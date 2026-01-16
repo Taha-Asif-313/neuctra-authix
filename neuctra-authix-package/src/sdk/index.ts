@@ -128,6 +128,28 @@ interface CheckUserResponse {
   exists: boolean;
 }
 
+/* ================================
+   📦 APP DATA SDK FUNCTIONS
+   ================================ */
+
+export interface AppDataItem {
+  id: string;
+  [key: string]: any;
+}
+
+export interface AddAppDataParams {
+  data: Record<string, any>;
+}
+
+export interface UpdateAppDataParams {
+  dataId: string;
+  data: Record<string, any>;
+}
+
+export interface DeleteAppDataParams {
+  dataId: string;
+}
+
 /**
  * Main SDK class for interacting with Neuctra Authix API
  */
@@ -578,5 +600,91 @@ export class NeuctraAuthix {
       throw new Error("deleteUserData: 'userId' and 'dataId' are required");
 
     return this.request("DELETE", `/users/${userId}/data/${dataId}`);
+  }
+
+  // ================= APP DATA =================
+
+  /**
+   * Get all app data items for the current app
+   * @param category optional filter by dataCategory
+   */
+  async getAppData(category?: string): Promise<AppDataItem[]> {
+    const appId = this.appId;
+    if (!appId) throw new Error("getAppData: 'appId' is required");
+
+    // Build query string if category is provided
+    const query = category ? `?category=${encodeURIComponent(category)}` : "";
+
+    return this.request<AppDataItem[]>("GET", `/app/${appId}/data${query}`);
+  }
+
+  /**
+   * Get a single data item from app.appData[] by id
+   */
+  async getSingleAppData(params: { dataId: string }): Promise<AppDataItem> {
+    const appId = this.appId;
+    if (!appId) throw new Error("getSingleAppData: 'appId' is required");
+    if (!params.dataId)
+      throw new Error("getSingleAppData: 'dataId' is required");
+
+    return this.request<AppDataItem>(
+      "GET",
+      `/app/${appId}/data/${params.dataId}`
+    );
+  }
+
+  /**
+   * Add a new item to app.appData[] under a specific category
+   */
+  async addAppData(params: {
+    dataCategory: string;
+    data: Record<string, any>;
+  }): Promise<AppDataItem> {
+    const appId = this.appId;
+    if (!appId) throw new Error("addAppData: 'appId' is required");
+    if (!params.dataCategory)
+      throw new Error("addAppData: 'dataCategory' is required");
+    if (!params.data) throw new Error("addAppData: 'data' is required");
+
+    return this.request<AppDataItem>(
+      "POST",
+      `/app/${appId}/data/${encodeURIComponent(params.dataCategory)}`,
+      params.data
+    );
+  }
+
+  /**
+   * Update an item in app.appData[] by id
+   */
+  async updateAppData(params: {
+    dataId: string;
+    data: Record<string, any>;
+  }): Promise<{ success: boolean; message: string }> {
+    const appId = this.appId;
+    if (!appId) throw new Error("updateAppData: 'appId' is required");
+    if (!params.dataId) throw new Error("updateAppData: 'dataId' is required");
+    if (!params.data) throw new Error("updateAppData: 'data' is required");
+
+    return this.request<{ success: boolean; message: string }>(
+      "PATCH",
+      `/app/${appId}/data/${params.dataId}`,
+      params.data
+    );
+  }
+
+  /**
+   * Delete an item from app.appData[] by id
+   */
+  async deleteAppData(params: {
+    dataId: string;
+  }): Promise<{ success: boolean; message: string }> {
+    const appId = this.appId;
+    if (!appId) throw new Error("deleteAppData: 'appId' is required");
+    if (!params.dataId) throw new Error("deleteAppData: 'dataId' is required");
+
+    return this.request<{ success: boolean; message: string }>(
+      "DELETE",
+      `/app/${appId}/data/${params.dataId}`
+    );
   }
 }

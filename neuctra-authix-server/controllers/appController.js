@@ -1,4 +1,5 @@
 import prisma from "../prisma.js";
+import crypto from "crypto";
 import { generateId } from "../utils/crypto.js";
 
 /* =====================================================
@@ -405,6 +406,282 @@ export const getAppStatus = async (req, res) => {
       success: false,
       message: "Internal server error",
       error: err.message,
+    });
+  }
+};
+
+/* =====================================================
+   ➕ ADD APP DATA ITEM
+   @route   POST /api/apps/:appId/data/:dataCategory
+   @access  Private (Admin only)
+   @desc    Add a single object into app.appData[].
+            Generates a crypto-safe id if not provided.
+   @body    { item: object }
+   ===================================================== */
+export const addAppDataItem = async (req, res) => {
+  try {
+    const { appId, dataCategory } = req.params;
+    const { item } = req.body;
+
+    if (!appId || !item || typeof item !== "object" || !dataCategory) {
+      return res.status(400).json({
+        success: false,
+        message: "appId, dataCategory and item object are required",
+      });
+    }
+
+    const app = await prisma.app.findFirst({
+      where: { id: appId, adminId: req.admin.id, isActive: true },
+      select: { appData: true },
+    });
+
+    if (!app) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized or app not found",
+      });
+    }
+
+    const newItem = {
+      id: item.id || crypto.randomUUID(), // 🔐 crypto ID
+      dataCategory, // ✅ add category
+      ...item,
+    };
+
+    const updatedData = [...(app.appData || []), newItem];
+
+    await prisma.app.update({
+      where: { id: appId },
+      data: { appData: updatedData },
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "App data item added successfully",
+      data: newItem,
+    });
+  } catch (err) {
+    console.error("AddAppDataItem Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/* =====================================================
+   📦 GET ALL APP DATA ITEMS (OPTIONAL CATEGORY FILTER)
+   @route   GET /api/apps/:appId/data
+   @access  Private (Admin only)
+   @query   category (optional)
+   @desc    Retrieve all items in app.appData[].
+            If 'category' query param is provided, return only items matching that category.
+   ===================================================== */
+export const getAllAppData = async (req, res) => {
+  try {
+    const { appId } = req.params;
+    const { category } = req.query; // optional query param
+
+    const app = await prisma.app.findFirst({
+      where: { id: appId, adminId: req.admin.id },
+      select: { appData: true },
+    });
+
+    if (!app) {
+      return res.status(404).json({
+        success: false,
+        message: "App not found or unauthorized",
+      });
+    }
+
+    let data = app.appData || [];
+
+    // ✅ Filter by category if provided
+    if (category) {
+      data = data.filter((item) => item.dataCategory === category);
+    }
+
+    return res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (err) {
+    console.error("GetAllAppData Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/* =====================================================
+   🔍 GET SINGLE APP DATA ITEM
+   @route   GET /api/apps/:appId/data/:itemId
+   @access  Private (Admin only)
+   @desc    Retrieve a single item by id
+   ===================================================== */
+export const getSingleAppDataItem = async (req, res) => {
+  try {
+    const { appId, itemId } = req.params;
+
+    if (!appId || !itemId) {
+      return res.status(400).json({
+        success: false,
+        message: "appId and itemId are required",
+      });
+    }
+
+    const app = await prisma.app.findFirst({
+      where: { id: appId, adminId: req.admin.id },
+      select: { appData: true },
+    });
+
+    if (!app) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized or app not found",
+      });
+    }
+
+    const item = (app.appData || []).find((i) => i.id === itemId);
+
+    if (!item) {
+      return res.status(404).json({
+        success: false,
+        message: "App data item not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: item,
+    });
+  } catch (err) {
+    console.error("GetSingleAppDataItem Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/* =====================================================
+   ✏️ UPDATE APP DATA ITEM
+   @route   PATCH /api/apps/:appId/data/:itemId
+   @access  Private (Admin only)
+   @desc    Update a single item in app.appData[] by id
+   @body    { ...updateFields }
+   ===================================================== */
+export const updateAppDataItem = async (req, res) => {
+  try {
+    const { appId, itemId } = req.params;
+    const updates = req.body;
+
+    if (!appId || !itemId || !updates || typeof updates !== "object") {
+      return res.status(400).json({
+        success: false,
+        message: "appId, itemId and update data are required",
+      });
+    }
+
+    const app = await prisma.app.findFirst({
+      where: { id: appId, adminId: req.admin.id },
+      select: { appData: true },
+    });
+
+    if (!app) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized or app not found",
+      });
+    }
+
+    let found = false;
+    const updatedData = (app.appData || []).map((i) => {
+      if (i.id === itemId) {
+        found = true;
+        return { ...i, ...updates };
+      }
+      return i;
+    });
+
+    if (!found) {
+      return res.status(404).json({
+        success: false,
+        message: "App data item not found",
+      });
+    }
+
+    await prisma.app.update({
+      where: { id: appId },
+      data: { appData: updatedData },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "App data item updated successfully",
+    });
+  } catch (err) {
+    console.error("UpdateAppDataItem Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/* =====================================================
+   🗑️ DELETE APP DATA ITEM
+   @route   DELETE /api/apps/:appId/data/:itemId
+   @access  Private (Admin only)
+   @desc    Remove a single item from app.appData[] by id
+   ===================================================== */
+export const deleteAppDataItem = async (req, res) => {
+  try {
+    const { appId, itemId } = req.params;
+
+    if (!appId || !itemId) {
+      return res.status(400).json({
+        success: false,
+        message: "appId and itemId are required",
+      });
+    }
+
+    const app = await prisma.app.findFirst({
+      where: { id: appId, adminId: req.admin.id },
+      select: { appData: true },
+    });
+
+    if (!app) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized or app not found",
+      });
+    }
+
+    const filteredData = (app.appData || []).filter((i) => i.id !== itemId);
+
+    if (filteredData.length === (app.appData || []).length) {
+      return res.status(404).json({
+        success: false,
+        message: "App data item not found",
+      });
+    }
+
+    await prisma.app.update({
+      where: { id: appId },
+      data: { appData: filteredData },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "App data item deleted successfully",
+    });
+  } catch (err) {
+    console.error("DeleteAppDataItem Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
     });
   }
 };

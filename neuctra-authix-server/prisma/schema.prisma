@@ -40,22 +40,23 @@ model AdminUser {
 }
 
 model App {
-  id              String   @id @default(cuid()) // crypto-generated ID
+  id              String   @id @default(cuid())
   applicationName String
   category        String
   description     String
   platform        String
-  appSecret       String   @default(cuid())     // 👈 unique secret for each app
+  appSecret       String   @default(cuid())
   isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
 
-  // Relation: each App belongs to one Admin
-  adminId   String
+  appData         Json?   // 👈 global app data
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  adminId String
   admin   AdminUser @relation(fields: [adminId], references: [id])
 
-  // Relation: one App can have many Users
-  users     User[]
+  users   User[]
 }
 
 model User {
