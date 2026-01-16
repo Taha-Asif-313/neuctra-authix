@@ -6,7 +6,7 @@ import {
   getSingleAppDataItem,
   updateAppDataItem,
   deleteAppDataItem,
-} from "../controllers/appData.controller.js";
+} from "../controllers/appController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
