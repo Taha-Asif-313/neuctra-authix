@@ -152,37 +152,55 @@ export const searchAppDataByKeys = async (req, res) => {
     const { appId } = req.params;
     const { q, category, ...filters } = req.query;
 
+    // ✅ normalize category → dataCategory
     if (category) {
-      filters.dataCategory = category; // ✅ normalize
+      filters.dataCategory = category;
     }
 
     const app = await prisma.app.findFirst({
-      where: { id: appId, adminId: req.admin.id, isActive: true },
+      where: {
+        id: appId,
+        adminId: req.admin.id,
+        isActive: true,
+      },
       select: { appData: true },
     });
 
     if (!app) {
-      return res
-        .status(403)
-        .json({ success: false, message: "Unauthorized or app not found" });
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized or app not found",
+      });
     }
 
     let data = Array.isArray(app.appData) ? app.appData : [];
 
+    /* =====================================================
+       🔁 DEEP MATCH (schema-less)
+       - supports:
+         ✔ nested objects
+         ✔ arrays
+         ✔ dynamic keys
+         ✔ any structure
+       ===================================================== */
     const deepMatch = (obj, key, value) => {
-      if (obj == null) return false;
+      if (obj === null || obj === undefined) return false;
 
+      // 🔹 direct key match
       if (
+        typeof obj === "object" &&
         Object.prototype.hasOwnProperty.call(obj, key) &&
         String(obj[key]).toLowerCase() === String(value).toLowerCase()
       ) {
         return true;
       }
 
+      // 🔹 array deep search
       if (Array.isArray(obj)) {
         return obj.some((v) => deepMatch(v, key, value));
       }
 
+      // 🔹 object deep search
       if (typeof obj === "object") {
         return Object.values(obj).some((v) =>
           typeof v === "object" ? deepMatch(v, key, value) : false,
@@ -192,14 +210,32 @@ export const searchAppDataByKeys = async (req, res) => {
       return false;
     };
 
-    if (Object.keys(filters).length) {
+    /* =====================================================
+       🔎 APPLY FILTERS (dynamic keys)
+       example:
+       ?buyerId=123
+       ?status=Processing
+       ?shopId=abc
+       ?dataCategory=order
+       ===================================================== */
+    if (Object.keys(filters).length > 0) {
       data = data.filter((item) =>
-        Object.entries(filters).every(([k, v]) => deepMatch(item, k, v)),
+        Object.entries(filters).every(([key, value]) =>
+          deepMatch(item, key, value),
+        ),
       );
     }
 
+    /* =====================================================
+       🔍 KEYWORD SEARCH (q)
+       example:
+       ?q=lahr
+       ?q=bank-transfer
+       ?q=ORD-798101
+       ===================================================== */
     if (q) {
       const keyword = String(q).toLowerCase();
+
       data = data.filter((item) =>
         JSON.stringify(item).toLowerCase().includes(keyword),
       );
@@ -212,11 +248,13 @@ export const searchAppDataByKeys = async (req, res) => {
     });
   } catch (err) {
     console.error("SearchAppDataByKeys Error:", err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
+
 
 /* =====================================================
    ✏️ UPDATE APP DATA ITEM
