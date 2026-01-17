@@ -575,7 +575,7 @@ export const getSingleAppDataItem = async (req, res) => {
 export const searchAppDataByKeys = async (req, res) => {
   try {
     const { appId } = req.params;
-    const filters = { ...req.query }; // dynamic filters
+    const { q, ...filters } = req.query; // 🔹 separate keyword search
 
     const app = await prisma.app.findFirst({
       where: {
@@ -595,19 +595,24 @@ export const searchAppDataByKeys = async (req, res) => {
 
     let data = Array.isArray(app.appData) ? app.appData : [];
 
-    /* 🔁 Deep match helper (supports nested objects) */
+    /* 🔁 Deep match helper (objects + arrays) */
     const deepMatch = (obj, key, value) => {
       if (obj == null) return false;
 
-      // direct match
+      // direct key match
       if (
         Object.prototype.hasOwnProperty.call(obj, key) &&
-        String(obj[key]) === String(value)
+        String(obj[key]).toLowerCase() === String(value).toLowerCase()
       ) {
         return true;
       }
 
-      // recursive nested match
+      // array handling
+      if (Array.isArray(obj)) {
+        return obj.some((v) => deepMatch(v, key, value));
+      }
+
+      // recursive object search
       if (typeof obj === "object") {
         return Object.values(obj).some((v) =>
           typeof v === "object" ? deepMatch(v, key, value) : false,
@@ -617,12 +622,21 @@ export const searchAppDataByKeys = async (req, res) => {
       return false;
     };
 
-    /* 🔎 Apply dynamic filters */
+    /* 🔎 Apply key-value filters */
     if (Object.keys(filters).length > 0) {
       data = data.filter((item) =>
         Object.entries(filters).every(([key, value]) =>
           deepMatch(item, key, value),
         ),
+      );
+    }
+
+    /* 🔍 Keyword search (q) */
+    if (q) {
+      const keyword = String(q).toLowerCase();
+
+      data = data.filter((item) =>
+        JSON.stringify(item).toLowerCase().includes(keyword),
       );
     }
 
