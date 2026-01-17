@@ -691,7 +691,7 @@ export class NeuctraAuthix {
 
     return this.request<AppDataItem>(
       "POST",
-      `/app/${appId}/data/${encodeURIComponent(params.dataCategory)}`,
+      `/app/${appId}/data`,
       params.data,
     );
   }
