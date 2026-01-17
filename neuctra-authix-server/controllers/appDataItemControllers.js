@@ -144,16 +144,22 @@ export const getSingleAppDataItem = async (req, res) => {
    🔍 SEARCH APP DATA BY DYNAMIC KEYS (BODY BASED)
    @route   POST /api/apps/:appId/data/searchByKeys
    @access  Private (Admin only)
-   @body    Any dynamic object { buyerId, status, shopId, ... }
-   @desc    Search app.appData[] by matching keys from request body
+   @body    { sellerId, buyerId, status, ... any field }
+   @desc    Deep search appData array - finds ALL objects 
+            where ANY filter key matches at ANY nesting level
    ===================================================== */
-
 export const searchAppDataByKeys = async (req, res) => {
   try {
     const { appId } = req.params;
+    const filters = req.body || {};
 
-    // 🔹 Entire search object comes from body
-    const { q, ...filters } = req.body || {};
+    // ❌ No filters provided
+    if (!filters || Object.keys(filters).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one search filter is required",
+      });
+    }
 
     const app = await prisma.app.findFirst({
       where: {
@@ -174,29 +180,37 @@ export const searchAppDataByKeys = async (req, res) => {
     let data = Array.isArray(app.appData) ? app.appData : [];
 
     /* =====================================================
-       🔁 DEEP MATCH HELPER (schema-less)
+       🔁 DEEP SEARCH HELPER
+       Recursively searches object at ANY nesting level
+       Returns true if key:value pair found ANYWHERE
        ===================================================== */
-    const deepMatch = (obj, key, value) => {
+    const deepSearch = (obj, searchKey, searchValue) => {
       if (obj == null) return false;
 
-      // ✅ direct key match
+      // ✅ DIRECT MATCH - check if this object has the key
       if (
         typeof obj === "object" &&
-        Object.prototype.hasOwnProperty.call(obj, key) &&
-        String(obj[key]).toLowerCase() === String(value).toLowerCase()
+        Object.prototype.hasOwnProperty.call(obj, searchKey)
       ) {
-        return true;
+        const objValue = String(obj[searchKey]).toLowerCase();
+        const filterValue = String(searchValue).toLowerCase();
+        if (objValue === filterValue) {
+          return true;
+        }
       }
 
-      // ✅ array deep search
+      // ✅ NESTED SEARCH - go deeper into children
       if (Array.isArray(obj)) {
-        return obj.some((v) => deepMatch(v, key, value));
+        // Search each item in array
+        return obj.some((item) => deepSearch(item, searchKey, searchValue));
       }
 
-      // ✅ object deep search
       if (typeof obj === "object") {
-        return Object.values(obj).some((v) =>
-          typeof v === "object" ? deepMatch(v, key, value) : false,
+        // Search each property value
+        return Object.values(obj).some(
+          (value) =>
+            typeof value === "object" &&
+            deepSearch(value, searchKey, searchValue),
         );
       }
 
@@ -204,33 +218,19 @@ export const searchAppDataByKeys = async (req, res) => {
     };
 
     /* =====================================================
-       🔎 APPLY BODY FILTERS
-       Body example:
-       {
-         "dataCategory": "order",
-         "buyerId": "abc",
-         "status": "Processing"
-       }
+       🔎 FILTER LOGIC
+       For each item in appData:
+       - Check if it matches ALL filters
+       - If ANY filter doesn't match, exclude the item
+       
+       Example filters: { sellerId: "abc", status: "Processing" }
+       Result: Only items where BOTH sellerId="abc" AND status="Processing"
        ===================================================== */
-    if (Object.keys(filters).length > 0) {
-      data = data.filter((item) =>
-        Object.entries(filters).every(([key, value]) =>
-          deepMatch(item, key, value),
-        ),
-      );
-    }
-
-    /* =====================================================
-       🔍 OPTIONAL KEYWORD SEARCH
-       Body example:
-       { "q": "lahore" }
-       ===================================================== */
-    if (q) {
-      const keyword = String(q).toLowerCase();
-      data = data.filter((item) =>
-        JSON.stringify(item).toLowerCase().includes(keyword),
-      );
-    }
+    data = data.filter((item) =>
+      Object.entries(filters).every(([key, value]) =>
+        deepSearch(item, key, value),
+      ),
+    );
 
     return res.status(200).json({
       success: true,
@@ -245,6 +245,44 @@ export const searchAppDataByKeys = async (req, res) => {
     });
   }
 };
+
+/*
+1️⃣  SEARCH BY SINGLE FILTER (sellerId)
+   POST /api/apps/cdfc2e91c33d0f6171674c73340cdf1d/data/searchByKeys
+   Body: { "sellerId": "cmj8mimcv0001js045ja4a0s1" }
+   
+   Returns: All order objects with that sellerId
+   
+2️⃣  SEARCH BY MULTIPLE FILTERS (sellerId + status)
+   POST /api/apps/cdfc2e91c33d0f6171674c73340cdf1d/data/searchByKeys
+   Body: { 
+     "sellerId": "cmj8mimcv0001js045ja4a0s1",
+     "status": "Processing"
+   }
+   
+   Returns: Order objects where BOTH sellerId matches AND status="Processing"
+
+3️⃣  SEARCH BY NESTED FIELDS
+   POST /api/apps/cdfc2e91c33d0f6171674c73340cdf1d/data/searchByKeys
+   Body: { "dataCategory": "order" }
+   
+   Returns: All objects with dataCategory="order" (at any depth)
+
+4️⃣  SEARCH BY BUYER INFO
+   POST /api/apps/cdfc2e91c33d0f6171674c73340cdf1d/data/searchByKeys
+   Body: { 
+     "buyerId": "cmjs5d5890001jo04jkdv3o1o",
+     "dataCategory": "order"
+   }
+   
+   Returns: Order objects matching buyer AND dataCategory
+
+5️⃣  SEARCH BY SHIPPING ADDRESS FIELD
+   POST /api/apps/cdfc2e91c33d0f6171674c73340cdf1d/data/searchByKeys
+   Body: { "city": "Lahore" }
+   
+   Returns: All objects with city="Lahore" (nested in shipping.address)
+*/
 
 /* =====================================================
    ✏️ UPDATE APP DATA ITEM
