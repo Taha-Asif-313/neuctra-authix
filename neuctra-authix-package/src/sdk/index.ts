@@ -684,15 +684,27 @@ export class NeuctraAuthix {
     data: Record<string, any>;
   }): Promise<AppDataItem> {
     const appId = this.appId;
-    if (!appId) throw new Error("addAppData: 'appId' is required");
-    if (!params.dataCategory)
+
+    if (!appId) {
+      throw new Error("addAppData: 'appId' is required");
+    }
+
+    const { dataCategory, data } = params;
+
+    if (!dataCategory) {
       throw new Error("addAppData: 'dataCategory' is required");
-    if (!params.data) throw new Error("addAppData: 'data' is required");
+    }
+
+    if (!data || typeof data !== "object") {
+      throw new Error("addAppData: 'data' is required");
+    }
 
     return this.request<AppDataItem>(
       "POST",
-      `/app/${appId}/data`,
-      params.data,
+      `/app/${appId}/data/${encodeURIComponent(dataCategory)}`,
+      {
+        item: data, // 👈 matches controller: req.body.item
+      },
     );
   }
 
