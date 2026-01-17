@@ -646,7 +646,7 @@ export class NeuctraAuthix {
   }
 
   /**
-   * 🔍 Search app data items by dynamic keys
+   * 🔍 Search app data items by dynamic keys (BODY based)
    * @example
    * sdk.searchAppDataByKeys({
    *   dataCategory: "order",
@@ -656,28 +656,26 @@ export class NeuctraAuthix {
    * })
    */
   async searchAppDataByKeys(params: {
-    [key: string]: any;
+    [key: string]: any; // 🔥 allow ANY dynamic key
   }): Promise<AppDataItem[]> {
     const appId = this.appId;
+
     if (!appId) {
       throw new Error("searchAppDataByKeys: 'appId' is required");
     }
 
-    const query = new URLSearchParams(
-      Object.entries(params).reduce(
-        (acc, [key, value]) => {
-          if (value !== undefined && value !== null) {
-            acc[key] = String(value);
-          }
-          return acc;
-        },
-        {} as Record<string, string>,
-      ),
-    ).toString();
+    if (!params || typeof params !== "object") {
+      throw new Error("searchAppDataByKeys: params object is required");
+    }
 
-    const res = await this.request<{ success: boolean; data: AppDataItem[] }>(
-      "GET",
-      `/app/${appId}/data/searchByKeys${query ? `?${query}` : ""}`,
+    const res = await this.request<{
+      success: boolean;
+      data: AppDataItem[];
+      totalItems?: number;
+    }>(
+      "POST",
+      `/app/${encodeURIComponent(appId)}/data/searchByKeys`,
+      params, // ✅ BODY (no query params anymore)
     );
 
     return res?.data || [];

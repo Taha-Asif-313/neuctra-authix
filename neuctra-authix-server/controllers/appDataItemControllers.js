@@ -141,21 +141,19 @@ export const getSingleAppDataItem = async (req, res) => {
 };
 
 /* =====================================================
-   🔍 SEARCH APP DATA BY DYNAMIC KEYS
-   @route   GET /api/apps/:appId/data/searchByKeys
+   🔍 SEARCH APP DATA BY DYNAMIC KEYS (BODY BASED)
+   @route   POST /api/apps/:appId/data/searchByKeys
    @access  Private (Admin only)
-   @query   Any dynamic key-value pair (e.g. category, status, shopId, q)
-   @desc    Search app.appData[] by dynamic keys (deep match supported)
+   @body    Any dynamic object { buyerId, status, shopId, ... }
+   @desc    Search app.appData[] by matching keys from request body
    ===================================================== */
+
 export const searchAppDataByKeys = async (req, res) => {
   try {
     const { appId } = req.params;
-    const { q, category, ...filters } = req.query;
 
-    // ✅ normalize category → dataCategory
-    if (category) {
-      filters.dataCategory = category;
-    }
+    // 🔹 Entire search object comes from body
+    const { q, ...filters } = req.body || {};
 
     const app = await prisma.app.findFirst({
       where: {
@@ -176,17 +174,12 @@ export const searchAppDataByKeys = async (req, res) => {
     let data = Array.isArray(app.appData) ? app.appData : [];
 
     /* =====================================================
-       🔁 DEEP MATCH (schema-less)
-       - supports:
-         ✔ nested objects
-         ✔ arrays
-         ✔ dynamic keys
-         ✔ any structure
+       🔁 DEEP MATCH HELPER (schema-less)
        ===================================================== */
     const deepMatch = (obj, key, value) => {
-      if (obj === null || obj === undefined) return false;
+      if (obj == null) return false;
 
-      // 🔹 direct key match
+      // ✅ direct key match
       if (
         typeof obj === "object" &&
         Object.prototype.hasOwnProperty.call(obj, key) &&
@@ -195,12 +188,12 @@ export const searchAppDataByKeys = async (req, res) => {
         return true;
       }
 
-      // 🔹 array deep search
+      // ✅ array deep search
       if (Array.isArray(obj)) {
         return obj.some((v) => deepMatch(v, key, value));
       }
 
-      // 🔹 object deep search
+      // ✅ object deep search
       if (typeof obj === "object") {
         return Object.values(obj).some((v) =>
           typeof v === "object" ? deepMatch(v, key, value) : false,
@@ -211,12 +204,13 @@ export const searchAppDataByKeys = async (req, res) => {
     };
 
     /* =====================================================
-       🔎 APPLY FILTERS (dynamic keys)
-       example:
-       ?buyerId=123
-       ?status=Processing
-       ?shopId=abc
-       ?dataCategory=order
+       🔎 APPLY BODY FILTERS
+       Body example:
+       {
+         "dataCategory": "order",
+         "buyerId": "abc",
+         "status": "Processing"
+       }
        ===================================================== */
     if (Object.keys(filters).length > 0) {
       data = data.filter((item) =>
@@ -227,15 +221,12 @@ export const searchAppDataByKeys = async (req, res) => {
     }
 
     /* =====================================================
-       🔍 KEYWORD SEARCH (q)
-       example:
-       ?q=lahr
-       ?q=bank-transfer
-       ?q=ORD-798101
+       🔍 OPTIONAL KEYWORD SEARCH
+       Body example:
+       { "q": "lahore" }
        ===================================================== */
     if (q) {
       const keyword = String(q).toLowerCase();
-
       data = data.filter((item) =>
         JSON.stringify(item).toLowerCase().includes(keyword),
       );
@@ -254,7 +245,6 @@ export const searchAppDataByKeys = async (req, res) => {
     });
   }
 };
-
 
 /* =====================================================
    ✏️ UPDATE APP DATA ITEM
