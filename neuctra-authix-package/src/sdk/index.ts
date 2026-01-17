@@ -618,10 +618,14 @@ export class NeuctraAuthix {
     const appId = this.appId;
     if (!appId) throw new Error("getAppData: 'appId' is required");
 
-    // Build query string if category is provided
     const query = category ? `?category=${encodeURIComponent(category)}` : "";
 
-    return this.request<AppDataItem[]>("GET", `/app/${appId}/data${query}`);
+    const res = await this.request<{ success: boolean; data: AppDataItem[] }>(
+      "GET",
+      `/app/${appId}/data${query}`,
+    );
+
+    return res?.data || [];
   }
 
   /**
@@ -633,31 +637,32 @@ export class NeuctraAuthix {
     if (!params.dataId)
       throw new Error("getSingleAppData: 'dataId' is required");
 
-    return this.request<AppDataItem>(
+    const res = await this.request<{ success: boolean; data: AppDataItem }>(
       "GET",
       `/app/${appId}/data/${params.dataId}`,
     );
+
+    return res?.data;
   }
 
   /**
    * 🔍 Search app data items by dynamic keys
    * @example
    * sdk.searchAppDataByKeys({
-   *   dataCategory: "orders",
-   *   shopId: 12,
-   *   status: "active",
-   *   productId: "abc123"
+   *   dataCategory: "order",
+   *   buyerId: "user123",
+   *   status: "Processing",
+   *   q: "iphone"
    * })
    */
   async searchAppDataByKeys(params: {
-    [key: string]: any; // 🔥 allow ANY dynamic key
+    [key: string]: any;
   }): Promise<AppDataItem[]> {
     const appId = this.appId;
     if (!appId) {
-      throw new Error("searchAppDataByKeys: 'appId' is required in SDK config");
+      throw new Error("searchAppDataByKeys: 'appId' is required");
     }
 
-    // Build dynamic query string
     const query = new URLSearchParams(
       Object.entries(params).reduce(
         (acc, [key, value]) => {
@@ -670,10 +675,12 @@ export class NeuctraAuthix {
       ),
     ).toString();
 
-    return this.request<AppDataItem[]>(
+    const res = await this.request<{ success: boolean; data: AppDataItem[] }>(
       "GET",
-      `/app/${encodeURIComponent(appId)}/data/searchByKeys${query ? `?${query}` : ""}`,
+      `/app/${appId}/data/searchByKeys${query ? `?${query}` : ""}`,
     );
+
+    return res?.data || [];
   }
 
   /**
@@ -684,28 +691,24 @@ export class NeuctraAuthix {
     data: Record<string, any>;
   }): Promise<AppDataItem> {
     const appId = this.appId;
-
-    if (!appId) {
-      throw new Error("addAppData: 'appId' is required");
-    }
+    if (!appId) throw new Error("addAppData: 'appId' is required");
 
     const { dataCategory, data } = params;
 
-    if (!dataCategory) {
+    if (!dataCategory)
       throw new Error("addAppData: 'dataCategory' is required");
-    }
-
-    if (!data || typeof data !== "object") {
+    if (!data || typeof data !== "object")
       throw new Error("addAppData: 'data' is required");
-    }
 
-    return this.request<AppDataItem>(
+    const res = await this.request<{ success: boolean; data: AppDataItem }>(
       "POST",
       `/app/${appId}/data/${encodeURIComponent(dataCategory)}`,
       {
-        item: data, // 👈 matches controller: req.body.item
+        item: data, // ✅ matches controller
       },
     );
+
+    return res?.data;
   }
 
   /**
@@ -714,32 +717,34 @@ export class NeuctraAuthix {
   async updateAppData(params: {
     dataId: string;
     data: Record<string, any>;
-  }): Promise<{ success: boolean; message: string }> {
+  }): Promise<AppDataItem> {
     const appId = this.appId;
     if (!appId) throw new Error("updateAppData: 'appId' is required");
     if (!params.dataId) throw new Error("updateAppData: 'dataId' is required");
     if (!params.data) throw new Error("updateAppData: 'data' is required");
 
-    return this.request<{ success: boolean; message: string }>(
+    const res = await this.request<{ success: boolean; data: AppDataItem }>(
       "PATCH",
       `/app/${appId}/data/${params.dataId}`,
       params.data,
     );
+
+    return res?.data;
   }
 
   /**
    * Delete an item from app.appData[] by id
    */
-  async deleteAppData(params: {
-    dataId: string;
-  }): Promise<{ success: boolean; message: string }> {
+  async deleteAppData(params: { dataId: string }): Promise<AppDataItem> {
     const appId = this.appId;
     if (!appId) throw new Error("deleteAppData: 'appId' is required");
     if (!params.dataId) throw new Error("deleteAppData: 'dataId' is required");
 
-    return this.request<{ success: boolean; message: string }>(
+    const res = await this.request<{ success: boolean; data: AppDataItem }>(
       "DELETE",
       `/app/${appId}/data/${params.dataId}`,
     );
+
+    return res?.data;
   }
 }
