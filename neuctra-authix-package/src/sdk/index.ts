@@ -673,7 +673,7 @@ export class NeuctraAuthix {
       data: AppDataItem[];
       totalItems?: number;
     }>(
-      "POST",
+      "GET",
       `/app/${encodeURIComponent(appId)}/data/searchByKeys`,
       params, // ✅ BODY (no query params anymore)
     );
