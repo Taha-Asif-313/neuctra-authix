@@ -645,41 +645,42 @@ export class NeuctraAuthix {
     return res?.data;
   }
 
-  /**
-   * 🔍 Search app data items by dynamic keys (BODY based)
-   * @example
-   * sdk.searchAppDataByKeys({
-   *   dataCategory: "order",
-   *   buyerId: "user123",
-   *   status: "Processing",
-   *   q: "iphone"
-   * })
-   */
-  async searchAppDataByKeys(params: {
-    [key: string]: any; // 🔥 allow ANY dynamic key
-  }): Promise<AppDataItem[]> {
-    const appId = this.appId;
+/**
+ * 🔍 Search app data items by dynamic keys (BODY based)
+ * @example
+ * sdk.searchAppDataByKeys({
+ *   dataCategory: "order",
+ *   buyerId: "user123",
+ *   status: "Processing",
+ *   q: "iphone"
+ * })
+ */
+async searchAppDataByKeys(params: {
+  [key: string]: any; // 🔥 allow ANY dynamic key
+}): Promise<AppDataItem[]> {
+  const appId = this.appId;
 
-    if (!appId) {
-      throw new Error("searchAppDataByKeys: 'appId' is required");
-    }
-
-    if (!params || typeof params !== "object") {
-      throw new Error("searchAppDataByKeys: params object is required");
-    }
-
-    const res = await this.request<{
-      success: boolean;
-      data: AppDataItem[];
-      totalItems?: number;
-    }>(
-      "GET",
-      `/app/${encodeURIComponent(appId)}/data/searchByKeys`,
-      params, // ✅ BODY (no query params anymore)
-    );
-
-    return res?.data || [];
+  if (!appId) {
+    throw new Error("searchAppDataByKeys: 'appId' is required");
   }
+
+  if (!params || typeof params !== "object") {
+    throw new Error("searchAppDataByKeys: params object is required");
+  }
+
+  const res = await this.request<{
+    success: boolean;
+    data: AppDataItem[];
+    totalItems?: number;
+  }>(
+    "POST", // ✅ FIX: POST (body-based search)
+    `/app/${encodeURIComponent(appId)}/data/search/bykeys`, // ✅ FIX: correct route
+    params, // ✅ BODY
+  );
+
+  return res?.data || [];
+}
+
 
   /**
    * Add a new item to app.appData[] under a specific category
