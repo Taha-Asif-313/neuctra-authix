@@ -4,6 +4,7 @@ import cors from "cors";
 
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import userDataRoutes from "./routes/userDataRoutes.js"
 import appRoutes from "./routes/appRoutes.js";
 import appDataRoutes from "./routes/appDataRoutes.js";
 
@@ -23,5 +24,6 @@ app.use("/api/admin", adminCors, adminAuthRoutes);
 app.use("/api/apps", adminCors, appRoutes);
 app.use("/api/app", userCors, appDataRoutes);
 app.use("/api/users", userCors, userRoutes);
+app.use("/api/users", userCors, userDataRoutes);
 
 export default app;

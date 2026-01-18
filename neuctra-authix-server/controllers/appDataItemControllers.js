@@ -144,23 +144,24 @@ export const getSingleAppDataItem = async (req, res) => {
    🔍 SEARCH APP DATA BY DYNAMIC KEYS (BODY BASED)
    @route   POST /api/apps/:appId/data/searchByKeys
    @access  Private (Admin only)
-   @body    { sellerId, buyerId, status, ... any field }
+   @body    { sellerId, buyerId, status, ... any field, q (optional keyword) }
    @desc    Deep search appData array - finds ALL objects 
-            where ANY filter key matches at ANY nesting level
+            where ALL filter keys match at ANY nesting level
    ===================================================== */
 export const searchAppDataByKeys = async (req, res) => {
   try {
     const { appId } = req.params;
-    const filters = req.body || {};
+    const { q, ...filters } = req.body || {};
 
     // ❌ No filters provided
-    if (!filters || Object.keys(filters).length === 0) {
+    if ((!filters || Object.keys(filters).length === 0) && !q) {
       return res.status(400).json({
         success: false,
-        message: "At least one search filter is required",
+        message: "At least one search filter or keyword 'q' is required",
       });
     }
 
+    // ✅ Fetch app with appData
     const app = await prisma.app.findFirst({
       where: {
         id: appId,
@@ -180,64 +181,67 @@ export const searchAppDataByKeys = async (req, res) => {
     const data = Array.isArray(app.appData) ? app.appData : [];
 
     /* =====================================================
-       🔁 DEEP SEARCH HELPER (ANY LEVEL, ANY KEY)
+       🔁 DEEP SEARCH HELPER
+       - Recursively checks objects/arrays for a key-value match
+       - Numbers: exact match
+       - Strings: case-insensitive partial match
        ===================================================== */
-    const searchData = (params, data) => {
-      const validParams = Object.entries(params).filter(
-        ([, value]) => value !== undefined && value !== null && value !== "",
-      );
+    const hasMatch = (obj, key, value) => {
+      if (obj == null) return false;
 
-      if (validParams.length === 0) return [];
+      if (typeof obj === "object" && Object.prototype.hasOwnProperty.call(obj, key)) {
+        const target = obj[key];
+        if (typeof target === "number") return target === Number(value);
+        if (typeof target === "string")
+          return target.toLowerCase().includes(String(value).toLowerCase());
+      }
 
-      const hasMatch = (obj, key, value) => {
-        if (obj == null) return false;
+      if (Array.isArray(obj)) {
+        return obj.some((v) => hasMatch(v, key, value));
+      }
 
-        // direct key match
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-          const target = obj[key];
+      if (typeof obj === "object") {
+        return Object.values(obj).some((v) => 
+          typeof v === "object" ? hasMatch(v, key, value) : 
+          typeof v === "string" ? v.toLowerCase().includes(String(value).toLowerCase()) : false
+        );
+      }
 
-          // number → exact match
-          if (typeof target === "number") {
-            return target === Number(value);
-          }
-
-          // string → partial match
-          if (typeof target === "string") {
-            return target
-              .toLowerCase()
-              .includes(String(value).toLowerCase());
-          }
-        }
-
-        // deep search
-        if (typeof obj === "object") {
-          return Object.values(obj).some((v) =>
-            typeof v === "object"
-              ? hasMatch(v, key, value)
-              : typeof v === "string"
-                ? v.toLowerCase().includes(String(value).toLowerCase())
-                : false,
-          );
-        }
-
-        return false;
-      };
-
-      return data.filter((item) =>
-        validParams.some(([key, value]) =>
-          hasMatch(item, key, value),
-        ),
-      );
+      return false;
     };
 
-    // ✅ APPLY FILTERS (FIX)
-    const searchedData = searchData(filters, data);
+    /* =====================================================
+       🔎 APPLY FILTERS
+       - All filters must match (.every)
+       ===================================================== */
+    let filteredData = data;
+    const validFilters = Object.entries(filters).filter(
+      ([_, val]) => val !== undefined && val !== null && val !== ""
+    );
+
+    if (validFilters.length > 0) {
+      filteredData = filteredData.filter(item =>
+        validFilters.every(([key, val]) => hasMatch(item, key, val))
+      );
+    }
+
+    /* =====================================================
+       🔍 APPLY KEYWORD SEARCH (q)
+       - Checks entire object for the keyword
+       ===================================================== */
+    if (q) {
+      const keyword = String(q).toLowerCase();
+      filteredData = filteredData.filter(item =>
+        JSON.stringify(item).toLowerCase().includes(keyword)
+      );
+    }
 
     return res.status(200).json({
       success: true,
-      totalItems: searchedData.length, // ✅ FIX
-      data: searchedData,
+      totalItems: filteredData.length,
+      data: filteredData,
     });
+
   } catch (err) {
     console.error("SearchAppDataByKeys Error:", err);
     return res.status(500).json({
@@ -246,6 +250,7 @@ export const searchAppDataByKeys = async (req, res) => {
     });
   }
 };
+
 
 /* =====================================================
    ✏️ UPDATE APP DATA ITEM
