@@ -27,11 +27,11 @@ router.post("/:appId/data/:dataCategory", addAppDataItem);
 /* 🔹 Get all appData items */
 router.get("/:appId/data", getAllAppData);
 
+/* 🔥 SEARCH — MUST be before :itemId */
+router.post("/:appId/data/search/bykeys", searchAppDataByKeys);
+
 /* 🔹 Get single appData item */
 router.get("/:appId/data/:itemId", getSingleAppDataItem);
-
-/* 🔹 Search appData by dynamic keys */
-router.get("/:appId/data/searchByKeys", searchAppDataByKeys);
 
 /* 🔹 Update appData item */
 router.patch("/:appId/data/:itemId", updateAppDataItem);
