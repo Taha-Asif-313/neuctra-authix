@@ -13,25 +13,26 @@ interface ReactSignedInProps {
 export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
   children,
   fallback = null,
-  className,
+  className = "",
   width,
   height,
 }) => {
-  const [signedIn, setSignedIn] = useState(() => {
-    if (typeof window === "undefined") return false;
-    try {
-      const userInfo = localStorage.getItem("userInfo");
-      return Boolean(
-        userInfo && userInfo !== "undefined" && userInfo !== "null"
-      );
-    } catch {
-      return false;
-    }
-  });
+  const [mounted, setMounted] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+
+    try {
+      const userInfo = localStorage.getItem("userInfo");
+      setSignedIn(
+        Boolean(userInfo && userInfo !== "undefined" && userInfo !== "null")
+      );
+    } catch {
+      setSignedIn(false);
+    }
+
     const check = () => {
-      if (typeof window === "undefined") return;
       try {
         const userInfo = localStorage.getItem("userInfo");
         setSignedIn(
@@ -43,13 +44,15 @@ export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
     };
 
     window.addEventListener("storage", check);
-
-    return () => {
-      window.removeEventListener("storage", check);
-    };
+    return () => window.removeEventListener("storage", check);
   }, []);
 
-  if (!signedIn) return typeof fallback === "function" ? fallback() : fallback;
+  // ⛔ Prevent SSR/CSR mismatch
+  if (!mounted) return null;
+
+  if (!signedIn) {
+    return typeof fallback === "function" ? fallback() : fallback;
+  }
 
   return (
     <div

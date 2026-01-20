@@ -13,21 +13,16 @@ interface ReactSignedOutProps {
 export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
   children,
   fallback = null,
-  className,
+  className = "",
   width,
   height,
 }) => {
-  const [signedOut, setSignedOut] = useState(() => {
-    if (typeof window === "undefined") return true;
-    try {
-      const userInfo = localStorage.getItem("userInfo");
-      return !userInfo || userInfo === "undefined" || userInfo === "null";
-    } catch {
-      return true;
-    }
-  });
+  const [mounted, setMounted] = useState(false);
+  const [signedOut, setSignedOut] = useState(true);
 
   useEffect(() => {
+    setMounted(true);
+
     const check = () => {
       try {
         const userInfo = localStorage.getItem("userInfo");
@@ -40,11 +35,17 @@ export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
     };
 
     check();
+
     window.addEventListener("storage", check);
     return () => window.removeEventListener("storage", check);
   }, []);
 
-  if (!signedOut) return typeof fallback === "function" ? fallback() : fallback;
+  // ⛔ Prevent SSR/CSR mismatch
+  if (!mounted) return null;
+
+  if (!signedOut) {
+    return typeof fallback === "function" ? fallback() : fallback;
+  }
 
   return (
     <div
