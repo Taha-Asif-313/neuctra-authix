@@ -249,6 +249,7 @@ export const loginUser = async (req, res) => {
   }
 };
 
+// To check session
 export const getSession = async (req, res) => {
   try {
     const token = req.cookies.authix_session;
@@ -271,8 +272,6 @@ export const getSession = async (req, res) => {
     return res.json({ authenticated: false });
   }
 };
-
-
 
 /**
  * @desc    Update user details (only if belongs to logged-in admin & same app)
