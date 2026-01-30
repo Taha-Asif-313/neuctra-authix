@@ -2,7 +2,16 @@
 
 import React, { ReactNode, useEffect, useState } from "react";
 
+/**
+ * Minimal contract your UI needs.
+ * Any Authix-like SDK can satisfy this.
+ */
+export interface AuthixLike {
+  getSession: () => Promise<{ authenticated: boolean }>;
+}
+
 interface ReactSignedInProps {
+  authix: AuthixLike;
   children: ReactNode;
   fallback?: ReactNode | (() => ReactNode);
   className?: string;
@@ -11,6 +20,7 @@ interface ReactSignedInProps {
 }
 
 export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
+  authix,
   children,
   fallback = null,
   className = "",
@@ -18,37 +28,31 @@ export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
   height,
 }) => {
   const [mounted, setMounted] = useState(false);
-  const [signedIn, setSignedIn] = useState(false);
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
 
   useEffect(() => {
     setMounted(true);
 
-    try {
-      const userInfo = localStorage.getItem("userInfo");
-      setSignedIn(
-        Boolean(userInfo && userInfo !== "undefined" && userInfo !== "null")
-      );
-    } catch {
-      setSignedIn(false);
-    }
-
-    const check = () => {
+    const checkSession = async () => {
       try {
-        const userInfo = localStorage.getItem("userInfo");
-        setSignedIn(
-          Boolean(userInfo && userInfo !== "undefined" && userInfo !== "null")
-        );
+        const session = await authix.getSession();
+        setSignedIn(Boolean(session?.authenticated));
       } catch {
         setSignedIn(false);
       }
     };
 
-    window.addEventListener("storage", check);
-    return () => window.removeEventListener("storage", check);
-  }, []);
+    checkSession();
+
+    // Optional: re-check on cross-tab auth changes
+    const onStorage = () => checkSession();
+    window.addEventListener("storage", onStorage);
+
+    return () => window.removeEventListener("storage", onStorage);
+  }, [authix]);
 
   // ⛔ Prevent SSR/CSR mismatch
-  if (!mounted) return null;
+  if (!mounted || signedIn === null) return null;
 
   if (!signedIn) {
     return typeof fallback === "function" ? fallback() : fallback;

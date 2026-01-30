@@ -226,12 +226,6 @@ export const loginUser = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    // 6️⃣ Update last login (optional)
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastLogin: new Date() },
-    });
-
     // 7️⃣ Return SAFE user data
     return res.status(200).json({
       success: true,
