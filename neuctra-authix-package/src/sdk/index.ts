@@ -128,6 +128,11 @@ interface CheckUserResponse {
   exists: boolean;
 }
 
+interface CheckSessionResponse {
+  authenticated: boolean;
+  user?: Record<string, any>;
+}
+
 /* ================================
    📦 APP DATA SDK FUNCTIONS
    ================================ */
@@ -178,7 +183,8 @@ export class NeuctraAuthix {
         "Content-Type": "application/json",
         ...(this.apiKey ? { "x-api-key": this.apiKey } : {}),
       },
-      timeout: 10000, // 10s timeout
+      timeout: 30000, // 10s timeout
+      withCredentials: true, // 🔥 REQUIRED FOR SESSION COOKIES
     });
   }
 
@@ -263,6 +269,34 @@ export class NeuctraAuthix {
       password,
       appId: appId || this.appId,
     });
+  }
+
+  /**
+   * 🔐 Check current authentication session (cookie-based)
+   * Automatically detects logged-in / logged-out state
+   */
+  async checkSession(): Promise<CheckSessionResponse> {
+    if (typeof window === "undefined") {
+      return { authenticated: false };
+    }
+
+    const token = localStorage.getItem("authix_token");
+    if (!token || token === "undefined" || token === "null") {
+      return { authenticated: false };
+    }
+
+    try {
+      return await this.request<CheckSessionResponse>(
+        "GET",
+        "/users/session",
+        undefined,
+        {
+          Authorization: `Bearer ${token}`,
+        },
+      );
+    } catch {
+      return { authenticated: false };
+    }
   }
 
   /**
@@ -645,42 +679,41 @@ export class NeuctraAuthix {
     return res?.data;
   }
 
-/**
- * 🔍 Search app data items by dynamic keys (BODY based)
- * @example
- * sdk.searchAppDataByKeys({
- *   dataCategory: "order",
- *   buyerId: "user123",
- *   status: "Processing",
- *   q: "iphone"
- * })
- */
-async searchAppDataByKeys(params: {
-  [key: string]: any; // 🔥 allow ANY dynamic key
-}): Promise<AppDataItem[]> {
-  const appId = this.appId;
+  /**
+   * 🔍 Search app data items by dynamic keys (BODY based)
+   * @example
+   * sdk.searchAppDataByKeys({
+   *   dataCategory: "order",
+   *   buyerId: "user123",
+   *   status: "Processing",
+   *   q: "iphone"
+   * })
+   */
+  async searchAppDataByKeys(params: {
+    [key: string]: any; // 🔥 allow ANY dynamic key
+  }): Promise<AppDataItem[]> {
+    const appId = this.appId;
 
-  if (!appId) {
-    throw new Error("searchAppDataByKeys: 'appId' is required");
+    if (!appId) {
+      throw new Error("searchAppDataByKeys: 'appId' is required");
+    }
+
+    if (!params || typeof params !== "object") {
+      throw new Error("searchAppDataByKeys: params object is required");
+    }
+
+    const res = await this.request<{
+      success: boolean;
+      data: AppDataItem[];
+      totalItems?: number;
+    }>(
+      "POST", // ✅ FIX: POST (body-based search)
+      `/app/${encodeURIComponent(appId)}/data/search/bykeys`, // ✅ FIX: correct route
+      params, // ✅ BODY
+    );
+
+    return res?.data || [];
   }
-
-  if (!params || typeof params !== "object") {
-    throw new Error("searchAppDataByKeys: params object is required");
-  }
-
-  const res = await this.request<{
-    success: boolean;
-    data: AppDataItem[];
-    totalItems?: number;
-  }>(
-    "POST", // ✅ FIX: POST (body-based search)
-    `/app/${encodeURIComponent(appId)}/data/search/bykeys`, // ✅ FIX: correct route
-    params, // ✅ BODY
-  );
-
-  return res?.data || [];
-}
-
 
   /**
    * Add a new item to app.appData[] under a specific category

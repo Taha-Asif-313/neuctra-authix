@@ -161,9 +161,7 @@ export const signupUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { email, password, appId } = req.body;
-    const adminId = req.admin?.id || null;
 
-    // ✅ Validate input
     if (!email || !password || !appId) {
       return res.status(400).json({
         success: false,
@@ -171,7 +169,7 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // ✅ 1. Verify app is active
+    // 1️⃣ Verify app
     const app = await prisma.app.findFirst({
       where: { id: appId, isActive: true },
     });
@@ -183,24 +181,23 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // ✅ 2. Find active user in this app (and by admin if applicable)
+    // 2️⃣ Find user
     const user = await prisma.user.findFirst({
       where: {
         email: email.toLowerCase(),
         appId,
         isActive: true,
-        ...(adminId ? { adminId } : {}),
       },
     });
 
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials or inactive account",
+        message: "Invalid credentials",
       });
     }
 
-    // ✅ 3. Compare password
+    // 3️⃣ Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
@@ -209,47 +206,44 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // ✅ 4. Issue a fresh token
-    const newToken = jwt.sign(
-      { id: user.id, email: user.email, appId: user.appId, role: user.role },
+    // 4️⃣ Create JWT (NOT stored)
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        appId: user.appId,
+      },
       app.appSecret,
       { expiresIn: "7d" }
     );
 
-    console.log("User found:", JSON.stringify(user, null, 2));
-
-    // ✅ 5. Save token & update last login
-    const updatedUser = await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        token: newToken,
-        updatedAt: new Date(), // Prisma handles this automatically, but explicit is fine
-        // lastLogin: new Date(), // optional
-        // isOnline: true, // optional
-      },
+    // 5️⃣ Set HTTP-only cookie
+    res.cookie("authix_session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax", // "none" if cross-domain widgets
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    console.log("Updated User:", JSON.stringify(updatedUser, null, 2));
+    // 6️⃣ Update last login (optional)
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLogin: new Date() },
+    });
 
-    // ✅ 6. Return user with token
+    // 7️⃣ Return SAFE user data
     return res.status(200).json({
       success: true,
       message: "Login successful",
       user: {
-        id: updatedUser.id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        phone: updatedUser.phone,
-        address: updatedUser.address,
-        avatarUrl: updatedUser.avatarUrl,
-        isActive: updatedUser.isActive,
-        isVerified: updatedUser.isVerified, // fixed reference
-        role: updatedUser.role,
-        appId: updatedUser.appId,
-        adminId: updatedUser.adminId,
-        token: newToken,
-        createdAt: updatedUser.createdAt,
-        updatedAt: updatedUser.updatedAt,
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        appId: user.appId,
+        avatarUrl: user.avatarUrl,
+        isActive: user.isActive,
       },
     });
   } catch (err) {
@@ -257,10 +251,34 @@ export const loginUser = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal server error",
-      error: process.env.NODE_ENV === "development" ? err.message : undefined,
     });
   }
 };
+
+export const getSession = async (req, res) => {
+  try {
+    const token = req.cookies.authix_session;
+
+    if (!token) {
+      return res.json({ authenticated: false });
+    }
+
+    const payload = jwt.verify(token, process.env.APP_SECRET);
+
+    return res.json({
+      authenticated: true,
+      user: {
+        id: payload.id,
+        role: payload.role,
+        appId: payload.appId,
+      },
+    });
+  } catch {
+    return res.json({ authenticated: false });
+  }
+};
+
+
 
 /**
  * @desc    Update user details (only if belongs to logged-in admin & same app)

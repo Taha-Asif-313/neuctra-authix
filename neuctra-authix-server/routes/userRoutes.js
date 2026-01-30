@@ -28,6 +28,9 @@ router.post("/signup", authMiddleware, signupUser);
 // 🔹 Login existing user (requires admin auth)
 router.post("/login", authMiddleware, loginUser);
 
+// 🔹 Login existing user (requires admin auth)
+router.get("/session", authMiddleware, getProfile);
+
 // 🔹 Get profile of logged-in user (requires user token)
 router.get("/profile", getProfile);
 

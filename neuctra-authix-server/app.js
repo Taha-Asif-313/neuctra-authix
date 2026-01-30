@@ -1,15 +1,17 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-import userDataRoutes from "./routes/userDataRoutes.js"
+import userDataRoutes from "./routes/userDataRoutes.js";
 import appRoutes from "./routes/appRoutes.js";
 import appDataRoutes from "./routes/appDataRoutes.js";
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 // 🔹 CORS configs
 const adminCors = cors({
@@ -17,7 +19,10 @@ const adminCors = cors({
   credentials: true,
 });
 
-const userCors = cors(); // allow all origins (default: reflects request origin)
+const userCors = cors({
+  origin: "*",
+  credentials: true,
+}); // allow all origins (default: reflects request origin)
 
 // 🔹 Routes with specific CORS
 app.use("/api/admin", adminCors, adminAuthRoutes);
