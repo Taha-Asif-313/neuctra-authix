@@ -10,55 +10,28 @@ import appRoutes from "./routes/appRoutes.js";
 import appDataRoutes from "./routes/appDataRoutes.js";
 
 const app = express();
-
-/**
- * 🔹 Single source of truth (browser origin)
- */
-const allowedOrigin = process.env.CLIENT_URL;
-
-if (!allowedOrigin) {
-  throw new Error("CLIENT_URL is not defined in environment variables");
-}
-
-/**
- * 🔹 Strict CORS (browser only)
- */
-const corsConfig = cors({
-  origin: (origin, callback) => {
-    // ❌ Block requests without Origin (non-browser)
-    if (!origin) {
-      return callback(new Error("CORS blocked: missing origin"));
-    }
-
-    // ✅ Allow only the configured client
-    if (origin === allowedOrigin) {
-      return callback(null, true);
-    }
-
-    return callback(new Error(`CORS blocked: ${origin}`));
-  },
-  credentials: true,
-});
-
-/**
- * 🔹 IMPORTANT: Preflight must be handled BEFORE routes
- */
-app.options("*", corsConfig);
-
-/**
- * 🔹 Middlewares
- */
-app.use(corsConfig); // 👈 must be global
 app.use(express.json());
 app.use(cookieParser());
 
-/**
- * 🔹 Routes
- */
-app.use("/api/admin", adminAuthRoutes);
-app.use("/api/apps", appRoutes);
-app.use("/api/app", appDataRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/users", userDataRoutes);
+// 🔹 CORS configs
+const adminCors = cors({
+  origin: [process.env.CLIENT_URL], // only admin client
+  credentials: true,
+});
+
+const userCors = cors({
+  origin: (origin, callback) => {
+    // Allow all browser origins dynamically
+    callback(null, true);
+  },
+  credentials: true, // ✅ allow cookies
+});
+
+// 🔹 Routes with specific CORS
+app.use("/api/admin", adminCors, adminAuthRoutes);
+app.use("/api/apps", adminCors, appRoutes);
+app.use("/api/app", userCors, appDataRoutes);
+app.use("/api/users", userCors, userRoutes);
+app.use("/api/users", userCors, userDataRoutes);
 
 export default app;
