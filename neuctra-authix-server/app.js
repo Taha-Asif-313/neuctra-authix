@@ -13,22 +13,29 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-// 🔹 CORS configs
-const adminCors = cors({
-  origin: [process.env.CLIENT_URL], // only admin client
+const allowedOrigins = [process.env.CLIENT_URL];
+
+const dynamicCors = cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (Postman, mobile apps, SSR, same-origin)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS blocked: ${origin}`));
+  },
   credentials: true,
 });
 
-const userCors = cors({
-  origin: "*",
-  credentials: true,
-}); // allow all origins (default: reflects request origin)
-
 // 🔹 Routes with specific CORS
-app.use("/api/admin", adminCors, adminAuthRoutes);
-app.use("/api/apps", adminCors, appRoutes);
-app.use("/api/app", userCors, appDataRoutes);
-app.use("/api/users", userCors, userRoutes);
-app.use("/api/users", userCors, userDataRoutes);
+app.use("/api/admin", dynamicCors, adminAuthRoutes);
+app.use("/api/apps", dynamicCors, appRoutes);
+app.use("/api/app", dynamicCors, appDataRoutes);
+app.use("/api/users", dynamicCors, userRoutes);
+app.use("/api/users", dynamicCors, userDataRoutes);
 
 export default app;

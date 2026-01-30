@@ -29,7 +29,7 @@ export interface UserInfo {
  */
 export const loginUser = async (
   params: LoginParams,
-  options: LoginOptions
+  options: LoginOptions,
 ): Promise<UserInfo> => {
   const { email, password, appId } = params;
   const { baseUrl, apiKey } = options;
@@ -41,13 +41,18 @@ export const loginUser = async (
   try {
     const res = await axios.post(
       `${baseUrl}/users/login`,
-      { email, password, appId },
+      {
+        email,
+        password,
+        appId,
+      },
       {
         headers: {
           "Content-Type": "application/json",
           "x-api-key": apiKey,
         },
-      }
+        withCredentials: true,
+      },
     );
 
     // ✅ Store user info in localStorage
