@@ -1,159 +1,21 @@
 import axios, { AxiosInstance, Method } from "axios";
-
-/**
- * SDK configuration options
- */
-interface NeuctraAuthixConfig {
-  /** Base URL of the Authix API (required) */
-  baseUrl: string;
-  /** API key for authentication */
-  apiKey: string;
-  /** App ID for scoping user operations */
-  appId: string;
-}
-
-/**
- * Parameters for signing up a new user
- */
-interface SignupParams {
-  name: string;
-  email: string;
-  password: string;
-  phone?: string | null;
-  address?: string | null;
-  avatarUrl?: string | null;
-  isActive?: boolean;
-  role?: string;
-  adminId?: string | null;
-}
-
-/**
- * Parameters for logging in a user
- */
-interface LoginParams {
-  email: string;
-  password: string;
-  appId: string;
-}
-
-/**
- * Parameters for updating an existing user
- */
-interface UpdateUserParams {
-  userId: string;
-  name?: string;
-  email?: string;
-  password?: string;
-  phone?: string | null;
-  address?: string | null;
-  avatarUrl?: string | null;
-  isActive?: boolean;
-  role?: string;
-  appId?: string | null;
-}
-
-/**
- * Parameters for changing a user password (Admin action)
- */
-interface ChangePasswordParams {
-  userId: string;
-  currentPassword: string;
-  newPassword: string;
-  appId?: string | null;
-}
-
-/**
- * Parameters for deleting a user
- */
-interface DeleteUserParams {
-  userId: string;
-  appId?: string | null;
-}
-
-/**
- * Parameters for fetching a user profile
- */
-interface GetProfileParams {
-  /** JWT access token */
-  token: string;
-}
-
-// ================= USER EXTRA DATA =================
-
-/**
- * Fetch all extra data objects for a user
- */
-interface GetUserDataParams {
-  userId: string;
-}
-
-/**
- * Fetch a single data object from a user's extra data
- */
-interface GetSingleUserDataParams {
-  userId: string;
-  dataId: string;
-}
-
-/**
- * Add a new object to a user's extra data
- */
-interface AddUserDataParams {
-  userId: string;
-  dataCategory: string;
-  /** The object to add */
-  data: Record<string, any>;
-}
-
-/**
- * Update an existing object in a user's extra data
- */
-interface UpdateUserDataParams {
-  userId: string;
-  dataId: string;
-  /** Fields to update */
-  data: Record<string, any>;
-}
-
-/**
- * Delete an object from a user's extra data
- */
-interface DeleteUserDataParams {
-  userId: string;
-  dataId: string;
-}
-
-interface CheckUserResponse {
-  success: boolean;
-  exists: boolean;
-}
-
-interface CheckSessionResponse {
-  authenticated: boolean;
-  user?: Record<string, any>;
-}
-
-/* ================================
-   📦 APP DATA SDK FUNCTIONS
-   ================================ */
-
-export interface AppDataItem {
-  id: string;
-  [key: string]: any;
-}
-
-export interface AddAppDataParams {
-  data: Record<string, any>;
-}
-
-export interface UpdateAppDataParams {
-  dataId: string;
-  data: Record<string, any>;
-}
-
-export interface DeleteAppDataParams {
-  dataId: string;
-}
+import {
+  AddUserDataParams,
+  AppDataItem,
+  ChangePasswordParams,
+  CheckSessionResponse,
+  CheckUserResponse,
+  DeleteUserDataParams,
+  DeleteUserParams,
+  GetProfileParams,
+  GetSingleUserDataParams,
+  GetUserDataParams,
+  LoginParams,
+  NeuctraAuthixConfig,
+  SignupParams,
+  UpdateUserDataParams,
+  UpdateUserParams,
+} from "./interfaces.js";
 
 /**
  * Main SDK class for interacting with Neuctra Authix API
@@ -276,25 +138,16 @@ export class NeuctraAuthix {
    * Automatically detects logged-in / logged-out state
    */
   async checkSession(): Promise<CheckSessionResponse> {
+    // On server-side, return false immediately
     if (typeof window === "undefined") {
       return { authenticated: false };
     }
 
-    const token = localStorage.getItem("authix_token");
-    if (!token || token === "undefined" || token === "null") {
-      return { authenticated: false };
-    }
-
     try {
-      return await this.request<CheckSessionResponse>(
-        "GET",
-        "/users/session",
-        undefined,
-        {
-          Authorization: `Bearer ${token}`,
-        },
-      );
+      // Make a request to check the session (cookie-based)
+      return await this.request<CheckSessionResponse>("GET", "/users/session");
     } catch {
+      // If request fails, session is invalid
       return { authenticated: false };
     }
   }

@@ -21,73 +21,73 @@ import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-/* ================================
-   🚀 Admin Authentication Routes
-   ================================ */
+/* ===================================================
+   🚀 ADMIN AUTHENTICATION ROUTES
+   =================================================== */
 
-// 🔹 Register a new admin
+// 🔹 Register a new admin (public)
 router.post("/signup", signupAdmin);
 
-// 🔹 Login existing admin (returns token + apiKey)
+// 🔹 Login existing admin (returns JWT token + API key) (public)
 router.post("/login", loginAdmin);
 
-/* ================================
-   📧 Email Verification
-   ================================ */
+/* ===================================================
+   📧 EMAIL VERIFICATION
+   =================================================== */
 
-// 🔹 Send OTP to admin’s email (requires login)
+// 🔹 Send verification OTP to logged-in admin's email (protected)
 router.post("/send-verify-otp", authMiddleware, sendVerifyOTP);
 
-// 🔹 Verify admin’s email with OTP
+// 🔹 Verify admin's email using OTP (public)
 router.post("/verify-email", verifyEmail);
 
-/* ================================
-   🔑 Password Reset / Change
-   ================================ */
+/* ===================================================
+   🔑 PASSWORD RESET & CHANGE
+   =================================================== */
 
-// 🔹 Forgot password: send OTP to email
+// 🔹 Forgot password: send OTP to email (public)
 router.post("/forgot-password", forgotPassword);
 
-// 🔹 Reset password using email + OTP
+// 🔹 Reset password using email + OTP (public)
 router.post("/reset-password", resetPassword);
 
-// 🔹 Change password (requires login)
+// 🔹 Change password (requires admin login) (protected)
 router.post("/change-password", authMiddleware, changePassword);
 
-/* ================================
-   👤 Admin Profile & Management
-   ================================ */
+/* ===================================================
+   👤 ADMIN PROFILE & MANAGEMENT
+   =================================================== */
 
-// 🔹 Get logged-in admin profile
+// 🔹 Get the profile of the logged-in admin (protected)
 router.get("/profile", authMiddleware, getAdminProfile);
 
-// 🔹 Update admin info (e.g., name, email, etc.)
+// 🔹 Update admin info by ID (e.g., name, email, etc.) (protected)
 router.put("/edit/:id", authMiddleware, updateAdmin);
 
-// 🔹 Delete an admin (along with apps + users)
+// 🔹 Delete an admin by ID (along with associated apps & users) (protected)
 router.delete("/:adminId", authMiddleware, deleteAdmin);
 
-/* ================================
-   🔑 API Key Management
-   ================================ */
+/* ===================================================
+   🔑 API KEY MANAGEMENT
+   =================================================== */
 
-// 🔹 Generate a new API key for the admin
+// 🔹 Generate a new API key for the admin (protected)
 router.post("/api-key/generate", authMiddleware, generateNewApiKey);
 
-// 🔹 Revoke (invalidate) an existing API key
+// 🔹 Revoke (invalidate) an existing API key (protected)
 router.post("/api-key/revoke", authMiddleware, revokeApiKey);
 
-// 🔹 Get current active API key
+// 🔹 Get the current active API key for the admin (protected)
 router.get("/api-key", authMiddleware, getApiKey);
 
-/* ================================
-   📊 Reports
-   ================================ */
+/* ===================================================
+   📊 REPORTS
+   =================================================== */
 
-// 🔹 Download a detailed admin report (e.g. CSV/PDF)
+// 🔹 Download a detailed admin report (e.g., CSV or PDF) (protected)
 router.get("/download-report", authMiddleware, generateAdminReport);
 
-// 🔹 View admin report in JSON format
+// 🔹 View admin report in JSON format (protected)
 router.get("/report", authMiddleware, getAdminReport);
 
 export default router;

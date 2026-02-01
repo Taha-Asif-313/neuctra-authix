@@ -20,35 +20,42 @@ const router = express.Router();
    📂 USER EXTRA DATA ROUTES
    =================================================== */
 
-// GET all users' data for specific app
+/* -------- Search Routes -------- */
+
+// 🔹 Search a specific user's data by query params (protected)
 router.get("/:userId/data/search", authMiddleware, searchUserData);
 
-// 🔹 Get a single object from user's data array by keys
+// 🔹 Search a single object from user's data array by specific keys (protected)
 router.get("/:userId/data/searchbyref", authMiddleware, searchUserDataByKeys);
 
-// 🔹 Get a single object from all user's from app data array by keys
-router.get("/:appId/data/searchbyref/all", authMiddleware, searchAllUsersDataByKeys);
+// 🔹 Search objects from all users' data within an app by keys (protected)
+router.get(
+  "/:appId/data/searchbyref/all",
+  authMiddleware,
+  searchAllUsersDataByKeys,
+);
 
-// GET all users' data for specific app
-router.get("/all-data/:id/data", authMiddleware, getAllUsersData);
+// 🔹 Search all users' data for a specific app (protected)
+router.get("/all-data/:appId/data", authMiddleware, getAllUsersData);
 
-// GET all users' data for specific app
-router.get("/:id/data/search", authMiddleware, searchAllUsersData);
+// 🔹 Search all users' data within an app by query params (protected)
+router.get("/:appId/data/search", authMiddleware, searchAllUsersData);
 
-// 🔹 Get all extra data of a user
+/* -------- User Data CRUD Routes -------- */
+
+// 🔹 Get all extra data of a specific user (protected)
 router.get("/:id/data", authMiddleware, getUserData);
 
-// 🔹 Get a single object from user's data array
+// 🔹 Get a single object from a user's data array by dataId (protected)
 router.get("/:id/data/:dataId", authMiddleware, getSingleUserData);
 
-// 🔹 Add a new object to user's data array
+// 🔹 Add a new object to a user's data array (protected)
 router.post("/:id/data", authMiddleware, addUserData);
 
-// 🔹 Update a data object in user's array
+// 🔹 Update a data object in a user's array (protected)
 router.put("/:id/data/:dataId", authMiddleware, updateUserData);
 
-// 🔹 Delete a data object from user's array
+// 🔹 Delete a data object from a user's array (protected)
 router.delete("/:id/data/:dataId", authMiddleware, deleteUserData);
-
 
 export default router;

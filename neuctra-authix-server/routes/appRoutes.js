@@ -12,35 +12,35 @@ import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-/* ================================
+/* ===================================================
    🛡️ Protect all App routes with JWT
-   ================================ */
+   =================================================== */
 router.use(authMiddleware);
 
-/* ================================
-   📱 App Management Routes
-   ================================ */
+/* ===================================================
+   📱 APP MANAGEMENT ROUTES
+   =================================================== */
 
 // 🔹 Create a new app (belongs to logged-in admin)
 router.post("/create", createApp);
 
-// 🔹 Get all apps of the logged-in admin
+// 🔹 Get all apps belonging to the logged-in admin
 router.get("/allapps", getApps);
 
 // 🔹 Get details of a specific app by ID
 router.get("/:id", getAppById);
 
-// 🔹 Update app info (name, category, description, etc.)
+// 🔹 Update app info (name, category, description, etc.) by ID
 router.put("/edit/:id", updateApp);
 
-// 🔹 Delete an app (and its users)
+// 🔹 Delete an app by ID (and optionally its users)
 router.delete("/delete/:id", deleteApp);
 
-/* ================================
-   🔄 App Status Management
-   ================================ */
+/* ===================================================
+   🔄 APP STATUS MANAGEMENT
+   =================================================== */
 
-// 🔹 Check if app is active or inactive
+// 🔹 Check if an app is active or inactive
 router.get("/:id/status", getAppStatus);
 
 // 🔹 Toggle app status (active ↔ inactive)

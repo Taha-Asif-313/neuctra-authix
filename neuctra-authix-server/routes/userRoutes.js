@@ -12,6 +12,7 @@ import {
   userResetPassword,
   changeUserPassword,
   checkUser,
+  getSession,
 } from "../controllers/userController.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -22,48 +23,50 @@ const router = express.Router();
    👤 USER AUTHENTICATION & MANAGEMENT
    =================================================== */
 
-// 🔹 Create a new user (requires admin auth)
+// 🔹 Signup a new user (requires admin authorization)
 router.post("/signup", authMiddleware, signupUser);
 
-// 🔹 Login existing user (requires admin auth)
+// 🔹 Login an existing user (public route, no admin required typically)
+// If you want admin-only login, keep authMiddleware
 router.post("/login", authMiddleware, loginUser);
 
-// 🔹 Login existing user (requires admin auth)
-router.get("/session", authMiddleware, getProfile);
+// 🔹 Get current session info (requires user auth token)
+router.get("/session", authMiddleware, getSession);
 
-// 🔹 Get profile of logged-in user (requires user token)
-router.get("/profile", getProfile);
+// 🔹 Get profile of logged-in user (requires user auth token)
+router.get("/profile", authMiddleware, getProfile);
 
 // 🔹 Get list of users under an app (requires admin auth & appId)
-router.post("/list/:appId", authMiddleware, getUsers);
+router.get("/list/:appId", authMiddleware, getUsers);
 
-// 🔹 Update user info (requires admin auth)
+// 🔹 Update a user's info by ID (requires admin auth)
 router.put("/update/:id", authMiddleware, updateUser);
 
-// 🔹 Change user password (requires admin auth)
+// 🔹 Change a user's password by ID (requires admin auth)
 router.put("/change-password/:id", authMiddleware, changeUserPassword);
 
-// 🔹 Delete user (requires admin auth)
+// 🔹 Delete a user by ID (requires admin auth)
 router.delete("/delete/:userId", authMiddleware, deleteUser);
 
-// 🔹 Check user (requires admin auth)
+// 🔹 Check a specific user by ID (requires admin auth)
 router.get("/check-user/:id", authMiddleware, checkUser);
-
-/* ===================================================
-   📂 USER EXTRA DATA ROUTES
-   =================================================== */
-
 
 /* ===================================================
    ✉️ EMAIL VERIFICATION & PASSWORD RESET
    =================================================== */
 
-// -------- Email Verification --------
-router.post("/send-verify-otp/:id", authMiddleware, sendUserVerifyOTP); // private
-router.post("/verify-email", verifyUserEmail); // public ✅
+// -------- Email Verification Routes --------
+// Send verification OTP to user (requires admin auth)
+router.post("/send-verify-otp/:id", authMiddleware, sendUserVerifyOTP);
 
-// -------- Forgot / Reset Password --------
-router.post("/forgot-password", userForgotPassword); // public ✅
-router.post("/reset-password", userResetPassword); // public ✅
+// Verify user's email (public route, user clicks link or submits OTP)
+router.post("/verify-email", verifyUserEmail);
+
+// -------- Forgot / Reset Password Routes --------
+// Request password reset (public)
+router.post("/forgot-password", userForgotPassword);
+
+// Reset password using token from email (public)
+router.post("/reset-password", userResetPassword);
 
 export default router;

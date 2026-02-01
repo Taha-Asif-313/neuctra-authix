@@ -105,7 +105,7 @@ export const signupUser = async (req, res) => {
     const token = jwt.sign(
       { id: user.id, email: user.email, appId, role: user.role },
       app.appSecret,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     // 7️⃣ Save token to user record
@@ -206,6 +206,8 @@ export const loginUser = async (req, res) => {
       });
     }
 
+    if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET not set");
+
     // 4️⃣ Create JWT (NOT stored)
     const token = jwt.sign(
       {
@@ -214,15 +216,16 @@ export const loginUser = async (req, res) => {
         role: user.role,
         appId: user.appId,
       },
-      app.appSecret,
-      { expiresIn: "7d" }
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" },
     );
 
-    // 5️⃣ Set HTTP-only cookie
+    const isProd = process.env.NODE_ENV === "production";
+
     res.cookie("authix_session", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax", // "none" if cross-domain widgets
+      secure: isProd, // true in production, false in dev
+      sameSite: isProd ? "none" : "lax", // none for cross-site prod, lax for dev
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -249,27 +252,38 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// To check session
+/**
+ * 🔐 Check current authentication session (cookie-based)
+ */
 export const getSession = async (req, res) => {
   try {
-    const token = req.cookies.authix_session;
+    const token = req.cookies?.authix_session; // ✅ safely access cookie
 
     if (!token) {
-      return res.json({ authenticated: false });
+      return res.status(200).json({ authenticated: false });
     }
 
-    const payload = jwt.verify(token, process.env.APP_SECRET);
+    // Verify JWT safely
+    let payload;
+    try {
+      payload = jwt.verify(token, process.env.JWT_SECRET); // make sure secret matches login
+    } catch (err) {
+      return res.status(200).json({ authenticated: false });
+    }
 
-    return res.json({
+    // Return safe user info
+    return res.status(200).json({
       authenticated: true,
       user: {
         id: payload.id,
+        email: payload.email,
         role: payload.role,
         appId: payload.appId,
       },
     });
-  } catch {
-    return res.json({ authenticated: false });
+  } catch (err) {
+    console.error("getSession error:", err);
+    return res.status(500).json({ authenticated: false });
   }
 };
 
