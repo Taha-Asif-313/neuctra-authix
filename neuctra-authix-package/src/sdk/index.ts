@@ -154,36 +154,52 @@ export class NeuctraAuthix {
   }
 
   /**
-   * Send verification OTP (requires logged-in user token)
-   * @param params requires token
+   * Send email verification OTP for a user
+   * @param params requires email and appId
    */
-  async sendVerifyOTP(params: { token: string; appId?: string }) {
-    const { token } = params;
-    if (!token) throw new Error("sendVerifyOTP: 'token' is required");
+  async requestEmailVerificationOTP(params: { email: string }) {
+    const { email } = params;
 
-    return this.request(
-      "POST",
-      "/users/send-verify-otp",
-      {},
-      { Authorization: `Bearer ${token}` },
-    );
+    if (!email) {
+      throw new Error(
+        "sendEmailVerificationRequest: 'email' and 'appId' are required",
+      );
+    }
+
+    try {
+      return await this.request("POST", "/users/send-verify-otp", {
+        email,
+      });
+    } catch (err: any) {
+      // Friendly error object
+      throw {
+        message: err.message || "Failed to send verification OTP",
+        status: err.status || 500,
+      };
+    }
   }
 
   /**
-   * Verify email with OTP (requires logged-in user token)
-   * @param params requires token + otp
+   * Verify email with OTP
+   * @param params requires email, otp, and appId
    */
-  async verifyEmail(params: { token: string; otp: string; appId?: string }) {
-    const { token, otp, appId } = params;
-    if (!token) throw new Error("verifyEmail: 'token' is required");
+  async verifyEmail(params: { email: string; otp: string }) {
+    const { email, otp } = params;
+
+    if (!email) throw new Error("verifyEmail: 'email' is required");
     if (!otp) throw new Error("verifyEmail: 'otp' is required");
 
-    return this.request(
-      "POST",
-      "/users/verify-email",
-      { otp, appId: appId || this.appId },
-      { Authorization: `Bearer ${token}` },
-    );
+    try {
+      return await this.request("POST", "/users/verify-email", {
+        email,
+        otp,
+      });
+    } catch (err: any) {
+      throw {
+        message: err.message || "Failed to verify email",
+        status: err.status || 500,
+      };
+    }
   }
 
   /**
@@ -236,17 +252,17 @@ export class NeuctraAuthix {
    * Get the profile of a user for a specific app
    * @param params requires userId and appId
    */
-  async getProfile(params: { userId: string; }) {
+  async getUserProfile(params: { userId: string }) {
     const { userId } = params;
 
-    if (!userId ) {
+    if (!userId) {
       throw new Error("getProfile: 'userId' and 'appId' are required");
     }
 
     try {
       // Send POST request with userId and appId in the body
       const response = await this.request("POST", "/users/profile", {
-        userId
+        userId,
       });
 
       return response; // { success, message, user }
@@ -265,7 +281,7 @@ export class NeuctraAuthix {
    * Forgot password (public route)
    * @param params requires email
    */
-  async requestPasswordReset(params: { email: string }) {
+  async requestResetUserPasswordOTP(params: { email: string }) {
     const { email } = params;
     if (!email) throw new Error("forgotPassword: 'email' is required");
 

@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { generateId, hashOTP, verifyHashedOTP } from "../utils/crypto.js";
-import { sendEmail, sendOTPEmail } from "../utils/mailer.js";
+import { sendOtpEmail } from "../utils/mailer.js";
 import { comparePassword, hashPassword } from "../utils/password.js";
 
 // ------------------------------------------------------------
@@ -256,7 +256,7 @@ export const loginUser = async (req, res) => {
 
 /**
  * 🔐 Check current authentication session (cookie-based)
- */
+ **/
 export const getSession = async (req, res) => {
   try {
     const token = req.cookies?.authix_session; // ✅ safely access cookie
@@ -527,30 +527,46 @@ export const checkUser = async (req, res) => {
 /**
  * @desc Send email verification OTP for user
  * @route POST /api/users/send-verify-otp
- * @access Private (User must be logged in + valid apiKey)
+ * @access Public (requires email + appId)
  */
 export const sendUserVerifyOTP = async (req, res) => {
   try {
-    const userId = req.params?.id;
-    const appId = req.headers["x-app-id"]; // enforce app context
+    // 1. Get email and appId from request body
+    const { email, appId } = req.body;
 
-    if (!userId || !appId) {
-      return res.status(401).json({
+    if (!email || !appId) {
+      return res.status(400).json({
         success: false,
-        message: "Unauthorized: Missing user or appId",
+        message: "'email' and 'appId' are required in request body",
       });
     }
 
-    const user = await prisma.user.findFirst({
-      where: { id: userId, appId, isActive: true },
+    // 2. Check if app exists
+    const app = await prisma.app.findUnique({
+      where: { id: appId },
+      select: { id: true, applicationName: true },
     });
+
+    if (!app) {
+      return res.status(404).json({
+        success: false,
+        message: "App not found",
+      });
+    }
+
+    // 3. Check if user exists and is active in this app
+    const user = await prisma.user.findFirst({
+      where: { email: email.toLowerCase(), appId, isActive: true },
+    });
+
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found or inactive",
+        message: "User not found or inactive in this app",
       });
     }
 
+    // 4. Check if user is already verified
     if (user.isVerified) {
       return res.status(400).json({
         success: false,
@@ -558,17 +574,24 @@ export const sendUserVerifyOTP = async (req, res) => {
       });
     }
 
-    // Generate OTP + expiry
+    // 5. Generate OTP + hash + expiry
     const otp = crypto.randomInt(100000, 999999).toString();
     const otpHash = await hashOTP(otp);
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     await prisma.user.update({
-      where: { id: userId },
+      where: { id: user.id },
       data: { otp: otpHash, otpExpiry },
     });
 
-    const emailSent = await sendOTPEmail(user.email, otp);
+    // 6. Send OTP email using unified mailer
+    const emailSent = await sendOtpEmail(
+      user.email,
+      otp,
+      app.applicationName,
+      "verification",
+    );
+
     if (!emailSent) {
       return res.status(500).json({
         success: false,
@@ -585,6 +608,7 @@ export const sendUserVerifyOTP = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? err.message : undefined,
     });
   }
 };
@@ -662,9 +686,24 @@ export const userForgotPassword = async (req, res) => {
       });
     }
 
+    // 1. Check if app exists
+    const app = await prisma.app.findUnique({
+      where: { id: appId },
+      select: { id: true, applicationName: true },
+    });
+
+    if (!app) {
+      return res.status(404).json({
+        success: false,
+        message: "App not found",
+      });
+    }
+
+    // 2. Check if user exists and is active
     const user = await prisma.user.findFirst({
       where: { email: email.toLowerCase(), appId, isActive: true },
     });
+
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -672,20 +711,30 @@ export const userForgotPassword = async (req, res) => {
       });
     }
 
+    // 3. Generate OTP + hash + expiry
     const otp = crypto.randomInt(100000, 999999).toString();
     const otpHash = await hashOTP(otp);
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     await prisma.user.update({
       where: { id: user.id },
       data: { otp: otpHash, otpExpiry },
     });
 
-    await sendEmail({
-      to: email,
-      subject: "Password Reset OTP",
-      html: `<p>Your password reset OTP is: <b>${otp}</b></p>`,
-    });
+    // 4. Send OTP email using unified mailer
+    const emailSent = await sendOtpEmail(
+      user.email,
+      otp,
+      app.applicationName,
+      "reset",
+    );
+
+    if (!emailSent) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send OTP email. Try again later.",
+      });
+    }
 
     return res.status(200).json({
       success: true,
@@ -696,6 +745,7 @@ export const userForgotPassword = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? err.message : undefined,
     });
   }
 };
