@@ -224,12 +224,10 @@ export const loginUser = async (req, res) => {
 
     res.cookie("authix_session", token, {
       httpOnly: true, // JS cannot access the cookie
-      secure: isProduction || true, // always true for SameSite=None
-      sameSite: isProduction ? "none" : "lax", // cross-origin in prod, lax for local dev
+      secure: false, // true in prod (HTTPS required), false in dev
+      sameSite: isProduction ? "none" : "lax", // none for prod cross-origin, lax for local dev
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: "/", // cookie available site-wide
-      domain: isProduction ? ".server.authix.neuctra.com" : undefined,
-      // undefined for localhost or LAN IP, production uses proper domain
+      path: "/",
     });
 
     // 7️⃣ Return SAFE user data
