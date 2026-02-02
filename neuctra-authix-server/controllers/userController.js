@@ -228,7 +228,7 @@ export const loginUser = async (req, res) => {
       sameSite: isProduction ? "none" : "lax", // none for prod cross-origin, lax for dev/local
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       path: "/", // cookie valid for entire site
-      domain: isProduction ? ".server.authix.neuctra.com" : undefined, // undefined for localhost / LAN IP
+// undefined for localhost / LAN IP
     });
 
     // 7️⃣ Return SAFE user data
