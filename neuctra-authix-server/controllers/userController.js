@@ -220,11 +220,14 @@ export const loginUser = async (req, res) => {
       { expiresIn: "7d" },
     );
 
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("authix_session", token, {
-      httpOnly: true,
-      secure: true, // true in production, false in dev
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true, // JS cannot access the cookie
+      secure: isProduction, // true in prod (HTTPS required), false in dev
+      sameSite: isProduction ? "none" : "lax", // none for prod cross-origin, lax for local dev
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: "/",
     });
 
     // 7️⃣ Return SAFE user data

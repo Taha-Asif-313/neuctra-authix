@@ -1,16 +1,9 @@
 "use client";
 
 import React, { ReactNode, useEffect, useState } from "react";
-
-/**
- * Same minimal contract as ReactSignedIn
- */
-export interface AuthixLike {
-  getSession: () => Promise<{ authenticated: boolean }>;
-}
+import { useAuthix } from "./Provider/AuthixProvider.js";
 
 interface ReactSignedOutProps {
-  authix: AuthixLike;
   children: ReactNode;
   fallback?: ReactNode | (() => ReactNode);
   loading?: ReactNode | (() => ReactNode);
@@ -20,7 +13,6 @@ interface ReactSignedOutProps {
 }
 
 export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
-  authix,
   children,
   fallback = null,
   loading = null,
@@ -28,6 +20,7 @@ export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
   width,
   height,
 }) => {
+  const authix = useAuthix();
   const [mounted, setMounted] = useState(false);
   const [signedOut, setSignedOut] = useState<boolean | null>(null);
 
@@ -39,7 +32,6 @@ export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
         const session = await authix.getSession();
         setSignedOut(!session?.authenticated);
       } catch {
-        // If session check fails → treat as signed out
         setSignedOut(true);
       }
     };
@@ -47,29 +39,16 @@ export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
     checkSession();
   }, [authix]);
 
-  // ⛔ Prevent SSR / hydration mismatch
   if (!mounted) return null;
 
-  // ⏳ Loading state
-  if (signedOut === null) {
-    return typeof loading === "function" ? loading() : loading;
-  }
+  if (signedOut === null) return typeof loading === "function" ? loading() : loading;
 
-  // ❌ User is signed IN → show fallback
-  if (!signedOut) {
-    return typeof fallback === "function" ? fallback() : fallback;
-  }
+  if (!signedOut) return typeof fallback === "function" ? fallback() : fallback;
 
-  // ✅ User is signed OUT
   return (
     <div
       className={className}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        width,
-        height,
-      }}
+      style={{ display: "flex", alignItems: "center", width, height }}
     >
       {children}
     </div>

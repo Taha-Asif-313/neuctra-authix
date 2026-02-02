@@ -1,17 +1,9 @@
 "use client";
 
 import React, { ReactNode, useEffect, useState } from "react";
-
-/**
- * Minimal contract your UI needs.
- * Cookie-based session check
- */
-export interface AuthixLike {
-  getSession: () => Promise<{ authenticated: boolean }>;
-}
+import { useAuthix } from "./Provider/AuthixProvider.js";
 
 interface ReactSignedInProps {
-  authix: AuthixLike;
   children: ReactNode;
   fallback?: ReactNode | (() => ReactNode);
   loading?: ReactNode | (() => ReactNode);
@@ -21,7 +13,6 @@ interface ReactSignedInProps {
 }
 
 export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
-  authix,
   children,
   fallback = null,
   loading = null,
@@ -29,6 +20,7 @@ export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
   width,
   height,
 }) => {
+  const authix = useAuthix();
   const [mounted, setMounted] = useState(false);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
 
@@ -47,29 +39,16 @@ export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
     checkSession();
   }, [authix]);
 
-  // ⛔ Prevent SSR / hydration mismatch
-  if (!mounted) return null;
+  if (!mounted) return null; // Prevent SSR mismatch
 
-  // ⏳ Loading state
-  if (signedIn === null) {
-    return typeof loading === "function" ? loading() : loading;
-  }
+  if (signedIn === null) return typeof loading === "function" ? loading() : loading;
 
-  // ❌ Not signed in
-  if (!signedIn) {
-    return typeof fallback === "function" ? fallback() : fallback;
-  }
+  if (!signedIn) return typeof fallback === "function" ? fallback() : fallback;
 
-  // ✅ Signed in
   return (
     <div
       className={className}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        width,
-        height,
-      }}
+      style={{ display: "flex", alignItems: "center", width, height }}
     >
       {children}
     </div>
