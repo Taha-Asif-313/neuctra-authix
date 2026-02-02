@@ -1,7 +1,7 @@
 import { hashPassword, comparePassword } from "../utils/password.js";
 import { generateToken } from "../utils/jwt.js";
 import { generateApiKey, generateId } from "../utils/crypto.js";
-import { sendEmail, sendOTPEmail } from "../utils/mailer.js";
+import { sendOtpEmail } from "../utils/mailer.js";
 import { addMonths } from "date-fns";
 import { Parser } from "json2csv";
 import prisma from "../prisma.js";
@@ -47,7 +47,9 @@ export const signupAdmin = async (req, res) => {
     }
 
     // 🚫 4. Check if admin already exists
-    const existingAdmin = await prisma.adminUser.findUnique({ where: { email } });
+    const existingAdmin = await prisma.adminUser.findUnique({
+      where: { email },
+    });
     if (existingAdmin) {
       return res.status(400).json({
         success: false,
@@ -112,8 +114,6 @@ export const signupAdmin = async (req, res) => {
     });
   }
 };
-
-
 
 /**
  * @desc Login admin
@@ -323,7 +323,12 @@ export const sendVerifyOTP = async (req, res) => {
     });
 
     // ✅ Send OTP email
-    const emailSent = await sendOTPEmail(admin.email, otp);
+    const emailSent = await sendOtpEmail(
+      admin.email,
+      otp,
+      "Neuctra Authix",
+      "verification",
+    );
     if (!emailSent) {
       return res.status(500).json({
         success: false,
@@ -389,7 +394,10 @@ export const verifyEmail = async (req, res) => {
     });
 
     // 🎟 4. Generate fresh JWT
-    const token = generateToken({ id: updatedAdmin.id, email: updatedAdmin.email });
+    const token = generateToken({
+      id: updatedAdmin.id,
+      email: updatedAdmin.email,
+    });
 
     // 🎉 5. Return same structure as login/signup
     return res.status(200).json({
@@ -422,7 +430,6 @@ export const verifyEmail = async (req, res) => {
   }
 };
 
-
 /**
  * @desc Send reset password OTP
  * @route POST /api/admin/forgot-password
@@ -446,11 +453,7 @@ export const forgotPassword = async (req, res) => {
       data: { otp, otpExpiry },
     });
 
-    await sendEmail({
-      to: email,
-      subject: "Password Reset OTP",
-      html: `<p>Your reset OTP is: <b>${otp}</b></p>`,
-    });
+    await sendOtpEmail(user.email, otp, "Neuctra Authix", "reset");
 
     return res.status(200).json({
       success: true,
@@ -821,7 +824,7 @@ export const generateAdminReport = async (req, res) => {
           appId: app.id,
           appName: app.applicationName,
           usersCount: app.users.length,
-        }))
+        })),
       );
 
       res.header("Content-Type", "text/csv");
@@ -854,11 +857,11 @@ export const generateAdminReport = async (req, res) => {
 
       res.setHeader(
         "Content-Type",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       );
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename=admin-report-${admin.id}.xlsx`
+        `attachment; filename=admin-report-${admin.id}.xlsx`,
       );
 
       await workbook.xlsx.write(res);
@@ -871,7 +874,7 @@ export const generateAdminReport = async (req, res) => {
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename=admin-report-${admin.id}.pdf`
+        `attachment; filename=admin-report-${admin.id}.pdf`,
       );
 
       doc.pipe(res);
