@@ -1,6 +1,6 @@
 {
   "name": "@neuctra/authix",
-  "version": "1.1.63",
+  "version": "1.1.64",
   "description": "Universal authentication SDK and UI components for React (v16–v19) with TailwindCSS.",
   "author": "Taha Asif",
   "license": "MIT",

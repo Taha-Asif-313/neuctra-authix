@@ -155,26 +155,40 @@ export class NeuctraAuthix {
 
   /**
    * Send email verification OTP for a user
-   * @param params requires email and appId
+   * @param params requires userId and email
    */
-  async requestEmailVerificationOTP(params: { email: string }) {
-    const { email } = params;
+  async requestEmailVerificationOTP(params: { userId: string; email: string }) {
+    const { userId, email } = params;
+
+    // ✅ Validate inputs
+    if (!userId) {
+      throw {
+        message: "requestEmailVerificationOTP: 'userId' is required",
+        status: 400,
+      };
+    }
 
     if (!email) {
-      throw new Error(
-        "sendEmailVerificationRequest: 'email' and 'appId' are required",
-      );
+      throw {
+        message: "requestEmailVerificationOTP: 'email' is required",
+        status: 400,
+      };
     }
 
     try {
-      return await this.request("POST", "/users/send-verify-otp", {
-        email,
-      });
+      // Send POST request to backend
+      return await this.request(
+        "POST",
+        `/users/send-verify-otp/${encodeURIComponent(userId)}`,
+        { email },
+      );
     } catch (err: any) {
+      console.error("requestEmailVerificationOTP Error:", err);
+
       // Friendly error object
       throw {
-        message: err.message || "Failed to send verification OTP",
-        status: err.status || 500,
+        message: err?.message || "Failed to send verification OTP",
+        status: err?.status || 500,
       };
     }
   }

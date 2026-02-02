@@ -531,8 +531,8 @@ export const checkUser = async (req, res) => {
  */
 export const sendUserVerifyOTP = async (req, res) => {
   try {
-    // 1. Get email and appId from request body
     const { email, appId } = req.body;
+    const userId = req.params.id;
 
     if (!email || !appId) {
       return res.status(400).json({
@@ -541,8 +541,8 @@ export const sendUserVerifyOTP = async (req, res) => {
       });
     }
 
-    // 2. Check if app exists
-    const app = await prisma.app.findUnique({
+    // ✅ Check if app exists
+    const app = await prisma.app.findFirst({
       where: { id: appId },
       select: { id: true, applicationName: true },
     });
@@ -554,9 +554,9 @@ export const sendUserVerifyOTP = async (req, res) => {
       });
     }
 
-    // 3. Check if user exists and is active in this app
+    // ✅ Check if user exists and is active
     const user = await prisma.user.findFirst({
-      where: { email: email.toLowerCase(), appId, isActive: true },
+      where: { id: userId, email: email.toLowerCase(), appId, isActive: true },
     });
 
     if (!user) {
@@ -566,7 +566,7 @@ export const sendUserVerifyOTP = async (req, res) => {
       });
     }
 
-    // 4. Check if user is already verified
+    // ✅ Check if already verified
     if (user.isVerified) {
       return res.status(400).json({
         success: false,
@@ -574,17 +574,17 @@ export const sendUserVerifyOTP = async (req, res) => {
       });
     }
 
-    // 5. Generate OTP + hash + expiry
+    // ✅ Generate OTP + hash + expiry
     const otp = crypto.randomInt(100000, 999999).toString();
     const otpHash = await hashOTP(otp);
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
     await prisma.user.update({
       where: { id: user.id },
       data: { otp: otpHash, otpExpiry },
     });
 
-    // 6. Send OTP email using unified mailer
+    // ✅ Send OTP email
     const emailSent = await sendOtpEmail(
       user.email,
       otp,

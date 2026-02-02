@@ -12,11 +12,15 @@ const transporter = nodemailer.createTransport({
 
 /**
  * Generic email sender
+ * @param {string} to recipient email
+ * @param {string} subject email subject
+ * @param {string} html email HTML body
+ * @param {string} [fromName] optional sender name, defaults to "Neuctra Authix"
  */
-export const sendEmail = async ({ to, subject, html }) => {
+export const sendEmail = async ({ to, subject, html, fromName }) => {
   try {
     await transporter.sendMail({
-      from: `"Neuctra Authix" <${process.env.SMTP_USER}>`,
+      from: `"${fromName || "Neuctra Authix"}" <${process.env.SMTP_USER}>`,
       to,
       subject,
       html,
@@ -30,10 +34,10 @@ export const sendEmail = async ({ to, subject, html }) => {
 
 /**
  * Send OTP email for verification or password reset
- * @param to user email
- * @param otp OTP code
- * @param appName name of the app
- * @param type "verification" | "reset"
+ * @param {string} to user email
+ * @param {string} otp OTP code
+ * @param {string} appName name of the app (used as sender name and in content)
+ * @param {"verification"|"reset"} type OTP type
  */
 export const sendOtpEmail = async (to, otp, appName, type = "verification") => {
   const title =
@@ -84,5 +88,10 @@ export const sendOtpEmail = async (to, otp, appName, type = "verification") => {
   </html>
   `;
 
-  return sendEmail({ to, subject: `${title} - ${appName}`, html });
+  return sendEmail({
+    to,
+    subject: `${title} - ${appName}`,
+    html,
+    fromName: appName, // dynamically use app name as sender
+  });
 };
