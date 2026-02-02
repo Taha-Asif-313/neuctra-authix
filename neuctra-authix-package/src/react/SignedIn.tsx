@@ -4,7 +4,7 @@ import React, { ReactNode, useEffect, useState } from "react";
 
 /**
  * Minimal contract your UI needs.
- * Any Authix-like SDK can satisfy this.
+ * Cookie-based session check
  */
 export interface AuthixLike {
   getSession: () => Promise<{ authenticated: boolean }>;
@@ -14,6 +14,7 @@ interface ReactSignedInProps {
   authix: AuthixLike;
   children: ReactNode;
   fallback?: ReactNode | (() => ReactNode);
+  loading?: ReactNode | (() => ReactNode);
   className?: string;
   width?: string;
   height?: string;
@@ -23,6 +24,7 @@ export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
   authix,
   children,
   fallback = null,
+  loading = null,
   className = "",
   width,
   height,
@@ -36,28 +38,29 @@ export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
     const checkSession = async () => {
       try {
         const session = await authix.getSession();
-        setSignedIn(Boolean(session?.authenticated));
+        setSignedIn(!!session?.authenticated);
       } catch {
         setSignedIn(false);
       }
     };
 
     checkSession();
-
-    // Optional: re-check on cross-tab auth changes
-    const onStorage = () => checkSession();
-    window.addEventListener("storage", onStorage);
-
-    return () => window.removeEventListener("storage", onStorage);
   }, [authix]);
 
-  // ⛔ Prevent SSR/CSR mismatch
-  if (!mounted || signedIn === null) return null;
+  // ⛔ Prevent SSR / hydration mismatch
+  if (!mounted) return null;
 
+  // ⏳ Loading state
+  if (signedIn === null) {
+    return typeof loading === "function" ? loading() : loading;
+  }
+
+  // ❌ Not signed in
   if (!signedIn) {
     return typeof fallback === "function" ? fallback() : fallback;
   }
 
+  // ✅ Signed in
   return (
     <div
       className={className}

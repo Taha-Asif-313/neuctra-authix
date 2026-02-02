@@ -220,12 +220,10 @@ export const loginUser = async (req, res) => {
       { expiresIn: "7d" },
     );
 
-    const isProd = process.env.NODE_ENV === "production";
-
     res.cookie("authix_session", token, {
       httpOnly: true,
-      secure: isProd, // true in production, false in dev
-      sameSite: isProd ? "none" : "lax", // none for cross-site prod, lax for dev
+      secure: true, // true in production, false in dev
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 

@@ -13,6 +13,7 @@ interface ReactSignedOutProps {
   authix: AuthixLike;
   children: ReactNode;
   fallback?: ReactNode | (() => ReactNode);
+  loading?: ReactNode | (() => ReactNode);
   className?: string;
   width?: string;
   height?: string;
@@ -22,6 +23,7 @@ export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
   authix,
   children,
   fallback = null,
+  loading = null,
   className = "",
   width,
   height,
@@ -37,27 +39,28 @@ export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
         const session = await authix.getSession();
         setSignedOut(!session?.authenticated);
       } catch {
-        // If session fails → treat as signed out
+        // If session check fails → treat as signed out
         setSignedOut(true);
       }
     };
 
     checkSession();
-
-    // Optional: cross-tab auth updates
-    const onStorage = () => checkSession();
-    window.addEventListener("storage", onStorage);
-
-    return () => window.removeEventListener("storage", onStorage);
   }, [authix]);
 
-  // ⛔ Prevent SSR/CSR mismatch
-  if (!mounted || signedOut === null) return null;
+  // ⛔ Prevent SSR / hydration mismatch
+  if (!mounted) return null;
 
+  // ⏳ Loading state
+  if (signedOut === null) {
+    return typeof loading === "function" ? loading() : loading;
+  }
+
+  // ❌ User is signed IN → show fallback
   if (!signedOut) {
     return typeof fallback === "function" ? fallback() : fallback;
   }
 
+  // ✅ User is signed OUT
   return (
     <div
       className={className}
