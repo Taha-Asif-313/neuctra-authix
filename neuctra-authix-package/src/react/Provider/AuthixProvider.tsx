@@ -3,7 +3,7 @@
 import React, { createContext, useContext, ReactNode } from "react";
 
 export interface AuthixLike {
-  getSession: () => Promise<{ authenticated: boolean }>;
+  checkSession: () => Promise<{ authenticated: boolean }>;
 }
 
 const AuthixContext = createContext<AuthixLike | null>(null);
