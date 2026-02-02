@@ -34,7 +34,7 @@ router.post("/login", authMiddleware, loginUser);
 router.get("/session", authMiddleware, getSession);
 
 // 🔹 Get profile of logged-in user (requires user auth token)
-router.get("/profile", authMiddleware, getProfile);
+router.post("/profile", authMiddleware, getProfile);
 
 // 🔹 Get list of users under an app (requires admin auth & appId)
 router.get("/list/:appId", authMiddleware, getUsers);

@@ -228,7 +228,7 @@ export const loginUser = async (req, res) => {
       sameSite: isProduction ? "none" : "lax", // none for prod cross-origin, lax for dev/local
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       path: "/", // cookie valid for entire site
-// undefined for localhost / LAN IP
+      // undefined for localhost / LAN IP
     });
 
     // 7️⃣ Return SAFE user data
@@ -898,41 +898,20 @@ export const getUsers = async (req, res) => {
  */
 export const getProfile = async (req, res) => {
   try {
-    // 1. Extract token from headers
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith("Bearer ")) {
-      return res.status(401).json({
-        success: false,
-        message: "Authorization token missing",
-      });
-    }
-
-    const token = authHeader.split(" ")[1];
-
-    // 2. Decode token without verification to get appId
-    let decodedApp;
-    try {
-      decodedApp = jwt.decode(token);
-      console.log(decodedApp);
-
-      if (!decodedApp?.appId) {
-        return res.status(400).json({
-          success: false,
-          message: "Token is missing appId",
-        });
-      }
-    } catch {
+    // 1. Extract userId and appId from body
+    const { userId, appId } = req.body;
+    if (!userId || !appId) {
       return res.status(400).json({
         success: false,
-        message: "Invalid token format",
+        message: "'userId' and 'appId' are required in the request body",
       });
     }
 
+    // 2. Check if app exists
     const app = await prisma.app.findUnique({
-      where: { id: decodedApp.appId },
-      select: { id: true, appSecret: true },
+      where: { id: appId },
+      select: { id: true, name: true },
     });
-    console.log(app);
 
     if (!app) {
       return res.status(404).json({
@@ -941,20 +920,9 @@ export const getProfile = async (req, res) => {
       });
     }
 
-    // 3. Verify JWT with appSecret
-    let decodedUser;
-    try {
-      decodedUser = jwt.verify(token, app.appSecret);
-    } catch (err) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid or expired token",
-      });
-    }
-
-    // 4. Fetch user by ID
-    const user = await prisma.user.findUnique({
-      where: { id: decodedUser.id },
+    // 3. Fetch user securely only if they belong to this app
+    const user = await prisma.user.findFirst({
+      where: { id: userId, appId: appId },
       select: {
         id: true,
         name: true,
@@ -964,9 +932,7 @@ export const getProfile = async (req, res) => {
         avatarUrl: true,
         isActive: true,
         role: true,
-        appId: true,
         isVerified: true,
-        adminId: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -975,11 +941,11 @@ export const getProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found",
+        message: "User not found for this app",
       });
     }
 
-    // 5. Return profile
+    // 4. Return secure profile
     return res.status(200).json({
       success: true,
       message: "Profile fetched successfully",

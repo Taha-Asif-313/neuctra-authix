@@ -25,13 +25,11 @@ export interface SignupParams {
   avatarUrl?: string | null;
   isActive?: boolean;
   role?: string;
-  adminId?: string | null;
 }
 
 export interface LoginParams {
   email: string;
   password: string;
-  appId: string;
 }
 
 export interface UpdateUserParams {

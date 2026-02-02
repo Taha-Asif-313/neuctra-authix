@@ -63,11 +63,7 @@ export class NeuctraAuthix {
     data?: D,
     extraHeaders: Record<string, string> = {},
   ): Promise<T> {
-    if (!method) throw new Error("HTTP method is required");
-    if (!path) throw new Error("Request path is required");
-
     try {
-      // 🧩 Merge appId into request body if available
       const body = {
         ...(this.appId ? { appId: this.appId } : {}),
         ...(data || {}),
@@ -80,24 +76,21 @@ export class NeuctraAuthix {
         headers: extraHeaders,
       });
 
-      // ✅ Return only response data
       return res.data;
     } catch (err: any) {
-      console.error("❌ [Request Error]:", err);
-
-      // 🔍 Handle Axios and network errors properly
-      if (err.isAxiosError) {
-        const status = err.response?.status || 0;
-        const message =
-          err.response?.data?.message ||
-          err.message ||
-          "Unknown Axios error occurred";
-
-        throw new Error(`Request failed (${status}): ${message}`);
+      if (axios.isAxiosError(err)) {
+        // Just throw a simple object with message & status
+        throw {
+          message:
+            err.response?.data?.message || err.message || "Request failed",
+          status: err.response?.status ?? 0,
+        };
       }
 
-      // 🔄 Handle unexpected runtime errors
-      throw new Error(`Unexpected error: ${err.message || "Unknown failure"}`);
+      // Non-Axios errors
+      throw {
+        message: err.message || "Unexpected error occurred",
+      };
     }
   }
 
@@ -107,7 +100,7 @@ export class NeuctraAuthix {
    * Register a new user
    * @param params user details
    */
-  async signup(params: SignupParams) {
+  async signupUser(params: SignupParams) {
     const { name, email, password } = params;
     if (!name || !email || !password) {
       throw new Error("signup: 'name', 'email', and 'password' are required");
@@ -120,24 +113,84 @@ export class NeuctraAuthix {
    * Login a user
    * @param params login details
    */
-  async login(params: LoginParams) {
-    const { email, password, appId } = params;
+  async loginUser(params: LoginParams) {
+    const { email, password } = params;
+
     if (!email || !password) {
       throw new Error("login: 'email' and 'password' are required");
     }
 
-    return this.request("POST", "/users/login", {
-      email,
-      password,
-      appId: appId || this.appId,
+    try {
+      const response = await this.request("POST", "/users/login", {
+        email,
+        password,
+      });
+
+      return response; // 👈 THIS is what you were “not seeing”
+    } catch (err: any) {
+      // Preserve meaningful backend error
+      throw new Error(err.message || "Login failed due to an unknown error");
+    }
+  }
+
+  /**
+   * Change a user's password (Admin only)
+   * @param params requires userId, currentPassword, newPassword
+   */
+  async changePassword(params: ChangePasswordParams) {
+    const { userId, currentPassword, newPassword } = params;
+
+    if (!userId) throw new Error("changePassword: 'userId' is required");
+    if (!currentPassword || !newPassword) {
+      throw new Error(
+        "changePassword: both 'currentPassword' and 'newPassword' are required",
+      );
+    }
+
+    return this.request("PUT", `/users/change-password/${userId}`, {
+      currentPassword,
+      newPassword,
     });
+  }
+
+  /**
+   * Send verification OTP (requires logged-in user token)
+   * @param params requires token
+   */
+  async sendVerifyOTP(params: { token: string; appId?: string }) {
+    const { token } = params;
+    if (!token) throw new Error("sendVerifyOTP: 'token' is required");
+
+    return this.request(
+      "POST",
+      "/users/send-verify-otp",
+      {},
+      { Authorization: `Bearer ${token}` },
+    );
+  }
+
+  /**
+   * Verify email with OTP (requires logged-in user token)
+   * @param params requires token + otp
+   */
+  async verifyEmail(params: { token: string; otp: string; appId?: string }) {
+    const { token, otp, appId } = params;
+    if (!token) throw new Error("verifyEmail: 'token' is required");
+    if (!otp) throw new Error("verifyEmail: 'otp' is required");
+
+    return this.request(
+      "POST",
+      "/users/verify-email",
+      { otp, appId: appId || this.appId },
+      { Authorization: `Bearer ${token}` },
+    );
   }
 
   /**
    * 🔐 Check current authentication session (cookie-based)
    * Automatically detects logged-in / logged-out state
    */
-  async checkSession(): Promise<CheckSessionResponse> {
+  async checkUserSession(): Promise<CheckSessionResponse> {
     // On server-side, return false immediately
     if (typeof window === "undefined") {
       return { authenticated: false };
@@ -167,27 +220,6 @@ export class NeuctraAuthix {
   }
 
   /**
-   * Change a user's password (Admin only)
-   * @param params requires userId, currentPassword, newPassword
-   */
-  async changePassword(params: ChangePasswordParams) {
-    const { userId, currentPassword, newPassword, appId } = params;
-
-    if (!userId) throw new Error("changePassword: 'userId' is required");
-    if (!currentPassword || !newPassword) {
-      throw new Error(
-        "changePassword: both 'currentPassword' and 'newPassword' are required",
-      );
-    }
-
-    return this.request("PUT", `/users/change-password/${userId}`, {
-      currentPassword,
-      newPassword,
-      appId: appId || this.appId,
-    });
-  }
-
-  /**
    * Delete a user
    * @param params requires userId and optionally appId
    */
@@ -201,67 +233,44 @@ export class NeuctraAuthix {
   }
 
   /**
-   * Get the profile of the authenticated user
-   * @param params requires JWT token
+   * Get the profile of a user for a specific app
+   * @param params requires userId and appId
    */
-  async getProfile(params: GetProfileParams) {
-    const { token } = params;
-    if (!token) throw new Error("getProfile: 'token' is required");
+  async getProfile(params: { userId: string; }) {
+    const { userId } = params;
 
-    return this.request(
-      "GET",
-      "/users/profile",
-      {},
-      { Authorization: `Bearer ${token}` },
-    );
+    if (!userId ) {
+      throw new Error("getProfile: 'userId' and 'appId' are required");
+    }
+
+    try {
+      // Send POST request with userId and appId in the body
+      const response = await this.request("POST", "/users/profile", {
+        userId
+      });
+
+      return response; // { success, message, user }
+    } catch (err: any) {
+      // Friendly error object
+      throw {
+        message: err.message || "Failed to fetch profile",
+        status: err.status || 500,
+      };
+    }
   }
 
   // ================= USERS SECURITY =================
 
   /**
-   * Send verification OTP (requires logged-in user token)
-   * @param params requires token
-   */
-  async sendVerifyOTP(params: { token: string; appId?: string }) {
-    const { token, appId } = params;
-    if (!token) throw new Error("sendVerifyOTP: 'token' is required");
-
-    return this.request(
-      "POST",
-      "/users/send-verify-otp",
-      { appId: appId || this.appId },
-      { Authorization: `Bearer ${token}` },
-    );
-  }
-
-  /**
-   * Verify email with OTP (requires logged-in user token)
-   * @param params requires token + otp
-   */
-  async verifyEmail(params: { token: string; otp: string; appId?: string }) {
-    const { token, otp, appId } = params;
-    if (!token) throw new Error("verifyEmail: 'token' is required");
-    if (!otp) throw new Error("verifyEmail: 'otp' is required");
-
-    return this.request(
-      "POST",
-      "/users/verify-email",
-      { otp, appId: appId || this.appId },
-      { Authorization: `Bearer ${token}` },
-    );
-  }
-
-  /**
    * Forgot password (public route)
    * @param params requires email
    */
-  async forgotPassword(params: { email: string; appId?: string }) {
-    const { email, appId } = params;
+  async requestPasswordReset(params: { email: string }) {
+    const { email } = params;
     if (!email) throw new Error("forgotPassword: 'email' is required");
 
     return this.request("POST", "/users/forgot-password", {
       email,
-      appId: appId || this.appId,
     });
   }
 
@@ -269,13 +278,12 @@ export class NeuctraAuthix {
    * Reset password (public route)
    * @param params requires email, otp, newPassword
    */
-  async resetPassword(params: {
+  async resetUserPassword(params: {
     email: string;
     otp: string;
     newPassword: string;
-    appId?: string;
   }) {
-    const { email, otp, newPassword, appId } = params;
+    const { email, otp, newPassword } = params;
     if (!email || !otp || !newPassword) {
       throw new Error(
         "resetPassword: 'email', 'otp' and 'newPassword' are required",
@@ -286,7 +294,6 @@ export class NeuctraAuthix {
       email,
       otp,
       newPassword,
-      appId: appId || this.appId,
     });
   }
 
@@ -295,13 +302,9 @@ export class NeuctraAuthix {
    * @param userId user id to check
    * @returns { exists: boolean }
    */
-  async checkUser(userId: string): Promise<CheckUserResponse> {
+  async checkIfUserExists(userId: string): Promise<CheckUserResponse> {
     if (!userId) {
       throw new Error("checkUser: 'userId' is required");
-    }
-
-    if (!this.appId) {
-      throw new Error("checkUser: SDK 'appId' is missing in config");
     }
 
     return this.request<CheckUserResponse>(
