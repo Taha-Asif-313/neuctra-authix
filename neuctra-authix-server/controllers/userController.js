@@ -910,7 +910,7 @@ export const getProfile = async (req, res) => {
     // 2. Check if app exists
     const app = await prisma.app.findUnique({
       where: { id: appId },
-      select: { id: true, name: true },
+      select: { id: true, applicationName: true },
     });
 
     if (!app) {
