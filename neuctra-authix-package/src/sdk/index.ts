@@ -240,12 +240,11 @@ export class NeuctraAuthix {
    * @param params fields to update
    */
   async updateUser(params: UpdateUserParams) {
-    const { userId, appId } = params;
+    const { userId } = params;
     if (!userId) throw new Error("updateUser: 'userId' is required");
 
     return this.request("PUT", `/users/update/${userId}`, {
-      ...params,
-      appId: appId || this.appId,
+      ...params
     });
   }
 

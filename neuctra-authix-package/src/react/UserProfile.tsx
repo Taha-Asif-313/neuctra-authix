@@ -26,6 +26,7 @@ import DeleteAccountModal from "./components/DeleteAccountModal.js";
 import AvatarModal from "./components/AvatarModal.js";
 import ChangePasswordModal from "./components/ChangePasswordModal.js";
 import { EmailVerificationModal } from "./components/EmailVerificationModal.js";
+import { useAuthix } from "./Provider/AuthixProvider.js";
 
 interface UserProfileProps {
   token: string;
@@ -49,6 +50,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   primaryColor = "#00C212",
 }) => {
   const { baseUrl, apiKey, appId } = getSdkConfig();
+  const authix = useAuthix();
   const [screenWidth, setScreenWidth] = useState<number | null>(null);
   const [user, setUser] = useState<UserInfo | null>(propUser);
   const [loading, setLoading] = useState(true);
@@ -69,7 +71,6 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   const [verifyFormData, setVerifyFormData] = useState({
     email: "",
     otp: "",
-    appId: appId,
   });
   const [otpSent, setOtpSent] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -103,15 +104,6 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
     return () => clearTimeout(timeout);
   };
 
-  // ✅ Handle dropdown toggle with animation
-  const toggleDropdown = () => {
-    if (moreMenuOpen) {
-      closeDropdown();
-    } else {
-      setMoreMenuOpen(true);
-    }
-  };
-
   // ✅ Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -132,28 +124,41 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
 
   // ✅ Send OTP for verification
   const handleSendOTP = async () => {
+    // Validate email first
     if (!verifyFormData.email || !/\S+@\S+\.\S+/.test(verifyFormData.email)) {
       showNotification("error", "Please enter a valid email");
       return;
     }
 
+    // Ensure user exists
+    if (!user?.id) {
+      showNotification("error", "User not found. Cannot send OTP.");
+      return;
+    }
+
     try {
       setVerifying(true);
-      const res = await axios.post(
-        `${baseUrl}/users/send-verify-otp/${user?.id}`,
-        { email: verifyFormData.email },
-        {
-          headers: { "x-api-key": apiKey, "x-app-id": appId },
-        }
-      );
-      if (res.data.success) {
-        showNotification("success", res.data.message || "OTP sent to email!");
+
+      const res = await authix.requestEmailVerificationOTP({
+        userId: user.id,
+        email: verifyFormData.email,
+      });
+
+      // Check for success safely
+      const success = res?.data?.success ?? res?.success;
+      const message = res?.data?.message ?? res?.message;
+
+      if (success) {
+        showNotification("success", message || "OTP sent to email!");
         setOtpSent(true);
       } else {
-        showNotification("error", res.data.message || "Failed to send OTP");
+        showNotification("error", message || "Failed to send OTP");
       }
     } catch (err: any) {
-      showNotification("error", err.response?.data?.message || "Server error");
+      // Handle errors safely
+      const message =
+        err?.response?.data?.message || err?.message || "Server error";
+      showNotification("error", message);
     } finally {
       setVerifying(false);
     }
@@ -163,44 +168,59 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate inputs
     if (!verifyFormData.email || !verifyFormData.otp) {
       showNotification("error", "Please fill in all fields");
       return;
     }
 
+    if (!user) {
+      showNotification("error", "User not found");
+      return;
+    }
+
     try {
       setVerifying(true);
-      const res = await axios.post(
-        `${baseUrl}/users/verify-email`,
-        verifyFormData
-      );
-      if (res.data.success) {
-        showNotification("success", res.data.message || "Email verified!");
 
-        if (user) {
-          const updatedUser = { ...user, isVerified: true };
-          setUser(updatedUser);
-          localStorage.setItem(
-            "userInfo",
-            JSON.stringify({ ...updatedUser, token })
-          );
+      const res = await authix.verifyEmail({
+        email: verifyFormData.email,
+        otp: verifyFormData.otp,
+      });
 
-          // 🔹 Call parent handler if provided
-          if (typeof onVerify === "function") {
-            onVerify(updatedUser);
-          }
+      // Safe extraction
+      const success = res?.data?.success ?? res?.success;
+      const message = res?.data?.message ?? res?.message;
+
+      if (success) {
+        showNotification("success", message || "Email verified!");
+
+        // Update user state and localStorage
+        const updatedUser = { ...user, isVerified: true };
+        setUser(updatedUser);
+
+        // Only save token if available in user/session
+        const token = user?.token ?? ""; // adjust if token comes elsewhere
+        localStorage.setItem(
+          "userInfo",
+          JSON.stringify({ ...updatedUser, token }),
+        );
+
+        // 🔹 Call parent handler if provided
+        if (typeof onVerify === "function") {
+          onVerify(updatedUser);
         }
-        setVerifyFormData({ email: "", otp: "", appId });
+
+        // Reset form
+        setVerifyFormData({ email: updatedUser.email, otp: "" });
         setOtpSent(false);
-        setShowVerifyEmail(false);
+        setShowVerifyEmail?.(false);
       } else {
-        showNotification("error", res.data.message || "Verification failed");
+        showNotification("error", message || "Verification failed");
       }
     } catch (err: any) {
-      showNotification(
-        "error",
-        err.response?.data?.message || "Something went wrong"
-      );
+      const errMessage =
+        err?.response?.data?.message || err?.message || "Something went wrong";
+      showNotification("error", errMessage);
     } finally {
       setVerifying(false);
     }
@@ -214,14 +234,14 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
       const { data } = await axios.put(
         `${baseUrl}/users/update/${user.id}`,
         updateData,
-        { headers: { "x-api-key": apiKey } }
+        { headers: { "x-api-key": apiKey } },
       );
 
       if (data.success) {
         setUser(updateData);
         localStorage.setItem(
           "userInfo",
-          JSON.stringify({ ...updateData, token })
+          JSON.stringify({ ...updateData, token }),
         );
         showNotification("success", "Avatar updated successfully!");
         return true;
@@ -241,22 +261,18 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
     if (!user) return;
     setSaving(true);
     try {
-      const { data } = await axios.put(
-        `${baseUrl}/users/update/${user.id}`,
-        user,
-        { headers: { "x-api-key": apiKey } }
-      );
+      const res = await authix.updateUser({ userId: user.id, ...user });
 
-      if (data.success) {
-        setUser(data.user);
+      if (res.success) {
+        setUser(res.user);
         setEditMode(false);
         localStorage.setItem(
           "userInfo",
-          JSON.stringify({ ...data.user, token })
+          JSON.stringify({ ...res.user, token }),
         );
         showNotification("success", "Profile updated successfully");
       } else {
-        showNotification("error", data.message);
+        showNotification("error", res.message);
       }
     } catch (err) {
       console.error(err);
@@ -269,47 +285,65 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   // ✅ Validate user with backend (safe version, no false logout)
   const validateUser = async (userId: string) => {
     try {
-      const { data } = await axios.get(
-        `${baseUrl}/users/check-user/${userId}?appId=${appId}`,
-        { headers: { "x-api-key": apiKey } }
-      );
+      const res = await authix.checkIfUserExists(userId);
 
-      // ❗ Only logout if backend explicitly says user DOES NOT exist
-      if (data?.success === true && data?.exists === false) {
+      // Only logout if backend explicitly says user DOES NOT exist
+      if (res?.success === true && res?.exists === false) {
         console.warn("❌ User does not exist on server. Clearing session...");
         localStorage.removeItem("userInfo");
         setUser(null);
       }
 
-      // ❗ If success is false but exists is undefined,
-      // DO NOT LOGOUT — backend may be down or misconfigured.
+      // If success is false or exists is undefined, DO NOT LOGOUT
+      // Backend may be down or misconfigured
     } catch (err) {
-      // ❗ Do NOT logout on error — prevents false logouts
+      // Do NOT logout on error — prevents false logouts
       console.error("⚠️ User validation request failed:", err);
 
-      // Keep user logged in; do not clear storage
+      // Keep user logged in
       // localStorage.removeItem("userInfo"); ❌ removed
       // setUser(null); ❌ removed
     }
   };
 
-  // ✅ Init user ONCE
+  // ✅ Init user ONCE by checking session and fetching profile
   useEffect(() => {
-    const initUser = () => {
-      if (propUser) {
-        setUser(propUser);
-        setLoading(false);
-        validateUser(propUser.id);
-      } else {
-        const stored = localStorage.getItem("userInfo");
-        if (stored) {
-          const parsed: UserInfo = JSON.parse(stored);
-          setUser(parsed);
-          setLoading(false);
-          validateUser(parsed.id);
+    const initUser = async () => {
+      try {
+        setLoading(true);
+
+        // 1️⃣ Check session
+        const sessionRes = await authix.checkUserSession();
+
+        if (sessionRes.user?.id) {
+          const userId = sessionRes.user.id;
+
+          // 2️⃣ Fetch full user profile
+          const profileRes = await authix.getUserProfile({userId});
+
+          if (profileRes.user) {
+            const fullUser: UserInfo = profileRes.user;
+            setUser(fullUser);
+            localStorage.setItem("userInfo", JSON.stringify(fullUser));
+
+            // ✅ Optional: validate user against backend
+            validateUser(userId);
+          } else {
+            // No profile returned, clear user
+            setUser(null);
+            localStorage.removeItem("userInfo");
+          }
         } else {
-          setLoading(false);
+          // No session, clear user
+          setUser(null);
+          localStorage.removeItem("userInfo");
         }
+      } catch (err) {
+        console.error("User init failed:", err);
+        setUser(null); // fail-safe
+        localStorage.removeItem("userInfo");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -613,7 +647,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                   src={
                     user.avatarUrl ||
                     `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
-                      user.name
+                      user.name,
                     )}`
                   }
                   alt={`Profile avatar of ${user.name}`}
@@ -683,8 +717,8 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                       ? "rgba(16, 185, 129, 0.1)"
                       : "rgba(16, 185, 129, 0.05)"
                     : darkMode
-                    ? "rgba(245, 158, 11, 0.1)"
-                    : "rgba(245, 158, 11, 0.05)",
+                      ? "rgba(245, 158, 11, 0.1)"
+                      : "rgba(245, 158, 11, 0.05)",
                   color: user.isVerified ? colors.success : colors.warning,
                   border: `1px solid ${
                     user.isVerified
@@ -692,8 +726,8 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                         ? "rgba(16, 185, 129, 0.3)"
                         : "rgba(16, 185, 129, 0.2)"
                       : darkMode
-                      ? "rgba(245, 158, 11, 0.3)"
-                      : "rgba(245, 158, 11, 0.2)"
+                        ? "rgba(245, 158, 11, 0.3)"
+                        : "rgba(245, 158, 11, 0.2)"
                   }`,
                   padding: "6px 12px",
                   borderRadius: "20px",
@@ -1098,7 +1132,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
                             setUser((prev) =>
                               prev
                                 ? { ...prev, [e.target.name]: e.target.value }
-                                : prev
+                                : prev,
                             )
                           }
                           style={{
@@ -1308,7 +1342,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
         onClose={() => {
           setShowVerifyEmail(false);
           setOtpSent(false);
-          setVerifyFormData({ email: user?.email || "", otp: "", appId });
+          setVerifyFormData({ email: user?.email || "", otp: "" });
         }}
         onVerify={handleVerify}
         onSendOTP={handleSendOTP}

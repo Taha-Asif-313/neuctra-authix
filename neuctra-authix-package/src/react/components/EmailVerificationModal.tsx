@@ -10,12 +10,10 @@ interface EmailVerificationModalProps {
   verifyFormData: {
     email: string;
     otp: string;
-    appId: string;
   };
   setVerifyFormData: React.Dispatch<React.SetStateAction<{
     email: string;
     otp: string;
-    appId: string;
   }>>;
   otpSent: boolean;
   verifying: boolean;
@@ -50,7 +48,7 @@ export const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
 
   const handleClose = () => {
     onClose();
-    setVerifyFormData({ email: user?.email || "", otp: "", appId: verifyFormData.appId });
+    setVerifyFormData({ email: user?.email || "", otp: ""});
   };
 
   return (
