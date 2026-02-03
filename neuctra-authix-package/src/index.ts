@@ -1,6 +1,3 @@
-// Tailwind styles
-import "./index.css";
-
 // SDK exports
 export * from "./sdk/index.js";
 
