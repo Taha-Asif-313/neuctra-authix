@@ -12,6 +12,7 @@ import {
   Image,
 } from "lucide-react";
 import { getSdkConfig } from "../sdk/config.js";
+import { useAuthix } from "./Provider/AuthixProvider.js";
 
 interface SignupFormProps {
   // Customization options
@@ -60,8 +61,7 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
   onSuccess,
   onError,
 }) => {
-  const { baseUrl, apiKey, appId } = getSdkConfig();
-
+  const authix = useAuthix();
   // Initialize form data with only essential fields
   const initialFormData: FormData = {
     name: "",
@@ -135,18 +135,33 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
     setMessage(null);
 
     try {
+      // ✅ Create userData from formData and optional appId
       const userData = {
-        ...formData,
-        appId: appId,
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+        ...(formData.avatarUrl ? { avatarUrl: formData.avatarUrl } : {}),
       };
 
-      const user = await signupUser(userData, { baseUrl, apiKey });
-      setMessage({ type: "success", text: "Account created successfully!" });
-      if (onSuccess) onSuccess(user);
+      const res = await authix.signupUser(userData);
+
+      if (res.success) {
+        setMessage({
+          type: "success",
+          text: res.message || "Account created successfully!",
+        });
+        onSuccess?.(res.user); // 👈 Use the user object from response
+      } else {
+        setMessage({ type: "error", text: res.message || "Signup failed" });
+        onError?.(res);
+      }
     } catch (err: any) {
-      const errorMsg = err.message || "Signup failed. Please try again.";
-      setMessage({ type: "error", text: errorMsg });
-      if (onError) onError(err);
+      setMessage({
+        type: "error",
+        text: err.message || "Signup failed. Please try again.",
+      });
+      onError?.(err);
     } finally {
       setLoading(false);
     }
@@ -332,8 +347,8 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
                       formData.role === roles[0]
                         ? primaryColor
                         : darkMode
-                        ? "#9ca3af"
-                        : "#6b7280", // theme-aware inactive color
+                          ? "#9ca3af"
+                          : "#6b7280", // theme-aware inactive color
                     fontWeight: formData.role === roles[0] ? 600 : 500,
                     fontSize: "14px",
                     display: "flex",
@@ -360,8 +375,8 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
                       formData.role === roles[1]
                         ? primaryColor
                         : darkMode
-                        ? "#9ca3af"
-                        : "#6b7280",
+                          ? "#9ca3af"
+                          : "#6b7280",
                     fontWeight: formData.role === roles[1] ? 600 : 500,
                     fontSize: "14px",
                     display: "flex",

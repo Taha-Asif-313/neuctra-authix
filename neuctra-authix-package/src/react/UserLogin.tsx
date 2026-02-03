@@ -85,7 +85,15 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
     setMessage(null);
 
     try {
-      const user = await authix.loginUser({ email, password });
+      const response = await authix.loginUser({ email, password });
+
+      // Destructure the actual user
+      const { user } = response;
+
+      if (!user) {
+        throw new Error(response.message || "Login failed");
+      }
+
       setMessage({ type: "success", text: `Welcome ${user.name}` });
       onSuccess?.(user);
     } catch (err: any) {
@@ -105,23 +113,28 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
     e.preventDefault();
     setLoading(true);
     setMessage(null);
+
     try {
       const res = await authix.requestResetUserPasswordOTP({
         email: formData.email,
       });
-      if (res.data.success) {
+
+      if (res.success) {
         setStep(2);
-        setMessage({ type: "success", text: "OTP sent to your email" });
+        setMessage({
+          type: "success",
+          text: res.message || "OTP sent to your email",
+        });
       } else {
         setMessage({
           type: "error",
-          text: res.data.message || "Failed to send OTP",
+          text: res.message || "Failed to send OTP",
         });
       }
     } catch (err: any) {
       setMessage({
         type: "error",
-        text: err.response?.data?.message || "Something went wrong",
+        text: err.message || "Something went wrong",
       });
     } finally {
       setLoading(false);
@@ -132,24 +145,29 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
     e.preventDefault();
     setLoading(true);
     setMessage(null);
+
     try {
       const res = await authix.resetUserPassword({
         email: formData.email,
         otp: formData.otp,
         newPassword: formData.newPassword,
       });
-      if (res.data.success) {
-        setMessage({ type: "success", text: "Password reset successfully!" });
+
+      if (res.success) {
+        setMessage({
+          type: "success",
+          text: res.message || "Password reset successfully!",
+        });
         setStep(1);
         setFormData({ email: "", otp: "", newPassword: "" });
         setMode("login");
       } else {
-        setMessage({ type: "error", text: res.data.message || "Reset failed" });
+        setMessage({ type: "error", text: res.message || "Reset failed" });
       }
     } catch (err: any) {
       setMessage({
         type: "error",
-        text: err.response?.data?.message || "Something went wrong",
+        text: err.message || "Something went wrong",
       });
     } finally {
       setLoading(false);
