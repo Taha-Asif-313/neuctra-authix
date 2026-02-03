@@ -1,18 +1,26 @@
 "use client";
 
 import React, { createContext, useContext, ReactNode } from "react";
+import type { NeuctraAuthix } from "../../sdk/index.js";
 
-export interface AuthixLike {
-  checkSession: () => Promise<{ authenticated: boolean }>;
-}
+/* ----------------------------------
+ * Context type = FULL SDK
+ * ---------------------------------- */
+export type AuthixContextValue = NeuctraAuthix;
 
-const AuthixContext = createContext<AuthixLike | null>(null);
+/* ----------------------------------
+ * Context
+ * ---------------------------------- */
+const AuthixContext = createContext<AuthixContextValue | null>(null);
 
+/* ----------------------------------
+ * Provider
+ * ---------------------------------- */
 export const AuthixProvider = ({
   authix,
   children,
 }: {
-  authix: AuthixLike;
+  authix: NeuctraAuthix;
   children: ReactNode;
 }) => {
   return (
@@ -22,8 +30,10 @@ export const AuthixProvider = ({
   );
 };
 
-// Hook to consume context
-export const useAuthix = () => {
+/* ----------------------------------
+ * Hook
+ * ---------------------------------- */
+export const useAuthix = (): AuthixContextValue => {
   const ctx = useContext(AuthixContext);
   if (!ctx) {
     throw new Error("useAuthix must be used inside <AuthixProvider />");

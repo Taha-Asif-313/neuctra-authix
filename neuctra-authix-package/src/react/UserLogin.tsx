@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { loginUser } from "../api/login.js";
-import { getSdkConfig } from "../sdk/config.js";
 import {
   Eye,
   EyeOff,
@@ -12,7 +10,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
-import axios from "axios";
+import { useAuthix } from "./Provider/AuthixProvider.js";
 
 interface AuthFormProps {
   logoUrl?: string;
@@ -41,8 +39,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
   onSuccess,
   onError,
 }) => {
-  const { baseUrl, apiKey, appId } = getSdkConfig();
-
+  const authix = useAuthix();
   // State
   const [mode, setMode] = useState<"login" | "forgot">("login");
   const [step, setStep] = useState(1); // forgot-password step: 1=email, 2=otp+new pass
@@ -62,7 +59,6 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
     email: "",
     otp: "",
     newPassword: "",
-    appId: appId,
   });
 
   // Theme
@@ -89,10 +85,7 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
     setMessage(null);
 
     try {
-      const user = await loginUser(
-        { email, password, appId },
-        { baseUrl, apiKey }
-      );
+      const user = await authix.loginUser({ email, password });
       setMessage({ type: "success", text: `Welcome ${user.name}` });
       onSuccess?.(user);
     } catch (err: any) {
@@ -113,14 +106,9 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
     setLoading(true);
     setMessage(null);
     try {
-      const res = await axios.post(
-        `${baseUrl}/users/forgot-password`,
-        {
-          email: formData.email,
-          appId,
-        },
-        { headers: { "x-api-key": apiKey } }
-      );
+      const res = await authix.requestResetUserPasswordOTP({
+        email: formData.email,
+      });
       if (res.data.success) {
         setStep(2);
         setMessage({ type: "success", text: "OTP sent to your email" });
@@ -145,15 +133,15 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
     setLoading(true);
     setMessage(null);
     try {
-      const res = await axios.post(
-        `${baseUrl}/users/reset-password`,
-        formData,
-        { headers: { "x-api-key": apiKey } }
-      );
+      const res = await authix.resetUserPassword({
+        email: formData.email,
+        otp: formData.otp,
+        newPassword: formData.newPassword,
+      });
       if (res.data.success) {
         setMessage({ type: "success", text: "Password reset successfully!" });
         setStep(1);
-        setFormData({ email: "", otp: "", newPassword: "", appId: appId });
+        setFormData({ email: "", otp: "", newPassword: "" });
         setMode("login");
       } else {
         setMessage({ type: "error", text: res.data.message || "Reset failed" });
@@ -242,8 +230,8 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
             {mode === "login"
               ? title
               : step === 1
-              ? "Forgot Password"
-              : "Reset Password"}
+                ? "Forgot Password"
+                : "Reset Password"}
           </h2>
           <p
             style={{
@@ -552,8 +540,8 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
               {loading
                 ? "Please wait..."
                 : step === 1
-                ? "Send Reset OTP"
-                : "Reset Password"}
+                  ? "Send Reset OTP"
+                  : "Reset Password"}
             </button>
 
             <button

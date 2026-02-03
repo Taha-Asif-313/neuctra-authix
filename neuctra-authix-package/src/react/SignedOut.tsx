@@ -25,7 +25,7 @@ export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
     const getSession = async () => {
       try {
         console.log("[ReactSignedOut] Checking session...");
-        const session = await authix.checkSession();
+        const session = await authix.checkUserSession();
         console.log("[ReactSignedOut] Session response:", session);
         setSignedOut(!session?.authenticated);
         console.log("[ReactSignedOut] SignedOut state set to:", !session?.authenticated);

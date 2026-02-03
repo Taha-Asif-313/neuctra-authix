@@ -25,7 +25,7 @@ export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
     const getSession = async () => {
       try {
         console.log("[ReactSignedIn] Checking session...");
-        const session = await authix.checkSession();
+        const session = await authix.checkUserSession();
         console.log("[ReactSignedIn] Session response:", session);
         setSignedIn(!!session?.authenticated);
         console.log("[ReactSignedIn] SignedIn state set to:", !!session?.authenticated);

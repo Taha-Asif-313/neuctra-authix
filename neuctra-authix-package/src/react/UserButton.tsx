@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { getSdkConfig } from "../sdk/config.js";
 import axios from "axios";
+import { useAuthix } from "./Provider/AuthixProvider.js";
 
 interface UserInfo {
   id: string;
@@ -60,7 +61,7 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
   viewProfileLabel = "View Profile",
   logoutLabel = "Sign Out",
 }) => {
-  const { baseUrl, apiKey, appId } = getSdkConfig();
+  const authix = useAuthix();
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -84,46 +85,60 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Initialize user with comprehensive error handling
+  // Initialize user from Authix session
   useEffect(() => {
+    let mounted = true;
+
     const initUser = async () => {
       try {
         setLoading(true);
         setError(null);
 
+        // 1️⃣ Highest priority: propUser (explicit override)
         if (propUser) {
           if (!propUser.id || !propUser.name || !propUser.email) {
             throw new Error("Invalid user data provided");
           }
-          setUser(propUser);
-        } else {
-          if (typeof window !== "undefined") {
-            const stored = localStorage.getItem("userInfo");
-            if (stored) {
-              try {
-                const parsed: UserInfo = JSON.parse(stored);
-                if (!parsed.id || !parsed.name || !parsed.email) {
-                  throw new Error("Invalid stored user data");
-                }
-                setUser(parsed);
-              } catch (parseError) {
-                console.error("Failed to parse stored user data:", parseError);
-                localStorage.removeItem("userInfo");
-                setError("Invalid user data");
-              }
-            }
-          }
+
+          if (mounted) setUser(propUser);
+          return;
         }
+
+        // 2️⃣ Otherwise, resolve from session (cookie-based)
+        const session = await authix.checkUserSession();
+
+        if (!mounted) return;
+
+        if (!session?.authenticated || !session.user) {
+          setUser(null);
+          return;
+        }
+
+        // 3️⃣ Normalize backend session user → UserInfo
+        const sessionUser: UserInfo = {
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.email.split("@")[0], // fallback until backend sends name
+        };
+
+        setUser(sessionUser);
       } catch (err: any) {
         console.error("User initialization failed:", err);
-        setError(err.message || "Failed to load user");
+        if (mounted) {
+          setUser(null);
+          setError(err.message || "Failed to load user");
+        }
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
 
     initUser();
-  }, [propUser]);
+
+    return () => {
+      mounted = false;
+    };
+  }, [propUser, authix]);
 
   // Dropdown alignment and viewport boundary check
   useEffect(() => {
@@ -426,18 +441,37 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
     setLoading(true);
 
     try {
-      const stored = localStorage.getItem("userInfo");
-      if (stored) {
-        const parsed: UserInfo = JSON.parse(stored);
-        setUser(parsed);
-      } else if (propUser) {
+      // 1️⃣ Highest priority: explicit propUser
+      if (propUser) {
+        if (!propUser.id || !propUser.name || !propUser.email) {
+          throw new Error("Invalid user data provided");
+        }
+
         setUser(propUser);
+        return;
       }
-    } catch (parseError) {
-      console.error("Retry failed:", parseError);
-      setError("Invalid user data");
-      localStorage.removeItem("userInfo");
+
+      // 2️⃣ Re-check session from Authix (cookie-based)
+      const session = await authix.checkUserSession();
+
+      if (!session?.authenticated || !session.user) {
+        setUser(null);
+        setError("User is not authenticated");
+        return;
+      }
+
+      // 3️⃣ Normalize session user
+      const sessionUser: UserInfo = {
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.email.split("@")[0], // fallback
+      };
+
+      setUser(sessionUser);
+    } catch (err: any) {
+      console.error("Retry failed:", err);
       setUser(null);
+      setError(err.message || "Failed to reload user");
     } finally {
       setLoading(false);
     }
@@ -508,14 +542,14 @@ export const ReactUserButton: React.FC<UserButtonProps> = ({
                 const target = e.target as HTMLImageElement;
                 target.onerror = null; // prevent infinite loop
                 target.src = `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
-                  user?.name || "User"
+                  user?.name || "User",
                 )}`;
               }}
             />
           ) : (
             <img
               src={`https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
-                user?.name || "User"
+                user?.name || "User",
               )}`}
               alt="Default user avatar"
               style={{
