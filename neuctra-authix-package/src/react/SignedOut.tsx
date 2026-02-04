@@ -6,13 +6,11 @@ import { useAuthix } from "./Provider/AuthixProvider.js";
 interface ReactSignedOutProps {
   children: ReactNode;
   fallback?: ReactNode | (() => ReactNode);
-  loading?: ReactNode | (() => ReactNode);
 }
 
 export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
   children,
   fallback = null,
-  loading = null,
 }) => {
   const authix = useAuthix();
   const [mounted, setMounted] = useState(false);
@@ -35,48 +33,15 @@ export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
 
   if (!mounted) return null; // Prevent SSR mismatch
 
-  // Helper to render node or call function if provided
   const renderNode = (node?: ReactNode | (() => ReactNode)) =>
     typeof node === "function" ? (node as () => ReactNode)() : node;
 
-  // Default loader
-  const defaultLoader = (
-    <div
-      style={{
-        position: "fixed",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        width: "100%",
-        height: "100%",
-      }}
-    >
-      <div
-        style={{
-          border: "4px solid rgba(0,0,0,0.1)",
-          borderTop: "4px solid #e74c3c",
-          borderRadius: "50%",
-          width: "36px",
-          height: "36px",
-          animation: "spin 1s linear infinite",
-        }}
-      />
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
-    </div>
-  );
+  // While loading (signedOut === null), show fallback if exists, else nothing
+  if (signedOut === null) return renderNode(fallback) ?? null;
 
-  if (signedOut === null) {
-    return renderNode(loading) ?? defaultLoader;
-  }
+  // If user is signed in, show fallback
+  if (!signedOut) return renderNode(fallback);
 
-  if (!signedOut) {
-    return renderNode(fallback);
-  }
-
+  // Signed out → render children
   return <>{children}</>;
 };

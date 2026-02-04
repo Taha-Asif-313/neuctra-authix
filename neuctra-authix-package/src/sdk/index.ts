@@ -62,6 +62,7 @@ export class NeuctraAuthix {
     path: string,
     data?: D,
     extraHeaders: Record<string, string> = {},
+    withCredentials: boolean = false, // 👈 control here
   ): Promise<T> {
     try {
       const body = {
@@ -74,12 +75,12 @@ export class NeuctraAuthix {
         method,
         data: body,
         headers: extraHeaders,
+        withCredentials, // 👈 override axios default
       });
 
       return res.data;
     } catch (err: any) {
       if (axios.isAxiosError(err)) {
-        // Just throw a simple object with message & status
         throw {
           message:
             err.response?.data?.message || err.message || "Request failed",
@@ -87,10 +88,7 @@ export class NeuctraAuthix {
         };
       }
 
-      // Non-Axios errors
-      throw {
-        message: err.message || "Unexpected error occurred",
-      };
+      throw { message: err.message || "Unexpected error occurred" };
     }
   }
 
@@ -106,7 +104,7 @@ export class NeuctraAuthix {
       throw new Error("signup: 'name', 'email', and 'password' are required");
     }
 
-    return this.request("POST", "/users/signup", params);
+    return await this.request("POST", "/users/signup", params, {}, true);
   }
 
   /**
@@ -121,12 +119,13 @@ export class NeuctraAuthix {
     }
 
     try {
-      const response = await this.request("POST", "/users/login", {
-        email,
-        password,
-      });
-
-      return response; // 👈 THIS is what you were “not seeing”
+      return await this.request(
+        "POST",
+        "/users/login",
+        { email, password },
+        {},
+        true,
+      );
     } catch (err: any) {
       // Preserve meaningful backend error
       throw new Error(err.message || "Login failed due to an unknown error");
@@ -147,10 +146,13 @@ export class NeuctraAuthix {
       );
     }
 
-    return this.request("PUT", `/users/change-password/${userId}`, {
-      currentPassword,
-      newPassword,
-    });
+    return await this.request(
+      "PUT",
+      `/users/change-password/${userId}`,
+      { currentPassword, newPassword },
+      {},
+      true,
+    );
   }
 
   /**
@@ -181,6 +183,8 @@ export class NeuctraAuthix {
         "POST",
         `/users/send-verify-otp/${encodeURIComponent(userId)}`,
         { email },
+        {},
+        true,
       );
     } catch (err: any) {
       console.error("requestEmailVerificationOTP Error:", err);
@@ -204,10 +208,13 @@ export class NeuctraAuthix {
     if (!otp) throw new Error("verifyEmail: 'otp' is required");
 
     try {
-      return await this.request("POST", "/users/verify-email", {
-        email,
-        otp,
-      });
+      return await this.request(
+        "POST",
+        "/users/verify-email",
+        { email, otp },
+        {},
+        true,
+      );
     } catch (err: any) {
       throw {
         message: err.message || "Failed to verify email",
@@ -228,7 +235,13 @@ export class NeuctraAuthix {
 
     try {
       // Make a request to check the session (cookie-based)
-      return await this.request<CheckSessionResponse>("GET", "/users/session");
+      return await this.request<CheckSessionResponse>(
+        "GET",
+        "/users/session",
+        undefined,
+        {},
+        true,
+      );
     } catch {
       // If request fails, session is invalid
       return { authenticated: false };
@@ -243,9 +256,13 @@ export class NeuctraAuthix {
     const { userId } = params;
     if (!userId) throw new Error("updateUser: 'userId' is required");
 
-    return this.request("PUT", `/users/update/${userId}`, {
-      ...params,
-    });
+    return await this.request(
+      "PUT",
+      `/users/update/${userId}`,
+      { ...params },
+      {},
+      true,
+    );
   }
 
   /**
@@ -256,7 +273,13 @@ export class NeuctraAuthix {
     const { userId } = params;
     if (!userId) throw new Error("deleteUser: 'userId' is required");
 
-    return this.request("DELETE", `/users/delete/${userId}`, {});
+    return await this.request(
+      "DELETE",
+      `/users/delete/${userId}`,
+      {},
+      {},
+      true,
+    );
   }
 
   /**
@@ -272,11 +295,7 @@ export class NeuctraAuthix {
 
     try {
       // Send POST request with userId and appId in the body
-      const response = await this.request("POST", "/users/profile", {
-        userId,
-      });
-
-      return response; // { success, message, user }
+      return await this.request("POST", "/users/profile", { userId }, {}, true);
     } catch (err: any) {
       // Friendly error object
       throw {
@@ -296,7 +315,7 @@ export class NeuctraAuthix {
     const { email } = params;
     if (!email) throw new Error("forgotPassword: 'email' is required");
 
-    return this.request("POST", "/users/forgot-password", {
+    return await this.request("POST", "/users/forgot-password", {
       email,
     });
   }
@@ -317,7 +336,7 @@ export class NeuctraAuthix {
       );
     }
 
-    return this.request("POST", "/users/reset-password", {
+    return await this.request("POST", "/users/reset-password", {
       email,
       otp,
       newPassword,
@@ -334,25 +353,13 @@ export class NeuctraAuthix {
       throw new Error("checkUser: 'userId' is required");
     }
 
-    return this.request<CheckUserResponse>(
+    return await this.request<CheckUserResponse>(
       "GET",
       `/users/check-user/${userId}?appId=${this.appId}`,
     );
   }
 
   // ================= USER EXTRA DATA =================
-
-  async searchAllUsersData(params: {
-    category: string;
-    id?: string;
-    q?: string;
-  }) {
-    if (!this.appId) throw new Error("searchAllUsersData: appId missing");
-
-    const query = new URLSearchParams(params as any).toString();
-
-    return this.request("GET", `/users/${this.appId}/data/search?${query}`);
-  }
 
   async searchUserData(params: {
     userId: string;
@@ -365,7 +372,13 @@ export class NeuctraAuthix {
 
     const query = new URLSearchParams(queryParams as any).toString();
 
-    return this.request("GET", `/users/${userId}/data/search?${query}`);
+    return await this.request(
+      "GET",
+      `/users/${userId}/data/search?${query}`,
+      undefined,
+      {},
+      false, // 👈 no credentials
+    );
   }
 
   /**
@@ -402,61 +415,13 @@ export class NeuctraAuthix {
       ),
     ).toString();
 
-    return this.request("GET", `/users/${userId}/data/searchbyref?${query}`);
-  }
-
-  /**
-   * 🌐 Search ALL users' data by dynamic keys for the current app
-   * @example
-   * sdk.searchAllUsersDataByKeys({
-   *   category: "orders",
-   *   shopId: 12,
-   *   productId: 99,
-   *   status: "active",
-   *   q: "iphone"          // optional keyword search
-   * })
-   */
-  async searchAllUsersDataByKeys(params: {
-    q?: string; // optional keyword search
-    [key: string]: any; // 🔥 allow ANY dynamic key
-  }) {
-    const appId = this.appId;
-
-    if (!appId) {
-      throw new Error(
-        "searchAllUsersDataByKeys: 'appId' is required on SDK initialization",
-      );
-    }
-
-    // Build query string dynamically from keys
-    const query = new URLSearchParams(
-      Object.entries(params).reduce(
-        (acc, [key, value]) => {
-          if (value !== undefined && value !== null) {
-            acc[key] = String(value);
-          }
-          return acc;
-        },
-        {} as Record<string, string>,
-      ),
-    ).toString();
-
-    // 🔹 Request endpoint for all users' data within this app
-    return this.request(
+    return await this.request(
       "GET",
-      `/users/${encodeURIComponent(appId)}/data/searchbyref/all?${query}`,
+      `/users/${userId}/data/searchbyref?${query}`,
+      undefined,
+      {},
+      false, // 👈 no credentials
     );
-  }
-
-  /**
-   * Fetch ALL users' merged data for a specific app
-   * @param params requires appId
-   */
-  async getAllUsersData() {
-    if (!this.appId)
-      throw new Error("getAllUsersData: SDK 'appId' is missing in config");
-
-    return this.request("GET", `/users/all-data/${this.appId}/data`);
   }
 
   /**
@@ -467,7 +432,13 @@ export class NeuctraAuthix {
     const { userId } = params;
     if (!userId) throw new Error("getUserData: 'userId' is required");
 
-    return this.request("GET", `/users/${userId}/data`);
+    return await this.request(
+      "GET",
+      `/users/${userId}/data`,
+      undefined,
+      {},
+      false, // 👈 no credentials
+    );
   }
 
   /**
@@ -479,7 +450,13 @@ export class NeuctraAuthix {
     if (!userId || !dataId)
       throw new Error("getSingleUserData: 'userId' and 'dataId' are required");
 
-    return this.request("GET", `/users/${userId}/data/${dataId}`);
+    return await this.request(
+      "GET",
+      `/users/${userId}/data/${dataId}`,
+      undefined,
+      {},
+      false, // 👈 no credentials
+    );
   }
 
   /**
@@ -494,10 +471,16 @@ export class NeuctraAuthix {
       throw new Error("addUserData: 'dataCategory' is required");
     if (!data) throw new Error("addUserData: 'data' is required");
 
-    return this.request("POST", `/users/${userId}/data`, {
-      dataCategory,
-      ...data,
-    });
+    return await this.request(
+      "POST",
+      `/users/${userId}/data`,
+      {
+        dataCategory,
+        ...data,
+      },
+      {},
+      false, // 👈 no credentials
+    );
   }
 
   /**
@@ -510,7 +493,13 @@ export class NeuctraAuthix {
       throw new Error("updateUserData: 'userId' and 'dataId' are required");
     if (!data) throw new Error("updateUserData: 'data' is required");
 
-    return this.request("PUT", `/users/${userId}/data/${dataId}`, data);
+    return await this.request(
+      "PUT",
+      `/users/${userId}/data/${dataId}`,
+      data,
+      {},
+      false, // 👈 no credentials
+    );
   }
 
   /**
@@ -522,7 +511,13 @@ export class NeuctraAuthix {
     if (!userId || !dataId)
       throw new Error("deleteUserData: 'userId' and 'dataId' are required");
 
-    return this.request("DELETE", `/users/${userId}/data/${dataId}`);
+    return await this.request(
+      "DELETE",
+      `/users/${userId}/data/${dataId}`,
+      undefined,
+      {},
+      false, // 👈 no credentials
+    );
   }
 
   // ================= APP DATA =================
@@ -537,12 +532,13 @@ export class NeuctraAuthix {
 
     const query = category ? `?category=${encodeURIComponent(category)}` : "";
 
-    const res = await this.request<{ success: boolean; data: AppDataItem[] }>(
+    return await this.request(
       "GET",
       `/app/${appId}/data${query}`,
+      undefined,
+      {},
+      false, // ✅ include credentials
     );
-
-    return res?.data || [];
   }
 
   /**
@@ -554,48 +550,34 @@ export class NeuctraAuthix {
     if (!params.dataId)
       throw new Error("getSingleAppData: 'dataId' is required");
 
-    const res = await this.request<{ success: boolean; data: AppDataItem }>(
+    return await this.request(
       "GET",
       `/app/${appId}/data/${params.dataId}`,
+      undefined,
+      {},
+      false,
     );
-
-    return res?.data;
   }
 
   /**
    * 🔍 Search app data items by dynamic keys (BODY based)
-   * @example
-   * sdk.searchAppDataByKeys({
-   *   dataCategory: "order",
-   *   buyerId: "user123",
-   *   status: "Processing",
-   *   q: "iphone"
-   * })
    */
   async searchAppDataByKeys(params: {
-    [key: string]: any; // 🔥 allow ANY dynamic key
+    [key: string]: any;
   }): Promise<AppDataItem[]> {
     const appId = this.appId;
 
-    if (!appId) {
-      throw new Error("searchAppDataByKeys: 'appId' is required");
-    }
-
-    if (!params || typeof params !== "object") {
+    if (!appId) throw new Error("searchAppDataByKeys: 'appId' is required");
+    if (!params || typeof params !== "object")
       throw new Error("searchAppDataByKeys: params object is required");
-    }
 
-    const res = await this.request<{
-      success: boolean;
-      data: AppDataItem[];
-      totalItems?: number;
-    }>(
-      "POST", // ✅ FIX: POST (body-based search)
-      `/app/${encodeURIComponent(appId)}/data/search/bykeys`, // ✅ FIX: correct route
-      params, // ✅ BODY
+    return await this.request(
+      "POST",
+      `/app/${encodeURIComponent(appId)}/data/search/bykeys`,
+      params,
+      {},
+      false,
     );
-
-    return res?.data || [];
   }
 
   /**
@@ -609,21 +591,18 @@ export class NeuctraAuthix {
     if (!appId) throw new Error("addAppData: 'appId' is required");
 
     const { dataCategory, data } = params;
-
     if (!dataCategory)
       throw new Error("addAppData: 'dataCategory' is required");
     if (!data || typeof data !== "object")
       throw new Error("addAppData: 'data' is required");
 
-    const res = await this.request<{ success: boolean; data: AppDataItem }>(
+    return await this.request(
       "POST",
       `/app/${appId}/data/${encodeURIComponent(dataCategory)}`,
-      {
-        item: data, // ✅ matches controller
-      },
+      { item: data },
+      {},
+      false,
     );
-
-    return res?.data;
   }
 
   /**
@@ -638,13 +617,13 @@ export class NeuctraAuthix {
     if (!params.dataId) throw new Error("updateAppData: 'dataId' is required");
     if (!params.data) throw new Error("updateAppData: 'data' is required");
 
-    const res = await this.request<{ success: boolean; data: AppDataItem }>(
+    return await this.request(
       "PATCH",
       `/app/${appId}/data/${params.dataId}`,
       params.data,
+      {},
+      false,
     );
-
-    return res?.data;
   }
 
   /**
@@ -655,11 +634,12 @@ export class NeuctraAuthix {
     if (!appId) throw new Error("deleteAppData: 'appId' is required");
     if (!params.dataId) throw new Error("deleteAppData: 'dataId' is required");
 
-    const res = await this.request<{ success: boolean; data: AppDataItem }>(
+    return await this.request(
       "DELETE",
       `/app/${appId}/data/${params.dataId}`,
+      undefined,
+      {},
+      false,
     );
-
-    return res?.data;
   }
 }
