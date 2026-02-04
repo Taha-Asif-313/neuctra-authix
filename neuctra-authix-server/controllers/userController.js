@@ -240,6 +240,7 @@ export const loginUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        isVerified: user.isVerified,
         appId: user.appId,
         avatarUrl: user.avatarUrl,
         isActive: user.isActive,

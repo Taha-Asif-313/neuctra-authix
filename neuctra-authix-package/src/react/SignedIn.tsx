@@ -19,18 +19,13 @@ export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
 
   useEffect(() => {
-    console.log("[ReactSignedIn] Component mounted");
     setMounted(true);
 
     const getSession = async () => {
       try {
-        console.log("[ReactSignedIn] Checking session...");
         const session = await authix.checkUserSession();
-        console.log("[ReactSignedIn] Session response:", session);
         setSignedIn(!!session?.authenticated);
-        console.log("[ReactSignedIn] SignedIn state set to:", !!session?.authenticated);
-      } catch (err) {
-        console.error("[ReactSignedIn] Error fetching session:", err);
+      } catch {
         setSignedIn(false);
       }
     };
@@ -48,7 +43,7 @@ export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
   const defaultLoader = (
     <div
       style={{
-        position:"fixed",
+        position: "fixed",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -76,15 +71,12 @@ export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
   );
 
   if (signedIn === null) {
-    console.log("[ReactSignedIn] Still loading session...");
-    return renderNode(loading) ?? defaultLoader; // Render custom or default loader
+    return renderNode(loading) ?? defaultLoader;
   }
 
   if (!signedIn) {
-    console.log("[ReactSignedIn] User not signed in, showing fallback");
     return renderNode(fallback);
   }
 
-  console.log("[ReactSignedIn] User signed in, rendering children");
-  return <>{children}</>; // Render children directly, no wrapper
+  return <>{children}</>;
 };

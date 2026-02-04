@@ -19,18 +19,13 @@ export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
   const [signedOut, setSignedOut] = useState<boolean | null>(null);
 
   useEffect(() => {
-    console.log("[ReactSignedOut] Component mounted");
     setMounted(true);
 
     const getSession = async () => {
       try {
-        console.log("[ReactSignedOut] Checking session...");
         const session = await authix.checkUserSession();
-        console.log("[ReactSignedOut] Session response:", session);
         setSignedOut(!session?.authenticated);
-        console.log("[ReactSignedOut] SignedOut state set to:", !session?.authenticated);
-      } catch (err) {
-        console.error("[ReactSignedOut] Error fetching session:", err);
+      } catch {
         setSignedOut(true);
       }
     };
@@ -48,7 +43,7 @@ export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
   const defaultLoader = (
     <div
       style={{
-        position:"fixed",
+        position: "fixed",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -76,15 +71,12 @@ export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
   );
 
   if (signedOut === null) {
-    console.log("[ReactSignedOut] Still checking session...");
-    return renderNode(loading) ?? defaultLoader; // Render custom or default loader
+    return renderNode(loading) ?? defaultLoader;
   }
 
   if (!signedOut) {
-    console.log("[ReactSignedOut] User is signed in, showing fallback");
     return renderNode(fallback);
   }
 
-  console.log("[ReactSignedOut] User is signed out, rendering children");
-  return <>{children}</>; // Render children directly, no wrapper
+  return <>{children}</>;
 };

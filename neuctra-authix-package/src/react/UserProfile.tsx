@@ -343,7 +343,6 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
           if (profileRes.user) {
             const fullUser: UserInfo = profileRes.user;
             setUser(fullUser);
-            localStorage.setItem("userInfo", JSON.stringify(fullUser));
 
             // ✅ Optional: validate user against backend
             validateUser(userId);
