@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { UserInfo } from "../api/login.js";
 import {
   Edit3,
@@ -21,7 +20,6 @@ import {
   Home,
   MoreVertical,
 } from "lucide-react";
-import { getSdkConfig } from "../sdk/config.js";
 import DeleteAccountModal from "./components/DeleteAccountModal.js";
 import AvatarModal from "./components/AvatarModal.js";
 import ChangePasswordModal from "./components/ChangePasswordModal.js";
@@ -49,7 +47,6 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   onVerify,
   primaryColor = "#00C212",
 }) => {
-  const { baseUrl, apiKey, appId } = getSdkConfig();
   const authix = useAuthix();
   const [screenWidth, setScreenWidth] = useState<number | null>(null);
   const [user, setUser] = useState<UserInfo | null>(propUser);
@@ -226,29 +223,33 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
     }
   };
 
-  // ✅ Avatar update
+  // ✅ Avatar update (authix-based, safe merge)
   const handleAvatarUpdate = async (newAvatarUrl: string) => {
     if (!user) return false;
-    try {
-      const updateData = { ...user, avatarUrl: newAvatarUrl };
-      const { data } = await axios.put(
-        `${baseUrl}/users/update/${user.id}`,
-        updateData,
-        { headers: { "x-api-key": apiKey } },
-      );
 
-      if (data.success) {
-        setUser(updateData);
-        localStorage.setItem(
-          "userInfo",
-          JSON.stringify({ ...updateData, token }),
-        );
+    try {
+      const res = await authix.updateUser({
+        userId: user.id,
+        ...{
+          avatarUrl: newAvatarUrl,
+        },
+      });
+
+      if (res?.success) {
+        const updatedUser = {
+          ...user, // 🔒 keep existing auth fields
+          ...res.user, // 🔁 merge backend response if present
+          avatarUrl: newAvatarUrl,
+        };
+
+        setUser(updatedUser);
+
         showNotification("success", "Avatar updated successfully!");
         return true;
-      } else {
-        showNotification("error", data.message || "Failed to update avatar");
-        return false;
       }
+
+      showNotification("error", res?.message || "Failed to update avatar");
+      return false;
     } catch (error) {
       console.error("Avatar update error:", error);
       showNotification("error", "Failed to update avatar");
@@ -260,19 +261,37 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
-    try {
-      const res = await authix.updateUser({ userId: user.id, ...user });
 
-      if (res.success) {
-        setUser(res.user);
-        setEditMode(false);
-        localStorage.setItem(
-          "userInfo",
-          JSON.stringify({ ...res.user, token }),
+    try {
+      const originalEmail = user.email;
+
+      const res = await authix.updateUser({
+        userId: user.id,
+        ...user,
+      });
+
+      if (res.success && res.user) {
+        const emailChanged = res.user.email !== originalEmail;
+
+        const updatedUser: UserInfo = {
+          ...user, // keep old state
+          ...res.user, // overwrite updated fields
+          isVerified: emailChanged ? false : user.isVerified,
+        };
+
+        setUser(updatedUser);
+        localStorage.setItem("userInfo", JSON.stringify(updatedUser));
+
+        showNotification(
+          emailChanged ? "success" : "success",
+          emailChanged
+            ? "Email updated. Please verify your new email."
+            : "Profile updated successfully",
         );
-        showNotification("success", "Profile updated successfully");
+
+        setEditMode(false);
       } else {
-        showNotification("error", res.message);
+        showNotification("error", res.message || "Update failed");
       }
     } catch (err) {
       console.error(err);
@@ -319,7 +338,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
           const userId = sessionRes.user.id;
 
           // 2️⃣ Fetch full user profile
-          const profileRes = await authix.getUserProfile({userId});
+          const profileRes = await authix.getUserProfile({ userId });
 
           if (profileRes.user) {
             const fullUser: UserInfo = profileRes.user;
@@ -1312,9 +1331,6 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
       />
 
       <ChangePasswordModal
-        baseUrl={baseUrl}
-        apiKey={apiKey}
-        appId={appId}
         userId={user.id}
         isOpen={showChangePassword}
         onClose={() => setShowChangePassword(false)}
@@ -1324,9 +1340,6 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
       />
 
       <DeleteAccountModal
-        baseUrl={baseUrl}
-        apiKey={apiKey}
-        appId={appId}
         userId={user.id}
         token={token}
         isOpen={showDeleteAccount}

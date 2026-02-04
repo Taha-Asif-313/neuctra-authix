@@ -1,7 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
-import axios from "axios";
 import { X, Loader2, Lock, Key, EyeOff, Eye } from "lucide-react";
-import { getSdkConfig } from "../../sdk/config.js";
+import { useAuthix } from "../Provider/AuthixProvider.js";
 
 interface ThemeColors {
   background: string;
@@ -19,9 +18,6 @@ interface ThemeColors {
 }
 
 interface ChangePasswordModalProps {
-  baseUrl: string;
-  apiKey: string;
-  appId: string;
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (msg: string) => void;
@@ -38,7 +34,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   userId,
   colors,
 }) => {
-  const { baseUrl, apiKey, appId } = getSdkConfig();
+  const authix = useAuthix();
   const [formData, setFormData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -99,19 +95,11 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
 
     setLoading(true);
     try {
-      const { data } = await axios.put(
-        `${baseUrl}/users/change-password/${userId}`,
-        {
-          appId,
-          currentPassword: formData.currentPassword,
-          newPassword: formData.newPassword,
-        },
-        {
-          headers: {
-            "x-api-key": apiKey,
-          },
-        }
-      );
+      const { data } = await authix.changePassword({
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword,
+        userId,
+      });
 
       if (data.success) {
         onSuccess(data.message || "Password updated successfully");

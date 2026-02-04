@@ -42,19 +42,16 @@ export interface UpdateUserParams {
   avatarUrl?: string | null;
   isActive?: boolean;
   role?: string;
-  appId?: string | null;
 }
 
 export interface ChangePasswordParams {
   userId: string;
   currentPassword: string;
   newPassword: string;
-  appId?: string | null;
 }
 
 export interface DeleteUserParams {
   userId: string;
-  appId?: string | null;
 }
 
 export interface GetProfileParams {

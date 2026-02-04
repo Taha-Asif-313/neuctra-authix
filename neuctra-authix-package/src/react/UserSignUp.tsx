@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { signupUser } from "../api/signup.js";
 import {
   Eye,
   EyeOff,
@@ -11,7 +10,6 @@ import {
   Loader,
   Image,
 } from "lucide-react";
-import { getSdkConfig } from "../sdk/config.js";
 import { useAuthix } from "./Provider/AuthixProvider.js";
 
 interface SignupFormProps {

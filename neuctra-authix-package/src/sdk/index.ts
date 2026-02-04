@@ -244,7 +244,7 @@ export class NeuctraAuthix {
     if (!userId) throw new Error("updateUser: 'userId' is required");
 
     return this.request("PUT", `/users/update/${userId}`, {
-      ...params
+      ...params,
     });
   }
 
@@ -253,12 +253,10 @@ export class NeuctraAuthix {
    * @param params requires userId and optionally appId
    */
   async deleteUser(params: DeleteUserParams) {
-    const { userId, appId } = params;
+    const { userId } = params;
     if (!userId) throw new Error("deleteUser: 'userId' is required");
 
-    return this.request("DELETE", `/users/delete/${userId}`, {
-      appId: appId || this.appId,
-    });
+    return this.request("DELETE", `/users/delete/${userId}`, {});
   }
 
   /**

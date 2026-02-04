@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   X,
   Trash2,
@@ -11,7 +10,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getSdkConfig } from "../../sdk/config.js";
+import { useAuthix } from "../Provider/AuthixProvider.js";
 
 interface ThemeColors {
   background: string;
@@ -29,9 +28,6 @@ interface ThemeColors {
 }
 
 interface DeleteAccountModalProps {
-  baseUrl: string;
-  apiKey: string;
-  appId: string;
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (msg: string) => void;
@@ -50,7 +46,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
   token,
   colors,
 }) => {
-  const { baseUrl, apiKey, appId } = getSdkConfig();
+  const authix = useAuthix();
   const [loading, setLoading] = useState(false);
   const [confirmationText, setConfirmationText] = useState("");
   const [step, setStep] = useState<
@@ -59,18 +55,17 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
   const [isMobile, setIsMobile] = useState(false);
 
   // Check mobile screen size
- useEffect(() => {
-  if (typeof window === "undefined") return;
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
-  const checkMobile = () => {
-    setIsMobile(window.innerWidth < 640);
-  };
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
 
-  checkMobile();
-  window.addEventListener("resize", checkMobile);
-  return () => window.removeEventListener("resize", checkMobile);
-}, []);
-
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   if (!isOpen) return null;
 
@@ -79,11 +74,8 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
     setStep("processing");
 
     try {
-      const { data } = await axios.delete(`${baseUrl}/users/delete/${userId}`, {
-        data: { appId },
-        headers: {
-          "x-api-key": apiKey,
-        },
+      const data = await authix.deleteUser({
+        userId,
       });
 
       if (data.success) {

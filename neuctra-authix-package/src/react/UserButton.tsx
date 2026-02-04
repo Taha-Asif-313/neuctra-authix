@@ -8,8 +8,6 @@ import {
   ChevronDown,
   AlertCircle,
 } from "lucide-react";
-import { getSdkConfig } from "../sdk/config.js";
-import axios from "axios";
 import { useAuthix } from "./Provider/AuthixProvider.js";
 
 interface UserInfo {
