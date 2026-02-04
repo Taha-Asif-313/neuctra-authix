@@ -27,11 +27,17 @@ const userCors = cors({
   credentials: true, // ✅ allow cookies
 });
 
+// For user data routes (no cookies, just public / GET)
+const userDataCors = cors({
+  origin: "*", // same origin
+  credentials: false, // ❌ no cookies sent
+});
+
 // 🔹 Routes with specific CORS
 app.use("/api/admin", adminCors, adminAuthRoutes);
 app.use("/api/apps", adminCors, appRoutes);
 app.use("/api/app", userCors, appDataRoutes);
 app.use("/api/users", userCors, userRoutes);
-app.use("/api/users", userCors, userDataRoutes);
+app.use("/api/users", userDataCors, userDataRoutes);
 
 export default app;
