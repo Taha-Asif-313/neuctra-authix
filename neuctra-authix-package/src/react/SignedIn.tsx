@@ -1,7 +1,6 @@
 "use client";
 
 import React, { ReactNode, useEffect, useState } from "react";
-import { useAuthix } from "./Provider/AuthixProvider.js";
 
 interface ReactSignedInProps {
   children: ReactNode;
@@ -12,36 +11,27 @@ export const ReactSignedIn: React.FC<ReactSignedInProps> = ({
   children,
   fallback = null,
 }) => {
-  const authix = useAuthix();
   const [mounted, setMounted] = useState(false);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
 
   useEffect(() => {
     setMounted(true);
 
-    const getSession = async () => {
-      try {
-        const session = await authix.checkUserSession();
-        setSignedIn(!!session?.authenticated);
-      } catch {
-        setSignedIn(false);
-      }
-    };
+    const cookies = document.cookie.split(";").map((c) => c.trim());
 
-    getSession();
-  }, [authix]);
+    const authFlag = cookies.find((c) => c.startsWith("a_s_b="));
 
-  if (!mounted) return null; // Prevent SSR mismatch
+    // signed in ONLY if a_s_b === "true"
+    setSignedIn(authFlag?.split("=")[1] === "true");
+  }, []);
+
+  if (!mounted) return null; // prevent hydration mismatch
 
   const renderNode = (node?: ReactNode | (() => ReactNode)) =>
     typeof node === "function" ? (node as () => ReactNode)() : node;
 
-  // While loading (signedIn === null), show fallback if exists, else nothing
   if (signedIn === null) return renderNode(fallback) ?? null;
-
-  // If not signed in, show fallback
   if (!signedIn) return renderNode(fallback);
 
-  // Signed in → render children
   return <>{children}</>;
 };

@@ -226,9 +226,17 @@ export const loginUser = async (req, res) => {
       httpOnly: true, // JS cannot access the cookie
       secure: isProduction, // true in prod (HTTPS), false in dev
       sameSite: isProduction ? "none" : "lax", // none for prod cross-origin, lax for dev/local
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 24 * 60 * 60 * 1000, // ✅ 24 hours
       path: "/", // cookie valid for entire site
-      // undefined for localhost / LAN IP
+    });
+
+    // JS-accessible flag cookie
+    res.cookie("a_s_b", "true", {
+      httpOnly: false, // ✅ accessible by JS
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      path: "/",
     });
 
     // 7️⃣ Return SAFE user data
