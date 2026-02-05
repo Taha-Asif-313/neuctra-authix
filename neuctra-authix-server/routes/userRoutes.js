@@ -13,6 +13,7 @@ import {
   changeUserPassword,
   checkUser,
   getSession,
+  logoutUser,
 } from "../controllers/userController.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -29,6 +30,9 @@ router.post("/signup", authMiddleware, signupUser);
 // 🔹 Login an existing user (public route, no admin required typically)
 // If you want admin-only login, keep authMiddleware
 router.post("/login", authMiddleware, loginUser);
+
+// If you want admin-only logout, keep authMiddleware
+router.post("/logout", authMiddleware, logoutUser);
 
 // 🔹 Get current session info (requires user auth token)
 router.get("/session", authMiddleware, getSession);

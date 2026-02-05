@@ -255,6 +255,37 @@ export const loginUser = async (req, res) => {
 };
 
 /**
+ * @desc    User logout
+ * @route   POST /api/users/logout
+ * @access  Private (User must be logged in)
+ */
+export const logoutUser = async (req, res) => {
+  try {
+    const isProduction = process.env.NODE_ENV === "production";
+
+    // Clear the cookie
+    res.cookie("authix_session", "", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      expires: new Date(0), // Expire immediately
+      path: "/",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Logout successful",
+    });
+  } catch (err) {
+    console.error("UserLogout Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/**
  * 🔐 Check current authentication session (cookie-based)
  **/
 export const getSession = async (req, res) => {

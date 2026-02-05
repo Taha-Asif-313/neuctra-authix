@@ -133,6 +133,39 @@ export class NeuctraAuthix {
   }
 
   /**
+   * Logout a user
+   * @desc Calls the backend logout endpoint, removes frontend cookie if server succeeds, and returns success
+   */
+  async logoutUser(): Promise<{ success: boolean }> {
+    try {
+      // 1️⃣ Call backend to clear HTTP-only cookie
+      const response = await this.request(
+        "POST",
+        "/users/logout",
+        {}, // no body needed
+        {},
+        true, // include credentials (cookies)
+      );
+
+      // 2️⃣ Only remove frontend cookie if backend confirms success
+      if (response && response.success) {
+        if (typeof document !== "undefined") {
+          const expires = new Date(0).toUTCString(); // Always a past date
+          document.cookie = `a_s_b=; path=/; expires=${expires}; SameSite=Lax`;
+          // Optional: add Secure if using HTTPS
+          // if (window.location.protocol === "https:") document.cookie += "; Secure";
+        }
+        return { success: true };
+      }
+
+      // If server did not return success
+      return { success: false };
+    } catch (err: any) {
+      throw new Error(err.message || "Logout failed due to an unknown error");
+    }
+  }
+
+  /**
    * Change a user's password (Admin only)
    * @param params requires userId, currentPassword, newPassword
    */
