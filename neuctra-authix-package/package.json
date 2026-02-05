@@ -1,6 +1,6 @@
 {
   "name": "@neuctra/authix",
-  "version": "1.1.78",
+  "version": "1.1.79",
   "description": "Universal authentication SDK and UI components for React (v16–v19) with TailwindCSS.",
   "author": "Taha Asif",
   "license": "MIT",
@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.13",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20.11.0",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
@@ -46,10 +47,10 @@
     "axios": "^1.12.2",
     "lucide-react": "^0.544.0",
     "postcss": "^8.5.6",
+    "rimraf": "^5.0.5",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.6.3",
-    "vite": "^7.1.7",
-    "rimraf": "^5.0.5"
+    "vite": "^7.1.7"
   },
   "keywords": [
     "neuctra",
@@ -64,5 +65,8 @@
     "otp",
     "sdk",
     "auth"
-  ]
+  ],
+  "dependencies": {
+    "js-cookie": "^3.0.5"
+  }
 }
