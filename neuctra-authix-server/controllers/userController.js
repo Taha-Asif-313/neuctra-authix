@@ -230,15 +230,6 @@ export const loginUser = async (req, res) => {
       path: "/", // cookie valid for entire site
     });
 
-    // JS-accessible flag cookie
-    res.cookie("a_s_b", "true", {
-      httpOnly: false, // ✅ accessible by JS
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      path: "/",
-    });
-
     // 7️⃣ Return SAFE user data
     return res.status(200).json({
       success: true,
