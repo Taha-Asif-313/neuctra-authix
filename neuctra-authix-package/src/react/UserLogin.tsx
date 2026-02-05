@@ -11,7 +11,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useAuthix } from "./Provider/AuthixProvider.js";
-import Cookies from "js-cookie";
 
 interface AuthFormProps {
   logoUrl?: string;
@@ -79,39 +78,41 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
     }
   }, []);
 
-const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
-  setMessage(null);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage(null);
 
-  try {
-    const response = await authix.loginUser({ email, password });
+    try {
+      const response = await authix.loginUser({ email, password });
+      const { user } = response;
 
-    const { user } = response;
+      if (!user) {
+        throw new Error(response.message || "Login failed");
+      }
 
-    if (!user) {
-      throw new Error(response.message || "Login failed");
+      // ✅ Set frontend cookie using document.cookie (safe for Next.js)
+      if (typeof document !== "undefined") {
+        const cookieName = "a_s_b";
+        const cookieValue = "true";
+        const expires = new Date();
+        expires.setTime(expires.getTime() + 1 * 60 * 60 * 1000); // 1 hour expiry
+
+        document.cookie = `${cookieName}=${cookieValue}; path=/; expires=${expires.toUTCString()}; SameSite=Lax`;
+        // Optional: Add Secure if on HTTPS
+        // if (window.location.protocol === "https:") document.cookie += "; Secure";
+      }
+
+      setMessage({ type: "success", text: `Welcome ${user.name}` });
+      onSuccess?.(user);
+    } catch (err: any) {
+      const errorMsg = err.message || "Login failed";
+      setMessage({ type: "error", text: errorMsg });
+      onError?.(err);
+    } finally {
+      setLoading(false);
     }
-
-    // ✅ Set frontend cookie after successful login
-    Cookies.set("a_s_b", "true", {
-      path: "/",           // cookie valid for entire frontend
-      expires: 1,          // 1 day
-      secure: true,        // only over HTTPS
-      sameSite: "Lax",     // or "Strict" if you want tighter control
-    });
-
-    setMessage({ type: "success", text: `Welcome ${user.name}` });
-    onSuccess?.(user);
-  } catch (err: any) {
-    const errorMsg = err.message || "Login failed";
-    setMessage({ type: "error", text: errorMsg });
-    onError?.(err);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

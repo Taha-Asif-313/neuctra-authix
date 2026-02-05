@@ -235,26 +235,14 @@ export class NeuctraAuthix {
 
     try {
       // Make a request to check the session (cookie-based)
-      const session = await this.request<CheckSessionResponse>(
+      return await this.request<CheckSessionResponse>(
         "GET",
         "/users/session",
         undefined,
         {},
         true,
       );
-
-      // ✅ If authenticated, set frontend cookie for UI
-      if (session.authenticated) {
-        document.cookie = `a_s_b=true; path=/; max-age=${24 * 60 * 60}; Secure; SameSite=Lax`;
-      } else {
-        // ❌ Remove cookie if not authenticated
-        document.cookie = `a_s_b=; path=/; max-age=0`;
-      }
-
-      return session;
     } catch {
-      // If request fails, session is invalid
-      document.cookie = `a_s_b=; path=/; max-age=0`; // remove UI cookie
       return { authenticated: false };
     }
   }
