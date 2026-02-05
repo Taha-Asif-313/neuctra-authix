@@ -71,7 +71,7 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
       {/* Sidebar */}
       <aside
         className={`
-          fixed md:relative md:h-screen h-full w-72 bg-zinc-950 border-r border-black flex flex-col z-30
+          fixed md:relative md:h-screen h-full w-72 bg-zinc-900 rounded-r-2xl border-black flex flex-col z-30
           transform transition-transform duration-300 ease-in-out
           ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"

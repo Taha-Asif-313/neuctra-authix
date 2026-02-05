@@ -453,7 +453,7 @@ export const forgotPassword = async (req, res) => {
       data: { otp, otpExpiry },
     });
 
-    await sendOtpEmail(user.email, otp, "Neuctra Authix", "reset");
+    await sendOtpEmail(admin.email, otp, "Neuctra Authix", "reset");
 
     return res.status(200).json({
       success: true,

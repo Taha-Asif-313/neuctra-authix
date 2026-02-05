@@ -18,6 +18,7 @@ import {
   Check,
 } from "lucide-react";
 import AddNewApp from "../../components/dashboard/AddNewApp";
+import CustomLoader from "../../components/utils/CustomLoader";
 
 const CustomDropdown = ({
   options,
@@ -57,8 +58,9 @@ const CustomDropdown = ({
         </div>
         <ChevronDown
           size={16}
-          className={`text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""
-            }`}
+          className={`text-gray-400 transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
         />
       </button>
 
@@ -120,7 +122,7 @@ const ApplicationsPage = () => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         if (res.data.success) {
@@ -158,7 +160,7 @@ const ApplicationsPage = () => {
           app.applicationName.toLowerCase().includes(lowerQuery) ||
           (app.description &&
             app.description.toLowerCase().includes(lowerQuery)) ||
-          app.category.toLowerCase().includes(lowerQuery)
+          app.category.toLowerCase().includes(lowerQuery),
       );
     }
 
@@ -191,7 +193,7 @@ const ApplicationsPage = () => {
 
   const handleActiveToggle = (updatedApp) => {
     setApps((prev) =>
-      prev.map((a) => (a.id === updatedApp.id ? updatedApp : a))
+      prev.map((a) => (a.id === updatedApp.id ? updatedApp : a)),
     );
   };
 
@@ -226,12 +228,7 @@ const ApplicationsPage = () => {
   ];
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <Loader className="animate-spin text-primary mb-3" size={32} />
-        <p className="text-gray-400">Loading applications...</p>
-      </div>
-    );
+    return <CustomLoader />;
   }
 
   return (
@@ -271,20 +268,22 @@ const ApplicationsPage = () => {
           <div className="flex bg-zinc-800 rounded-lg p-1">
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-2 rounded-md transition-colors ${viewMode === "grid"
+              className={`p-2 rounded-md transition-colors ${
+                viewMode === "grid"
                   ? "bg-primary text-white shadow-md"
                   : "text-gray-400 hover:text-gray-200"
-                }`}
+              }`}
               aria-label="Grid view"
             >
               <Grid size={18} />
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`p-2 rounded-md transition-colors ${viewMode === "list"
+              className={`p-2 rounded-md transition-colors ${
+                viewMode === "list"
                   ? "bg-primary text-white shadow-md"
                   : "text-gray-400 hover:text-gray-200"
-                }`}
+              }`}
               aria-label="List view"
             >
               <List size={18} />
@@ -354,8 +353,9 @@ const ApplicationsPage = () => {
 
         {/* Advanced Filters */}
         <div
-          className={`${showFilters ? "flex" : "hidden"
-            } md:flex flex-col md:flex-row gap-4 mt-4 md:mt-3`}
+          className={`${
+            showFilters ? "flex" : "hidden"
+          } md:flex flex-col md:flex-row gap-4 mt-4 md:mt-3`}
         >
           {/* Category Filter */}
           <CustomDropdown
@@ -450,8 +450,6 @@ const ApplicationsPage = () => {
               />
             ))}
           </div>
-
-
         </>
       )}
 

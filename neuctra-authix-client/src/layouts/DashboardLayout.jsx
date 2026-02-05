@@ -6,7 +6,7 @@ import DashboardHeader from "../components/dashboard/DashboardHeader";
 const DashboardLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
-    <div className="flex max-h-screen bg-zinc-950 text-gray-100">
+    <div className="flex max-h-screen text-gray-100">
       <DashboardSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">

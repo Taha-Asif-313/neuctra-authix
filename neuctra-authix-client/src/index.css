@@ -37,3 +37,7 @@ body{
   scrollbar-color: var(--primary-color, #3b82f6) transparent;
 }
 
+
+button {
+  cursor: pointer;
+}

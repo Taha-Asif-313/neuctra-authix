@@ -6,20 +6,15 @@ import {
   TrendingUp,
   Users,
   Activity,
-  Shield,
-  Search,
-  Filter,
   X,
   ChevronDown,
   Loader,
-  BarChart3,
   Eye,
   EyeOff,
   Smartphone,
   Globe,
   Server,
   Box,
-  Layers,
   UserCheck,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -28,77 +23,7 @@ import AddNewApp from "../../components/dashboard/AddNewApp";
 import AppCard from "../../components/dashboard/AppCard";
 import toast from "react-hot-toast";
 import axios from "axios";
-
-const CustomDropdown = ({
-  options,
-  value,
-  onChange,
-  icon: Icon,
-  placeholder,
-  className = "",
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = React.useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const selectedOption = options.find((opt) => opt.value === value) || {
-    label: placeholder,
-  };
-
-  return (
-    <div className={`relative ${className}`} ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between pl-3 pr-3 py-2.5 rounded-lg bg-zinc-800 text-white border border-zinc-700 hover:border-zinc-600 transition-colors"
-      >
-        <div className="flex items-center">
-          {Icon && <Icon size={16} className="text-primary mr-2" />}
-          <span className="text-sm">{selectedOption.label}</span>
-        </div>
-        <ChevronDown
-          size={16}
-          className={`text-gray-400 transition-transform ${
-            isOpen ? "rotate-180" : ""
-          }`}
-        />
-      </button>
-
-      {isOpen && (
-        <div className="absolute z-10 w-full mt-1 py-2 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg">
-          {options.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => {
-                onChange(option.value);
-                setIsOpen(false);
-              }}
-              className="w-full flex items-center px-3 py-2 text-sm text-left text-white hover:bg-zinc-700 transition-colors"
-            >
-              {value === option.value ? (
-                <div className="w-4 h-4 mr-2 rounded-full bg-primary flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                </div>
-              ) : (
-                <div className="w-4 h-4 mr-2 border border-zinc-600 rounded-full"></div>
-              )}
-              {option.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+import CustomLoader from "../../components/utils/CustomLoader";
 
 const DashboardPage = () => {
   const { token } = useAuth();
@@ -130,7 +55,7 @@ const DashboardPage = () => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         if (res.data.success) {
@@ -178,7 +103,7 @@ const DashboardPage = () => {
 
   const activeUsers = apps.reduce(
     (sum, app) => sum + (app.activeUsers || 0),
-    0
+    0,
   );
 
   // Get current date info
@@ -220,7 +145,7 @@ const DashboardPage = () => {
 
   const handleActiveToggle = (updatedApp) => {
     setApps((prev) =>
-      prev.map((a) => (a.id === updatedApp.id ? updatedApp : a))
+      prev.map((a) => (a.id === updatedApp.id ? updatedApp : a)),
     );
   };
 
@@ -252,12 +177,7 @@ const DashboardPage = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[500px]">
-        <Loader className="animate-spin text-primary mb-4" size={32} />
-        <p className="text-gray-400">Loading your applications...</p>
-      </div>
-    );
+    return <CustomLoader />;
   }
 
   return (
@@ -400,7 +320,7 @@ const DashboardPage = () => {
               <UserCheck size={20} className="text-cyan-400" />
             </div>
           </div>
-          <p className="text-cyan-400 text-sm mt-3 flex items-center">
+          <p className="text-cyan-400 text-sm flex items-center">
             <p className="text-cyan-400 text-sm mt-3 flex items-center">
               {activeUsers < totalUsers ? (
                 <>

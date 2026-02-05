@@ -4,6 +4,8 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { Eye, EyeOff, Mail, Lock, User, ShieldCheck } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
+import PasswordField from "../../components/utils/PasswordField";
+import InputField from "../../components/utils/InputField";
 
 const SignupPage = () => {
   const { login } = useAuth();
@@ -91,7 +93,7 @@ const SignupPage = () => {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-        }
+        },
       );
       if (res.data.success) {
         login(res.data.userData.admin, res.data.userData.token);
@@ -142,161 +144,66 @@ const SignupPage = () => {
           {/* Form Card */}
           <div className="bg-zinc-950 text-sm py-4 px-4 shadow rounded-lg">
             <form className="space-y-4" onSubmit={handleSubmit}>
-              {/* Name */}
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-xs font-medium text-gray-300"
-                >
-                  Full Name
-                </label>
-                <div className="mt-1 relative">
-                  <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    placeholder="Your name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className={`block w-full pl-10 pr-3 py-2.5 text-sm border rounded-md shadow-sm focus:ring-[#00c420] focus:border-[#00c420] ${
-                      errors.name
-                        ? "border-red-300 text-red-900"
-                        : "border-gray-300 bg-black text-white"
-                    }`}
-                  />
-                </div>
-                {errors.name && (
-                  <p className="mt-2 text-sm text-red-600">{errors.name}</p>
-                )}
-              </div>
+              {/* Full Name */}
+              <InputField
+                label="Full Name"
+                name="name"
+                placeholder="Your name"
+                value={formData.name}
+                onChange={handleChange}
+                error={errors.name}
+                prefixIcon={User}
+              />
 
               {/* Email */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-xs font-medium text-gray-300"
-                >
-                  Email address
-                </label>
-                <div className="mt-1 relative">
-                  <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className={`block w-full pl-10 pr-3 py-2.5 text-sm border rounded-md shadow-sm focus:ring-[#00c420] focus:border-[#00c420] ${
-                      errors.email
-                        ? "border-red-300 text-red-900"
-                        : "border-gray-300 bg-black text-white"
-                    }`}
-                  />
-                </div>
-                {errors.email && (
-                  <p className="mt-2 text-sm text-red-600">{errors.email}</p>
-                )}
-              </div>
+              <InputField
+                label="Email address"
+                name="email"
+                type="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={handleChange}
+                error={errors.email}
+                prefixIcon={Mail}
+              />
 
               {/* Password */}
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-xs font-medium text-gray-300"
+              <PasswordField
+                label="Password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                error={errors.password}
+                show={showPassword}
+                toggleShow={() => setShowPassword((prev) => !prev)}
+                prefixIcon={Lock}
+              />
+              {/* Password Strength Indicator */}
+              {passwordStrength && (
+                <p
+                  className={`mt-2 text-xs font-medium ${strengthColors[passwordStrength]} flex items-center gap-1`}
                 >
-                  Password
-                </label>
-                <div className="mt-1 relative">
-                  <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className={`block w-full pl-10 pr-10 py-2.5 text-sm border rounded-md shadow-sm focus:ring-[#00c420] focus:border-[#00c420] ${
-                      errors.password
-                        ? "border-red-300 text-red-900"
-                        : "border-gray-300 bg-black text-white"
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-
-                {/* Password Strength Indicator */}
-                {passwordStrength && (
-                  <p
-                    className={`mt-2 text-xs font-medium ${strengthColors[passwordStrength]} flex items-center gap-1`}
-                  >
-                    <ShieldCheck size={12} /> {passwordStrength} password
-                  </p>
-                )}
-
-                {errors.password && (
-                  <p className="mt-2 text-sm text-red-600">{errors.password}</p>
-                )}
-              </div>
+                  <ShieldCheck size={12} /> {passwordStrength} password
+                </p>
+              )}
 
               {/* Confirm Password */}
-              <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-xs font-medium text-gray-300"
-                >
-                  Confirm Password
-                </label>
-                <div className="mt-1 relative">
-                  <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirm password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className={`block w-full pl-10 pr-10 py-2.5 text-sm border rounded-md shadow-sm focus:ring-[#00c420] focus:border-[#00c420] ${
-                      errors.confirmPassword
-                        ? "border-red-300 text-red-900"
-                        : "border-gray-300 bg-black text-white"
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-                {errors.confirmPassword && (
-                  <p className="mt-2 text-sm text-red-600">
-                    {errors.confirmPassword}
-                  </p>
-                )}
-              </div>
+              <PasswordField
+                label="Confirm Password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                error={errors.confirmPassword}
+                show={showConfirmPassword}
+                toggleShow={() => setShowConfirmPassword((prev) => !prev)}
+                prefixIcon={Lock}
+              />
 
               {/* Submit */}
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-[#00c420] hover:bg-primary/80 transition-all duration-300 disabled:opacity-70"
+                className="w-full flex justify-center py-3 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-[#00c420] hover:bg-primary/80 transition-all duration-300 disabled:opacity-70"
               >
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>

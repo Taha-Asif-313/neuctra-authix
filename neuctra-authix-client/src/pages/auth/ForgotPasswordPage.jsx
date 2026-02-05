@@ -3,6 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { Mail, KeyRound, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import InputField from "../../components/utils/InputField";
 
 const ForgotResetPasswordPage = () => {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ const ForgotResetPasswordPage = () => {
       setIsLoading(true);
       const res = await axios.post(
         `${import.meta.env.VITE_SERVER_URL}/api/admin/forgot-password`,
-        { email: formData.email }
+        { email: formData.email },
       );
       if (res.data.success) {
         toast.success(res.data.message || "OTP sent to your email");
@@ -47,7 +48,7 @@ const ForgotResetPasswordPage = () => {
       setIsLoading(true);
       const res = await axios.post(
         `${import.meta.env.VITE_SERVER_URL}/api/admin/reset-password`,
-        formData
+        formData,
       );
       if (res.data.success) {
         toast.success(res.data.message || "Password reset successfully!");
@@ -79,78 +80,54 @@ const ForgotResetPasswordPage = () => {
         </h2>
 
         {step === 1 ? (
-          // Step 1: Email Form
           <form className="space-y-4" onSubmit={handleSendOTP}>
-            <div>
-              <label className="block text-sm font-medium text-gray-300">
-                Email
-              </label>
-              <div className="mt-1 relative">
-                <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Enter your email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-2.5 rounded-md border bg-black text-white"
-                  required
-                />
-              </div>
-            </div>
+            <InputField
+              label="Email"
+              name="email"
+              type="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              prefixIcon={Mail}
+            />
+
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2 rounded-md bg-[#00c420] text-white hover:bg-emerald-600 disabled:opacity-70"
+              className="w-full py-2.5 rounded-lg bg-[#00c420] text-white font-medium hover:bg-emerald-600 transition-all duration-300 disabled:opacity-70"
             >
               {isLoading ? "Sending..." : "Send Reset OTP"}
             </button>
           </form>
         ) : (
-          // Step 2: OTP + New Password Form
           <form className="space-y-4" onSubmit={handleResetPassword}>
             {/* OTP */}
-            <div>
-              <label className="block text-xs font-medium text-gray-300">
-                OTP
-              </label>
-              <div className="mt-1 relative">
-                <KeyRound className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  name="otp"
-                  placeholder="Enter OTP"
-                  value={formData.otp}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-2.5 rounded-md border bg-black text-white"
-                  required
-                />
-              </div>
-            </div>
+            <InputField
+              label="OTP"
+              name="otp"
+              placeholder="Enter OTP"
+              value={formData.otp}
+              onChange={handleChange}
+              required
+              prefixIcon={KeyRound}
+            />
 
-            {/* New Password */}
-            <div>
-              <label className="block text-xs font-medium text-gray-300">
-                New Password
-              </label>
-              <div className="mt-1 relative">
-                <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="password"
-                  name="newPassword"
-                  placeholder="Enter new password"
-                  value={formData.newPassword}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-2.5 rounded-md border bg-black text-white"
-                  required
-                />
-              </div>
-            </div>
+            <InputField
+              label="New Password"
+              name="newPassword"
+              type="password"
+              placeholder="Enter new password"
+              value={formData.newPassword}
+              onChange={handleChange}
+              required
+              prefixIcon={Lock}
+            />
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2 rounded-md bg-[#00c420] text-white hover:bg-primary/80 disabled:opacity-70"
+              className="w-full py-2.5 rounded-lg bg-[#00c420] text-white font-medium hover:bg-primary/80 transition-all duration-300 disabled:opacity-70"
             >
               {isLoading ? "Resetting..." : "Reset Password"}
             </button>

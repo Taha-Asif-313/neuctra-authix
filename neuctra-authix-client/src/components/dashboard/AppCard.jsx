@@ -7,12 +7,6 @@ import {
   Edit,
   Trash2,
   Eye,
-  CircleDot,
-  Circle,
-  CircleOff,
-  EyeOff,
-  UserCheck,
-  UserLock,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -59,7 +53,7 @@ const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
             Authorization: `Bearer ${token}`,
             "x-api-key": admin?.apiKey || "",
           },
-        }
+        },
       );
 
       if (data.success) {
@@ -87,7 +81,7 @@ const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
         `${import.meta.env.VITE_SERVER_URL}/api/apps/${appState.id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       if (data.success) {
@@ -111,7 +105,7 @@ const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
 
   return (
     <>
-      <div className="bg-zinc-950 border-gray-800 rounded-2xl p-5 flex flex-col justify-between">
+      <div className="bg-zinc-900 border-gray-800 rounded-2xl p-5 flex flex-col justify-between">
         {/* Header */}
         <div className="flex items-start justify-between mb-4 relative">
           <div className="flex items-center gap-3">

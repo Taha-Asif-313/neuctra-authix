@@ -28,10 +28,6 @@ const AuthLayout = () => {
     return () => clearTimeout(timer);
   }, [darkMode]);
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    localStorage.theme = !darkMode ? "dark" : "light";
-  };
 
   return (
     <div className="min-h-screen">

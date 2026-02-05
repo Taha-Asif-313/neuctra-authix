@@ -18,12 +18,14 @@ import { useAuth } from "../../contexts/AuthContext";
 import DeleteAppModal from "../../components/dashboard/DeleteAppModal";
 import EditUser from "../../components/dashboard/EditUser";
 import DeleteUserModal from "../../components/dashboard/DeleteUserModal";
+import InputField from "../../components/utils/InputField";
+import CustomLoader from "../../components/utils/CustomLoader";
 
 const AppDetail = () => {
   const { id } = useParams();
   const { admin } = useAuth();
   const token = localStorage.getItem("token");
-    const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [deleteAppModalOpen, setDeleteAppModalOpen] = useState(false);
   const [editAppModalOpen, setEditAppModalOpen] = useState(false);
@@ -36,6 +38,7 @@ const AppDetail = () => {
   const [deleteUser, setDeleteUser] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const navigate = useNavigate();
+  console.log(users);
 
   // fetch app + users
   useEffect(() => {
@@ -43,7 +46,7 @@ const AppDetail = () => {
       try {
         const { data } = await axios.get(
           `${import.meta.env.VITE_SERVER_URL}/api/apps/${id}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
 
         if (data.success) {
@@ -98,21 +101,16 @@ const AppDetail = () => {
     }
   };
 
-    // Filter users by ID or Email
+  // Filter users by ID or Email
   const filteredUsers = users.filter((u) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
-    return (
-      u.id.toLowerCase().includes(q) ||
-      u.email.toLowerCase().includes(q)
-    );
+    return u.id.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
   });
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="animate-spin w-6 h-6 text-gray-400" />
-      </div>
+     <CustomLoader/>
     );
   }
 
@@ -127,7 +125,7 @@ const AppDetail = () => {
   return (
     <div className="max-w-7xl mx-auto space-y-4">
       {/* App Info */}
-      <div className="bg-gradient-to-r  from-zinc-900 to-zinc-950/5 rounded-2xl p-6 shadow-2xl">
+      <div className="bg-zinc-900/60 rounded-2xl p-6 shadow-2xl">
         <div className="relative flex flex-col-reverse sm:flex-row sm:justify-between sm:items-start gap-6">
           {/* Left: App Details */}
           <div className="space-y-4">
@@ -220,33 +218,35 @@ const AppDetail = () => {
       </div>
 
       {/* Users */}
-           <div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 mt-6 gap-4">
-          <h2 className="text-xl sm:text-2xl font-semibold text-white">
-            Manage Users
-          </h2>
+      <div>
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 mt-6 gap-4">
+  <h2 className="text-xl sm:text-2xl font-semibold text-white">
+    Manage Users
+  </h2>
 
-          <div className="flex items-center gap-3">
-            {/* 🔍 Search Input */}
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by ID or Email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 pr-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-            </div>
+  <div className="flex items-center gap-3">
+    {/* 🔍 Search Input */}
+    <div className="w-64">
+      <InputField
+        name="search"
+        placeholder="Search by ID or Email..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        prefixIcon={Search}
+        className="bg-zinc-900 border-zinc-800"
+      />
+    </div>
 
-            <button
-              onClick={() => setAddModalOpen(true)}
-              className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md text-sm transition font-medium shadow-md"
-            >
-              <UserPlus className="w-4 h-4" /> Add User
-            </button>
-          </div>
-        </div>
+    <button
+      onClick={() => setAddModalOpen(true)}
+      className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md text-sm transition font-medium shadow-md"
+    >
+      <UserPlus className="w-4 h-4" />
+      Add User
+    </button>
+  </div>
+</div>
+
 
         {filteredUsers.length === 0 ? (
           <p className="py-16 text-center text-sm text-gray-400">
@@ -255,11 +255,13 @@ const AppDetail = () => {
         ) : (
           <div className="overflow-x-auto rounded-xl border border-zinc-800">
             <table className="w-full text-sm text-left text-gray-300 min-w-[500px]">
-              <thead className="bg-zinc-900/90 text-gray-400 uppercase text-xs tracking-wider">
+              <thead className="bg-zinc-900/90 text-white text-xs tracking-wider">
                 <tr>
+                  <th className="px-4 sm:px-6 py-3">Avatar</th>
                   <th className="px-4 sm:px-6 py-3">ID</th>
                   <th className="px-4 sm:px-6 py-3">Name</th>
                   <th className="px-4 sm:px-6 py-3">Email</th>
+                  <th className="px-4 sm:px-6 py-3">Role</th>
                   <th className="px-4 sm:px-6 py-3 text-right">Actions</th>
                 </tr>
               </thead>
@@ -323,7 +325,7 @@ const AppDetail = () => {
               return;
             }
             setUsers((prev) =>
-              prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
+              prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)),
             );
             setEditUser(null);
           }}

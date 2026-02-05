@@ -44,7 +44,7 @@ const EditUser = ({ userData, userId, appId, onClose, onSave }) => {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          }
+          },
         );
 
         if (res.data.success) {
@@ -110,7 +110,7 @@ const EditUser = ({ userData, userId, appId, onClose, onSave }) => {
         { ...formData, appId },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        },
       );
 
       if (res.data.success) {
@@ -143,8 +143,8 @@ const EditUser = ({ userData, userId, appId, onClose, onSave }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 z-50 px-4 backdrop-blur-sm flex justify-center py-8 overflow-y-auto">
-      <div className="bg-zinc-950 rounded-2xl shadow-2xl w-full max-w-5xl relative border border-zinc-900 flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 h-screen w-screen bg-black/70 backdrop-blur-sm flex justify-center items-start overflow-y-auto">
+      <div className="bg-zinc-950 w-full h-full relative border border-zinc-900 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
           <div className="flex items-center gap-2">
@@ -158,9 +158,9 @@ const EditUser = ({ userData, userId, appId, onClose, onSave }) => {
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors p-1 hover:bg-zinc-800 rounded-lg"
+            className="text-white p-1 cursor-pointer transition-colors hover:bg-zinc-800 rounded-lg"
           >
-            <X size={20} />
+            <X size={24} />
           </button>
         </div>
 

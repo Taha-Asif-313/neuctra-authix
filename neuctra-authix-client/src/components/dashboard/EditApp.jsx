@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { X, Globe, Smartphone, Server, Code, Save } from "lucide-react";
+import { X, Globe, Smartphone, Server, Code, Save, Edit } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useApp } from "../../contexts/AppContext";
 import { useAuth } from "../../contexts/AuthContext";
 import CustomDropdown from "../CustomDropdown";
+import TextareaField from "../utils/TextareaField";
+import SelectField from "../utils/SelectField";
+import InputField from "../utils/InputField";
 
 const EditApp = ({ appData, appId, onClose, onSave }) => {
   const { apps, setApps } = useApp();
@@ -86,17 +89,16 @@ const EditApp = ({ appData, appId, onClose, onSave }) => {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       const updated = res?.data?.updatedApp;
 
-      
       if (res?.data?.success && updated?.id) {
         setApps((prev) =>
           Array.isArray(prev)
             ? prev.map((app) => (app?.id === updated.id ? updated : app))
-            : []
+            : [],
         );
 
         toast.success(res.data.message || "App updated successfully!");
@@ -115,86 +117,82 @@ const EditApp = ({ appData, appId, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 h-screen bg-black/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
-      <div className="bg-black rounded-2xl w-full max-w-2xl max-h-[95vh] overflow-y-auto border border-zinc-800 shadow-2xl">
+      <div className="bg-zinc-950 rounded-2xl w-full max-w-2xl max-h-[95vh] overflow-y-auto border border-zinc-900 shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-4 sm:px-6 pt-6">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg hover:bg-zinc-900 transition"
-            >
-              <X size={20} />
-            </button>
+          <div className="flex items-center gap-2">
+            <Edit size={20} className="text-primary" />
             <h2 className="text-lg sm:text-xl font-bold text-white">
               Edit Application
             </h2>
           </div>
+
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-zinc-900 transition"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
-          <div className="p-4 sm:p-6 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 text-sm">
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-2">
-                  Application Name *
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-zinc-950 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                  placeholder="Enter application name"
-                />
-              </div>
-
-              <div>
-                <CustomDropdown
-                    label="Category"
-                    options={categories}
-                    value={formData.category}
-                    onChange={(val) =>
-                      setFormData((prev) => ({ ...prev, category: val }))
-                    }
-                    required
-                  />  
-              
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-300 mb-2">
-                Description *
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
+          <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+            {/* Name + Category */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <InputField
+                label="Application Name"
+                name="name"
                 required
-                rows={3}
-                className="w-full text-sm px-3 sm:px-4 py-2 sm:py-3 bg-zinc-950 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                placeholder="Describe your application's purpose and functionality"
+                placeholder="Enter application name"
+                value={formData.name}
+                onChange={handleInputChange}
+              />
+
+              <SelectField
+                label="Category"
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                options={categories.map((c) => ({
+                  label: c,
+                  value: c,
+                }))}
+                required
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-gray-300 mb-2">
+            {/* Description */}
+            <TextareaField
+              label="Description"
+              name="description"
+              required
+              rows={3}
+              placeholder="Describe your application's purpose and functionality"
+              value={formData.description}
+              onChange={handleInputChange}
+            />
+
+            {/* Platform */}
+            <div className="space-y-2">
+              <label className="text-[13px] font-semibold text-gray-200">
                 Platform *
               </label>
+
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {platforms.map(({ value, label, icon: Icon }) => (
                   <div
                     key={value}
-                    className={`p-3 sm:p-4 border rounded-lg cursor-pointer transition ${
-                      formData.platform === value
-                        ? "border-primary bg-primary/10"
-                        : "border-gray-600 hover:border-gray-500"
-                    }`}
                     onClick={() =>
                       setFormData((prev) => ({ ...prev, platform: value }))
                     }
+                    className={`p-3 sm:p-4 rounded-lg border cursor-pointer transition
+                  ${
+                    formData.platform === value
+                      ? "border-primary bg-primary/10"
+                      : "border-zinc-700 hover:border-zinc-500"
+                  }
+                `}
                   >
                     <Icon size={20} className="text-gray-300 mb-1 sm:mb-2" />
                     <p className="text-xs text-gray-300">{label}</p>
@@ -209,7 +207,7 @@ const EditApp = ({ appData, appId, onClose, onSave }) => {
             <button
               type="button"
               onClick={onClose}
-              className="w-full sm:w-auto px-4 py-2 text-gray-300 hover:text-white transition"
+              className="w-full sm:w-auto px-4 py-2 text-sm text-gray-300 hover:text-white transition"
             >
               Cancel
             </button>
@@ -217,7 +215,7 @@ const EditApp = ({ appData, appId, onClose, onSave }) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full sm:w-auto px-4 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary/90 transition flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full sm:w-auto px-6 py-3 text-xs bg-primary text-white rounded-md hover:bg-primary/90 transition flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isSubmitting ? (
                 "Updating..."
