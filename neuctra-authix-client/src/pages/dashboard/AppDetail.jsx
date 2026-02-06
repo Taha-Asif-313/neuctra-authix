@@ -20,6 +20,7 @@ import EditUser from "../../components/dashboard/EditUser";
 import DeleteUserModal from "../../components/dashboard/DeleteUserModal";
 import InputField from "../../components/utils/InputField";
 import CustomLoader from "../../components/utils/CustomLoader";
+import SetupGuides from "../../components/guide/SetupGuides";
 
 const AppDetail = () => {
   const { id } = useParams();
@@ -37,6 +38,8 @@ const AppDetail = () => {
   const [editUser, setEditUser] = useState(null);
   const [deleteUser, setDeleteUser] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
+
   const navigate = useNavigate();
   console.log(users);
 
@@ -109,9 +112,7 @@ const AppDetail = () => {
   });
 
   if (loading) {
-    return (
-     <CustomLoader/>
-    );
+    return <CustomLoader />;
   }
 
   if (!app) {
@@ -219,63 +220,79 @@ const AppDetail = () => {
 
       {/* Users */}
       <div>
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 mt-6 gap-4">
-  <h2 className="text-xl sm:text-2xl font-semibold text-white">
-    Manage Users
-  </h2>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 mt-6 gap-4">
+          <h2 className="text-xl sm:text-2xl font-semibold text-white">
+            {showGuide ? "App Setup Guide" : "Manage Users"}
+          </h2>
 
-  <div className="flex items-center gap-3">
-    {/* 🔍 Search Input */}
-    <div className="w-64">
-      <InputField
-        name="search"
-        placeholder="Search by ID or Email..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        prefixIcon={Search}
-        className="bg-zinc-900 border-zinc-800"
-      />
-    </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowGuide((prev) => !prev)}
+              className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition
+        bg-zinc-800 hover:bg-zinc-700 text-white"
+            >
+              {showGuide ? "Show Users" : "Show Setup Guide"}
+            </button>
 
-    <button
-      onClick={() => setAddModalOpen(true)}
-      className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md text-sm transition font-medium shadow-md"
-    >
-      <UserPlus className="w-4 h-4" />
-      Add User
-    </button>
-  </div>
-</div>
-
-
-        {filteredUsers.length === 0 ? (
-          <p className="py-16 text-center text-sm text-gray-400">
-            No matching users found.
-          </p>
-        ) : (
-          <div className="overflow-x-auto rounded-xl border border-zinc-800">
-            <table className="w-full text-sm text-left text-gray-300 min-w-[500px]">
-              <thead className="bg-zinc-900/90 text-white text-xs tracking-wider">
-                <tr>
-                  <th className="px-4 sm:px-6 py-3">Avatar</th>
-                  <th className="px-4 sm:px-6 py-3">ID</th>
-                  <th className="px-4 sm:px-6 py-3">Name</th>
-                  <th className="px-4 sm:px-6 py-3">Email</th>
-                  <th className="px-4 sm:px-6 py-3">Role</th>
-                  <th className="px-4 sm:px-6 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-800">
-                {filteredUsers.map((user) => (
-                  <UserRow
-                    key={user.id}
-                    user={user}
-                    onEdit={(u) => setEditUser(u)}
-                    onDelete={(u) => setDeleteUser(u)}
+            {!showGuide && (
+              <>
+                {/* 🔍 Search */}
+                <div className="w-64">
+                  <InputField
+                    name="search"
+                    placeholder="Search by ID or Email..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    prefixIcon={Search}
+                    className="bg-zinc-900 border-zinc-800"
                   />
-                ))}
-              </tbody>
-            </table>
+                </div>
+
+                <button
+                  onClick={() => setAddModalOpen(true)}
+                  className="flex items-center gap-2 bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md text-sm font-medium shadow-md"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  Add User
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+        {showGuide ? (
+          <SetupGuides app={app} />
+        ) : (
+          <div>
+            {filteredUsers.length === 0 ? (
+              <p className="py-16 text-center text-sm text-gray-400">
+                No matching users found.
+              </p>
+            ) : (
+              <div className="overflow-x-auto rounded-xl border border-zinc-800">
+                <table className="w-full text-sm text-left text-gray-300 min-w-[500px]">
+                  <thead className="bg-zinc-900/90 text-white text-xs tracking-wider">
+                    <tr>
+                      <th className="px-4 sm:px-6 py-3">Avatar</th>
+                      <th className="px-4 sm:px-6 py-3">ID</th>
+                      <th className="px-4 sm:px-6 py-3">Name</th>
+                      <th className="px-4 sm:px-6 py-3">Email</th>
+                      <th className="px-4 sm:px-6 py-3">Role</th>
+                      <th className="px-4 sm:px-6 py-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800">
+                    {filteredUsers.map((user) => (
+                      <UserRow
+                        key={user.id}
+                        user={user}
+                        onEdit={(u) => setEditUser(u)}
+                        onDelete={(u) => setDeleteUser(u)}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
       </div>

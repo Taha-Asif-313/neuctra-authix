@@ -65,15 +65,15 @@ const CodeBlock = ({
       shell: <TerminalSquare className="w-5 h-5 text-gray-300" />,
       json: <FileJson className="w-5 h-5 text-amber-300" />,
     };
-    return icons[lang] || <FileCode className="w-5 h-5 text-gray-400" />;
+    return icons[lang] || <FileCode className="w-5 h-5 text-white" />;
   };
 
   return (
     <div
-      className={`relative group rounded-xl overflow-hidden bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 ${className}`}
+      className={`relative group rounded-xl overflow-hidden bg-zinc-900/60 border border-zinc-900/60 ${className}`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between bg-gradient-to-r from-gray-900 to-gray-950 border-b border-gray-800/80">
+      <div className="flex items-center justify-between bg-zinc-900 border-b border-zinc-900">
         {/* Tabs or Language Display */}
         <div className="flex items-center flex-1 min-w-0">
           {/* Traffic lights */}
@@ -103,7 +103,7 @@ const CodeBlock = ({
           ) : (
             <div className="flex items-center gap-2 px-4 py-3">
               {getLanguageIcon(currentLanguage)}
-              <span className="text-sm font-medium text-gray-400">
+              <span className="text-sm font-medium text-white">
                 {currentLanguage.toUpperCase()}
               </span>
             </div>
@@ -163,8 +163,6 @@ const CodeBlock = ({
           {currentCode?.trim?.() || ""}
         </SyntaxHighlighter>
 
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-transparent to-gray-900/20 opacity-50"></div>
       </div>
 
       {/* Hover border animation */}
