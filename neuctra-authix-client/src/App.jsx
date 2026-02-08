@@ -90,12 +90,7 @@ function AppContent() {
       <Routes>
         {/* ===== Public Routes ===== */}
         <Route path="/" element={<AuthLayout />}>
-          <Route
-            index
-            element={
-              isAuthenticated ? <Navigate to="/dashboard" replace /> : <Home />
-            }
-          />
+          <Route index element={<Home />} />
           <Route
             path="login"
             element={

@@ -2,8 +2,11 @@
 import { Menu, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Navbar = () => {
+  const { admin, isAuthenticated, logout } = useAuth();
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
 
@@ -14,6 +17,11 @@ const Navbar = () => {
   }, []);
 
   const isScrolled = scrollPosition > 50 || mobileMenuOpen;
+
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = "/login";
+  };
 
   return (
     <>
@@ -28,10 +36,7 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-12 sm:h-14">
             {/* Logo */}
-            <Link 
-              to="/" 
-              className="flex items-center gap-2 flex-shrink-0"
-            >
+            <Link to="/" className="flex items-center gap-2 flex-shrink-0">
               <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center">
                 <img
                   src="/logo.png"
@@ -47,7 +52,7 @@ const Navbar = () => {
             {/* Center Navigation - Desktop */}
             <div className="hidden lg:flex items-center justify-center flex-1 max-w-2xl mx-8">
               <div className="flex items-center gap-8">
-                {["Features", "Pricing","About", "Docs"].map((item) => (
+                {["Features", "Pricing", "About", "Docs"].map((item) => (
                   <Link
                     key={item}
                     to={`/${item.toLowerCase()}`}
@@ -63,18 +68,37 @@ const Navbar = () => {
             <div className="flex items-center gap-2 sm:gap-3">
               {/* Desktop Buttons */}
               <div className="hidden md:flex items-center gap-3">
-                <Link
-                  to="/login"
-                  className="px-4 py-2 text-gray-300 hover:text-[#00c420] rounded-lg transition-all duration-300 text-sm font-medium whitespace-nowrap"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  to="/signup"
-                  className="px-5 py-2 bg-gradient-to-r from-[#00c420] to-green-500 text-white rounded-lg hover:shadow-lg hover:shadow-[#00c420]/20 transform hover:scale-105 transition-all duration-300 text-sm font-medium whitespace-nowrap"
-                >
-                  Get Started
-                </Link>
+                {isAuthenticated && admin ? (
+                  <>
+                    <Link
+                      to="/dashboard"
+                      className="px-4 py-2 text-gray-300 hover:text-[#00c420] rounded-lg transition-all duration-300 text-sm font-medium whitespace-nowrap"
+                    >
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300 text-sm font-medium whitespace-nowrap"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      className="px-4 py-2 text-gray-300 hover:text-[#00c420] rounded-lg transition-all duration-300 text-sm font-medium whitespace-nowrap"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      to="/signup"
+                      className="px-5 py-2 bg-gradient-to-r from-[#00c420] to-green-500 text-white rounded-lg hover:shadow-lg hover:shadow-[#00c420]/20 transform hover:scale-105 transition-all duration-300 text-sm font-medium whitespace-nowrap"
+                    >
+                      Get Started
+                    </Link>
+                  </>
+                )}
               </div>
 
               {/* Mobile Menu Toggle */}
@@ -141,20 +165,43 @@ const Navbar = () => {
 
           {/* Action Buttons */}
           <div className="p-6 space-y-4 border-t border-[#00c420]/10 bg-black/50">
-            <Link
-              to="/login"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-center text-gray-300 hover:text-[#00c420] py-3 px-4 rounded-xl border border-gray-700 hover:border-[#00c420]/50 transition-all duration-300 font-medium"
-            >
-              Sign In
-            </Link>
-            <Link
-              to="/signup"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-center bg-gradient-to-r from-[#00c420] to-green-500 text-white py-3 px-4 rounded-xl font-semibold hover:shadow-lg hover:shadow-[#00c420]/20 transform hover:scale-105 transition-all duration-300"
-            >
-              Get Started
-            </Link>
+            {isAuthenticated && admin ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block w-full text-center text-gray-300 hover:text-[#00c420] py-3 px-4 rounded-xl border border-gray-700 hover:border-[#00c420]/50 transition-all duration-300 font-medium"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-center bg-red-600 text-white py-3 px-4 rounded-xl font-semibold hover:bg-red-700 transition-all duration-300"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block w-full text-center text-gray-300 hover:text-[#00c420] py-3 px-4 rounded-xl border border-gray-700 hover:border-[#00c420]/50 transition-all duration-300 font-medium"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/signup"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block w-full text-center bg-gradient-to-r from-[#00c420] to-green-500 text-white py-3 px-4 rounded-xl font-semibold hover:shadow-lg hover:shadow-[#00c420]/20 transform hover:scale-105 transition-all duration-300"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

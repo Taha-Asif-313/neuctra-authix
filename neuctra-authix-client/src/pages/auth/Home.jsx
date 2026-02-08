@@ -27,7 +27,8 @@ import {
   Fingerprint,
   CpuIcon,
 } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Home = () => {
   const [activeFeature, setActiveFeature] = useState(0);
@@ -344,7 +345,7 @@ setSdkConfig({
             <div className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-gradient-to-r from-[#00c420]/20 to-[#00c420]/20 backdrop-blur-xl border border-[#00c420]/30 mb-6 sm:mb-8 hover:scale-105 transition-transform">
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-[#00c420]" />
               <span className="text-xs sm:text-sm font-semibold text-white">
-                @neuctra/authix-react • Production Ready
+                @neuctra/authix • Production Ready
               </span>
             </div>
 
