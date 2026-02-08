@@ -15,6 +15,8 @@ import {
   forgotPassword,
   changePassword,
   resetPassword,
+  getAdminSession,
+  logoutAdmin,
 } from "../controllers/adminAuthController.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -30,6 +32,10 @@ router.post("/signup", signupAdmin);
 
 // 🔹 Login existing admin (returns JWT token + API key) (public)
 router.post("/login", loginAdmin);
+
+router.get("/session", getAdminSession);
+
+router.get("/logout", logoutAdmin)
 
 /* ===================================================
    📧 EMAIL VERIFICATION

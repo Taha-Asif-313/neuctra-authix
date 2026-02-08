@@ -33,7 +33,7 @@ const navItems = [
 ];
 
 const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
-  const { admin } = useAuth();
+  const { admin, logout } = useAuth();
   const [expandedItems, setExpandedItems] = useState({});
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const location = useLocation();
@@ -43,11 +43,13 @@ const DashboardSidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const toggleSubMenu = (itemName) =>
     setExpandedItems((prev) => ({ ...prev, [itemName]: !prev[itemName] }));
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("admin");
-    localStorage.removeItem("apps");
-    window.location.href = "/login";
+  const handleLogout = async () => {
+    try {
+      await logout(); // waits for backend + state cleanup
+      window.location.href = "/login";
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
   };
 
   const isItemActive = (item) => {

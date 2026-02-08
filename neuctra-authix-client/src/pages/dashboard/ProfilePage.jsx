@@ -60,7 +60,7 @@ const ProfilePage = () => {
           `${import.meta.env.VITE_SERVER_URL}/api/admin/profile`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Authorization: `Bearer ${token}`,
               "x-api-key": admin?.apiKey,
             },
           },
@@ -78,7 +78,7 @@ const ProfilePage = () => {
     };
 
     if (admin?.id) fetchProfile();
-  }, [admin]);
+  }, [admin, token]);
 
   const handleChange = (e) =>
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));

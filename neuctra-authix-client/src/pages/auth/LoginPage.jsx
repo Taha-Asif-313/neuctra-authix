@@ -42,32 +42,21 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!validateForm()) return;
 
     try {
       setIsLoading(true);
 
-      const res = await axios.post(
-        `${import.meta.env.VITE_SERVER_URL}/api/admin/login`,
-        formData,
-      );
-      console.log(res);
-      console.log(res.data.userData.token);
+      // ✅ Call AuthContext login (it handles axios + cookie)
+      const success = await login(formData);
 
-      if (res.data.success) {
-        toast.success(res.data.message || "Login successful!");
-
-        // save user and token
-        login(res.data.userData.admin, res.data.userData.token);
-
-        // Redirect to dashboard or home
+      if (success) {
         navigate("/dashboard");
-      } else {
-        toast.error(res.data.message || "Login failed");
       }
     } catch (err) {
       console.error("Login Error:", err);
-      toast.error(err.response?.data?.message || "Something went wrong");
+      toast.error("Something went wrong");
     } finally {
       setIsLoading(false);
     }

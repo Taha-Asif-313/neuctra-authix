@@ -26,7 +26,7 @@ import axios from "axios";
 import CustomLoader from "../../components/utils/CustomLoader";
 
 const DashboardPage = () => {
-  const { token } = useAuth();
+  const { token, admin } = useAuth();
   const { apps, setApps } = useApp();
   const [showNewAppForm, setShowNewAppForm] = useState(false);
   const [viewMode, setViewMode] = useState("grid");
@@ -36,6 +36,8 @@ const DashboardPage = () => {
   const [categories, setCategories] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
+console.log(token);
+console.log(admin);
 
   // Calculate active filters count
   useEffect(() => {

@@ -6,7 +6,7 @@ import axios from "axios";
 
 const DeleteAppModal = ({ app, onCancel, onConfirm }) => {
   const [loading, setLoading] = useState(false);
-  const { admin } = useAuth();
+  const { admin, token } = useAuth();
 
   /** 🔹 Delete App */
   const handleDeleteApp = async () => {
@@ -16,7 +16,7 @@ const DeleteAppModal = ({ app, onCancel, onConfirm }) => {
         `${import.meta.env.VITE_SERVER_URL}/api/apps/delete/${app.id}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
             "x-api-key": admin.apiKey,
           },
         }

@@ -6,6 +6,7 @@ import { addMonths } from "date-fns";
 import { Parser } from "json2csv";
 import prisma from "../prisma.js";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 import ExcelJS from "exceljs";
 import PDFDocument from "pdfkit";
 
@@ -124,6 +125,9 @@ export const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Environment check
+    const isProduction = process.env.NODE_ENV === "production";
+
     // 🔍 Find admin by email
     const admin = await prisma.adminUser.findUnique({
       where: { email },
@@ -143,6 +147,13 @@ export const loginAdmin = async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
 
+    // 🚫 Block inactive admins
+    if (!admin.isActive) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Account is disabled" });
+    }
+
     // 🔑 Validate password
     const isMatch = await comparePassword(password, admin.password);
     if (!isMatch) {
@@ -152,27 +163,37 @@ export const loginAdmin = async (req, res) => {
     }
 
     // 🎟 Generate JWT
-    const token = generateToken({ id: admin.id, email: admin.email });
+    const token = generateToken({
+      id: admin.id,
+      email: admin.email,
+    });
+
+    // 🍪 Set secure cookie
+    res.cookie("authix_session", token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: 60 * 60 * 1000, // 1 hour
+      path: "/",
+    });
 
     return res.status(200).json({
       success: true,
       message: "Login successful",
-      userData: {
-        token,
-        admin: {
-          id: admin.id,
-          name: admin.name,
-          email: admin.email,
-          phone: admin.phone,
-          address: admin.address,
-          avatarUrl: admin.avatarUrl,
-          apiKey: admin.apiKey,
-          isActive: admin.isActive,
-          createdAt: admin.createdAt,
-          apps: admin.apps,
-          users: admin.users,
-          isVerified: admin.isVerified,
-        },
+      token,
+      admin: {
+        id: admin.id,
+        name: admin.name,
+        email: admin.email,
+        phone: admin.phone,
+        address: admin.address,
+        avatarUrl: admin.avatarUrl,
+        apiKey: admin.apiKey,
+        isActive: admin.isActive,
+        isVerified: admin.isVerified,
+        createdAt: admin.createdAt,
+        apps: admin.apps,
+        users: admin.users,
       },
     });
   } catch (err) {
@@ -180,6 +201,114 @@ export const loginAdmin = async (req, res) => {
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
+  }
+};
+
+// ✅ Get Admin Session (for auto-login on frontend)
+export const getAdminSession = async (req, res) => {
+  try {
+    // 🍪 Read cookie
+    const token = req.cookies?.authix_session;
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Not authenticated",
+      });
+    }
+
+    // 🔐 Verify token
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or expired session",
+      });
+    }
+
+    // 🔍 Find admin
+    const admin = await prisma.adminUser.findUnique({
+      where: { id: decoded.id },
+      include: {
+        apps: {
+          select: { id: true, applicationName: true, isActive: true },
+        },
+        users: {
+          select: { id: true, name: true, email: true },
+        },
+      },
+    });
+
+    if (!admin) {
+      return res.status(401).json({
+        success: false,
+        message: "Session user not found",
+      });
+    }
+
+    // 🚫 Block inactive admins
+    if (!admin.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: "Account is disabled",
+      });
+    }
+
+    // ✅ Session valid → send admin + token
+    return res.status(200).json({
+      success: true,
+      token, // ✅ include token
+      admin: {
+        id: admin.id,
+        name: admin.name,
+        email: admin.email,
+        phone: admin.phone,
+        address: admin.address,
+        avatarUrl: admin.avatarUrl,
+        apiKey: admin.apiKey,
+        isActive: admin.isActive,
+        isVerified: admin.isVerified,
+        createdAt: admin.createdAt,
+        apps: admin.apps,
+        users: admin.users,
+      },
+    });
+  } catch (err) {
+    console.error("GetAdminSession Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+// ✅ Logout Admin
+export const logoutAdmin = (req, res) => {
+  try {
+    // Environment check
+    const isProduction = process.env.NODE_ENV === "production";
+
+    // 🍪 Clear the cookie
+    res.cookie("authix_session", "", {
+      httpOnly: true, // JS cannot access
+      secure: isProduction, // HTTPS in prod
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: 0, // Expire immediately
+      path: "/", // Cookie valid for entire site
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (err) {
+    console.error("LogoutAdmin Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to logout. Please try again.",
+    });
   }
 };
 

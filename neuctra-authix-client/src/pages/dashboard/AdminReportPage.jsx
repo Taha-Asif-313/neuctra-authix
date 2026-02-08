@@ -23,8 +23,10 @@ import {
   RefreshCw,
   AlertCircle,
 } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
 
 const AdminReportPage = () => {
+  const { token } = useAuth();
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
@@ -45,9 +47,9 @@ const AdminReportPage = () => {
         `${import.meta.env.VITE_SERVER_URL}/api/admin/report`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
       console.log(data.data);
 
@@ -71,7 +73,7 @@ const AdminReportPage = () => {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           responseType: format === "json" ? "json" : "blob",
-        }
+        },
       );
 
       if (format === "json") {
@@ -100,7 +102,7 @@ const AdminReportPage = () => {
         "download",
         `admin-report-${new Date().toISOString().split("T")[0]}.${
           format === "excel" ? "xlsx" : format
-        }`
+        }`,
       );
       document.body.appendChild(link);
       link.click();
@@ -129,7 +131,7 @@ const AdminReportPage = () => {
       (app) =>
         app.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         app.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        app.platform?.toLowerCase().includes(searchQuery.toLowerCase())
+        app.platform?.toLowerCase().includes(searchQuery.toLowerCase()),
     ) || [];
 
   const filteredUsers =
@@ -140,7 +142,7 @@ const AdminReportPage = () => {
           (statusFilter === "inactive" && !user.isActive)) &&
         (user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.phone?.toLowerCase().includes(searchQuery.toLowerCase()))
+          user.phone?.toLowerCase().includes(searchQuery.toLowerCase())),
     ) || [];
 
   const clearFilters = () => {
@@ -275,7 +277,7 @@ const AdminReportPage = () => {
               {Math.round(
                 (report.users?.filter((u) => u.isActive).length /
                   (report.users?.length || 1)) *
-                  100
+                  100,
               )}
               % active
             </div>
@@ -438,9 +440,11 @@ const AdminReportPage = () => {
                                 100,
                                 (app.usersCount /
                                   Math.max(
-                                    ...report.apps.map((a) => a.usersCount || 0)
+                                    ...report.apps.map(
+                                      (a) => a.usersCount || 0,
+                                    ),
                                   )) *
-                                  100
+                                  100,
                               )}%`,
                             }}
                           ></div>

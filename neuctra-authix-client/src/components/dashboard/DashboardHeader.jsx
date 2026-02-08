@@ -5,8 +5,6 @@ import { useAuth } from "../../contexts/AuthContext";
 
 const DashboardHeader = ({ sidebarOpen, setSidebarOpen }) => {
   const { admin, logout } = useAuth();
-  const [expandedItems, setExpandedItems] = useState({});
-  const location = useLocation();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -33,7 +31,7 @@ const DashboardHeader = ({ sidebarOpen, setSidebarOpen }) => {
 
         <div className="flex gap-3 items-center ">
           <button
-            onClick={() => logout()}
+            onClick={async () => await logout()}
             className="p-2 rounded-full hover:bg-gray-800 relative"
           >
             <LogOut size={20} />
