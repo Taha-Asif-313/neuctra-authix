@@ -28,7 +28,7 @@ import {
   CpuIcon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import { motion } from "framer-motion";
 
 const Home = () => {
   const [activeFeature, setActiveFeature] = useState(0);
