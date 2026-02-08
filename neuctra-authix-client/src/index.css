@@ -13,23 +13,28 @@ body{
 }
 
 /* ===== Custom Scrollbar ===== */
+/* Thin scrollbar for both vertical and horizontal */
 ::-webkit-scrollbar {
-  width: 6px;              /* Thin vertical scrollbar */
-  height: 6px;             /* Thin horizontal scrollbar */
+  width: 6px;
+  height: 6px;
 }
 
+/* Scrollbar track (background behind the thumb) */
 ::-webkit-scrollbar-track {
-  background-color:  transparent; /* Track background (optional) */
+  background-color: #000; /* Black track */
 }
 
+/* Scrollbar thumb (the draggable part) */
 ::-webkit-scrollbar-thumb {
-  background-color: var(--primary-color, #3b82f6); /* Primary color (default: Tailwind blue-500) */
-  border-radius: 9999px;   /* Rounded edges */
+  background-color: var(--primary-color); /* Primary color */
+  border-radius: 9999px; /* Fully rounded */
 }
 
+/* Hover effect for the thumb */
 ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--primary-hover, #2563eb); /* Darker on hover */
+  background-color: var(--primary-hover); /* Slightly darker on hover */
 }
+
 
 /* ===== Firefox ===== */
 * {

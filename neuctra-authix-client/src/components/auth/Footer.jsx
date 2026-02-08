@@ -138,7 +138,7 @@ const Footer = () => {
           <p className="text-gray-400 text-sm flex items-center justify-center">
             Made with
             <HeartHandshake className="w-4 h-4 mx-1 text-red-500" />
-            by <span className="ml-1 font-medium">Neuctra Authix</span> ©{" "}
+            by <span className="ml-1 font-medium">Neuctra</span> ©{" "}
             {new Date().getFullYear()}
           </p>
 

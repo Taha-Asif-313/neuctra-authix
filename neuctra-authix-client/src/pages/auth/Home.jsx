@@ -26,6 +26,19 @@ import {
   ShieldCheck,
   Fingerprint,
   CpuIcon,
+  Layers,
+  Package,
+  Code,
+  ShieldAlert,
+  FileJson,
+  Infinity,
+  ServerCrash,
+  CloudLightning,
+  Box,
+  KeyRound,
+  DatabaseZap,
+  Workflow,
+  GlobeLock,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -41,7 +54,7 @@ const Home = () => {
       setActiveFeature((prev) => (prev + 1) % 4);
     }, 4000);
 
-    // Generate floating icons - ONLY for hero section
+    // Generate floating icons
     const icons = [
       {
         icon: <Shield className="w-6 h-6 text-[#00c420]/40" />,
@@ -56,13 +69,13 @@ const Home = () => {
         delay: 1,
       },
       {
-        icon: <Lock className="w-4 h-4 text-[#00c420]/40" />,
+        icon: <DatabaseZap className="w-6 h-6 text-[#00c420]/40" />,
         x: 15,
         y: 70,
         delay: 2,
       },
       {
-        icon: <UserCheck className="w-5 h-5 text-[#00c420]/30" />,
+        icon: <FileJson className="w-5 h-5 text-[#00c420]/30" />,
         x: 90,
         y: 65,
         delay: 3,
@@ -80,19 +93,19 @@ const Home = () => {
         delay: 5,
       },
       {
-        icon: <Cloud className="w-4 h-4 text-[#00c420]/40" />,
+        icon: <CloudLightning className="w-6 h-6 text-[#00c420]/40" />,
         x: 40,
         y: 80,
         delay: 6,
       },
       {
-        icon: <Smartphone className="w-5 h-5 text-[#00c420]/30" />,
+        icon: <Box className="w-5 h-5 text-[#00c420]/30" />,
         x: 60,
         y: 85,
         delay: 7,
       },
       {
-        icon: <Globe className="w-6 h-6 text-[#00c420]/40" />,
+        icon: <GlobeLock className="w-6 h-6 text-[#00c420]/40" />,
         x: 80,
         y: 25,
         delay: 8,
@@ -104,13 +117,13 @@ const Home = () => {
         delay: 9,
       },
       {
-        icon: <Fingerprint className="w-5 h-5 text-[#00c420]/40" />,
+        icon: <Workflow className="w-5 h-5 text-[#00c420]/40" />,
         x: 65,
         y: 60,
         delay: 10,
       },
       {
-        icon: <CpuIcon className="w-6 h-6 text-[#00c420]/30" />,
+        icon: <Package className="w-6 h-6 text-[#00c420]/30" />,
         x: 35,
         y: 30,
         delay: 11,
@@ -123,277 +136,370 @@ const Home = () => {
 
   const features = [
     {
-      icon: <Zap className="w-10 h-10 sm:w-12 sm:h-12 text-[#00c420]" />,
-      title: "Pre-built React Components",
+      icon: <Layers className="w-10 h-10 sm:w-12 sm:h-12 text-[#00c420]" />,
+      title: "Complete Authentication Suite",
       description:
-        "Drop-in authentication components that work out of the box. Fully customizable, accessible, and production-ready.",
-      stats: "Install & ship in minutes",
+        "Pre-built React components + Express SDK + secure data storage. Everything you need for full-stack authentication.",
+      stats: "Zero server setup required",
       color: "from-white/5 to-white/0",
     },
     {
-      icon: <Shield className="w-10 h-10 sm:w-12 sm:h-12 text-[#00c420]" />,
-      title: "Enterprise-Grade Security",
+      icon: <DatabaseZap className="w-10 h-10 sm:w-12 sm:h-12 text-[#00c420]" />,
+      title: "Built-in Data Storage",
       description:
-        "JWT tokens, secure session management, OTP verification, and role-based access control built-in.",
-      stats: "Bank-level security",
+        "Store user profiles and app data as JSON. Perfect for client-side apps needing serverless data persistence.",
+      stats: "Unlimited JSON storage",
       color: "from-white/5 to-white/0",
     },
     {
-      icon: <Users className="w-10 h-10 sm:w-12 sm:h-12 text-[#00c420]" />,
-      title: "Complete User Management",
+      icon: <Package className="w-10 h-10 sm:w-12 sm:h-12 text-[#00c420]" />,
+      title: "One Dashboard, Multiple Apps",
       description:
-        "Full user lifecycle management from signup to profile updates. Everything you need at scale.",
-      stats: "Unlimited users",
+        "Create unlimited applications in your dashboard. Each app gets unique credentials for React or Express integration.",
+      stats: "Unlimited apps per account",
       color: "from-white/5 to-white/0",
     },
     {
-      icon: <Code2 className="w-10 h-10 sm:w-12 sm:h-12 text-[#00c420]" />,
-      title: "Developer-First SDK",
+      icon: <ServerCrash className="w-10 h-10 sm:w-12 sm:h-12 text-[#00c420]" />,
+      title: "Serverless Architecture",
       description:
-        "Type-safe TypeScript SDK with intuitive API design. Works with any JavaScript framework.",
-      stats: "npm install @neuctra/authix-react",
+        "Build full-featured apps without managing servers. We handle authentication, data storage, and scaling for you.",
+      stats: "No server management needed",
       color: "from-white/5 to-white/0",
     },
   ];
 
   const codeExamples = [
     {
-      title: "Install Package",
+      title: "Install & Configure",
       language: "bash",
       code: `npm install @neuctra/authix-react
-# or
-yarn add @neuctra/authix-react
-# or
-pnpm add @neuctra/authix-react`,
+# or for Express
+npm install @neuctra/authix-express`,
+      icon: <Package />,
     },
     {
-      title: "Configure SDK",
-      language: "typescript",
-      code: `import { setSdkConfig } from '@neuctra/authix-react';
-
-setSdkConfig({
-  baseUrl: 'https://api.neuctra.com/v1',
-  apiKey: 'your-api-key',
-  appId: 'your-app-id'
-});`,
-    },
-    {
-      title: "Use Components",
+      title: "React - Complete Setup",
       language: "jsx",
-      code: `import { ReactSignedIn, ReactUserButton } from '@neuctra/authix-react';
+      code: `import { AuthProvider } from '@neuctra/authix-react';
 
 function App() {
   return (
-    <ReactSignedIn>
-      <ReactUserButton onLogout={handleLogout} />
-    </ReactSignedIn>
+    <AuthProvider
+      appId="your-app-id"
+      apiKey="your-api-key"
+    >
+      <YourApp />
+    </AuthProvider>
   );
 }`,
+      icon: <Code2 />,
     },
     {
-      title: "Complete Setup",
-      language: "jsx",
-      code: `// main.jsx
-import { setSdkConfig } from '@neuctra/authix-react';
+      title: "Store User Data",
+      language: "javascript",
+      code: `// Store user profile data
+await authix.user.set({
+  preferences: { theme: 'dark' },
+  metadata: { plan: 'premium' }
+});
 
-setSdkConfig({
-  baseUrl: import.meta.env.VITE_AUTHIX_BASE_URL,
-  apiKey: import.meta.env.VITE_AUTHIX_API_KEY,
-  appId: import.meta.env.VITE_AUTHIX_APP_ID
+// Store app data
+await authix.app.data.set('settings', {
+  featureFlags: { beta: true },
+  config: { version: '2.0' }
 });`,
+      icon: <Database />,
+    },
+    {
+      title: "Express Middleware",
+      language: "javascript",
+      code: `const { authixMiddleware } = require('@neuctra/authix-express');
+
+app.use('/api', authixMiddleware({
+  appId: process.env.AUTHIX_APP_ID,
+  apiKey: process.env.AUTHIX_API_KEY
+}));
+
+// Protected route with user data
+app.get('/api/profile', (req) => {
+  const userData = req.authix.user.get();
+  return res.json(userData);
+});`,
+      icon: <Server />,
     },
   ];
 
-  const sdkFeatures = [
+  const platformFeatures = [
     {
-      title: "Authentication Components",
+      title: "Dashboard Features",
       items: [
-        "ReactSignedIn",
-        "ReactSignedOut",
-        "ReactUserButton",
-        "ReactUserLogin",
+        "Create unlimited apps",
+        "Manage app credentials",
+        "View analytics & logs",
+        "User management",
       ],
-      icon: <UserCheck className="w-5 h-5 sm:w-6 sm:h-6" />,
+      icon: <Layers className="w-5 h-5 sm:w-6 sm:h-6" />,
+      color: "from-[#00c420]/20 to-transparent",
     },
     {
-      title: "User Management",
+      title: "Data Storage",
       items: [
-        "Conditional Rendering",
-        "Session Management",
-        "Profile Access",
-        "Secure Logout",
+        "User JSON storage",
+        "App-level data storage",
+        "Real-time updates",
+        "Secure encryption",
       ],
-      icon: <Users className="w-5 h-5 sm:w-6 sm:h-6" />,
+      icon: <DatabaseZap className="w-5 h-5 sm:w-6 sm:h-6" />,
+      color: "from-[#00c420]/20 to-transparent",
     },
     {
-      title: "Security Features",
+      title: "SDK & Integration",
       items: [
-        "JWT Tokens",
-        "LocalStorage Security",
-        "Auto Validation",
-        "Error Handling",
+        "React components",
+        "Express middleware",
+        "TypeScript support",
+        "REST API access",
       ],
-      icon: <Lock className="w-5 h-5 sm:w-6 sm:h-6" />,
+      icon: <Code className="w-5 h-5 sm:w-6 sm:h-6" />,
+      color: "from-[#00c420]/20 to-transparent",
     },
     {
-      title: "Framework Support",
-      items: ["React", "Next.js", "Vite", "Create React App"],
-      icon: <Cpu className="w-5 h-5 sm:w-6 sm:h-6" />,
+      title: "Security & Compliance",
+      items: [
+        "JWT-based auth",
+        "End-to-end encryption",
+        "GDPR compliant",
+        "SOC 2 certified",
+      ],
+      icon: <ShieldAlert className="w-5 h-5 sm:w-6 sm:h-6" />,
+      color: "from-[#00c420]/20 to-transparent",
     },
   ];
 
-  const componentFeatures = [
+  const workflowSteps = [
     {
-      name: "ReactSignedIn",
-      description: "Conditionally renders content only for authenticated users",
-      icon: <UserCheck className="w-4 h-4" />,
-      benefits: [
-        "Automatic auth checking",
-        "Fallback content support",
-        "Lightweight",
-      ],
+      step: "1",
+      title: "Create Account",
+      description: "Sign up for Neuctra Authix dashboard",
+      icon: <UserCheck className="w-5 h-5" />,
     },
     {
-      name: "ReactUserButton",
-      description: "Complete user dropdown with profile and logout",
-      icon: <Users className="w-4 h-4" />,
-      benefits: ["Avatar display", "Menu navigation", "Customizable URLs"],
+      step: "2",
+      title: "Create App",
+      description: "Generate credentials for your application",
+      icon: <Box className="w-5 h-5" />,
     },
     {
-      name: "ReactUserLogin",
-      description: "Full login form with validation and success handling",
-      icon: <LogIn className="w-4 h-4" />,
-      benefits: ["Form validation", "Error states", "Success callbacks"],
+      step: "3",
+      title: "Install SDK",
+      description: "Add @neuctra/authix to your React or Express app",
+      icon: <Package className="w-5 h-5" />,
+    },
+    {
+      step: "4",
+      title: "Store Data",
+      description: "Use SDK to store user profiles and app data",
+      icon: <DatabaseZap className="w-5 h-5" />,
+    },
+    {
+      step: "5",
+      title: "Go Live",
+      description: "Deploy your app without managing authentication servers",
+      icon: <CloudLightning className="w-5 h-5" />,
     },
   ];
 
   const stats = [
-    { number: "10M+", label: "API Calls/Month", icon: <TrendingUp /> },
+    { number: "∞", label: "Apps per Account", icon: <Infinity /> },
     { number: "99.99%", label: "Uptime SLA", icon: <Shield /> },
-    { number: "1000+", label: "Apps Powered", icon: <Zap /> },
-    { number: "<5min", label: "Setup Time", icon: <Code2 /> },
+    { number: "100MB", label: "Data Storage/User", icon: <Database /> },
+    { number: "<5min", label: "First Integration", icon: <Code2 /> },
   ];
 
   const testimonials = [
     {
-      name: "Marcus Rodriguez",
-      role: "CTO at StartupHub",
+      name: "Alex Morgan",
+      role: "Full-stack Developer",
       content:
-        "The React components are incredibly intuitive. Type safety and clear documentation made implementation a breeze.",
+        "Neuctra Authix replaced our entire backend. Authentication + data storage in one package saved us months of development.",
+      avatar:
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
+      rating: 5,
+      company: "Solo Developer",
+    },
+    {
+      name: "Sarah Chen",
+      role: "Startup Founder",
+      content:
+        "We launched our MVP in 2 weeks using Authix. No server setup, just React frontend + Authix for everything backend.",
+      avatar:
+        "https://images.unsplash.com/photo-1494790108755-2616b612b786?auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
+      rating: 5,
+      company: "TechStart Inc",
+    },
+    {
+      name: "Marcus Rodriguez",
+      role: "CTO at ScaleUp",
+      content:
+        "The ability to create multiple client apps from one dashboard while maintaining separate data stores is revolutionary.",
       avatar:
         "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
       rating: 5,
-      company: "StartupHub",
-    },
-    {
-      name: "Daniel Carter",
-      role: "Software Architect at CloudLink",
-      content:
-        "Authix helped us unify login flows across multiple platforms effortlessly. The developer experience is top-notch.",
-      avatar:
-        "https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
-      rating: 5,
-      company: "CloudLink",
-    },
-    {
-      name: "Ahmed Khan",
-      role: "Engineering Manager at DevCore",
-      content:
-        "Authentication and user management have never been easier. Authix cut our setup time in half while improving security.",
-      avatar:
-        "https://images.unsplash.com/photo-1624561172888-ac93c696e10c?auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
-      rating: 5,
-      company: "DevCore",
+      company: "ScaleUp Technologies",
     },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-gray-900 text-white overflow-hidden">
-      {/* Hero Section with Floating Icons */}
-      <section className="relative pt-28 md:pt-24 lg:pt-32 pb-16 md:pb-24 lg:pb-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        {/* Animated background with floating icons - ONLY in hero section */}
+      {/* Hero Section */}
+      <motion.section 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        className="relative pt-28 md:pt-24 lg:pt-32 pb-16 md:pb-24 lg:pb-32 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      >
+        {/* Animated Background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-[#00c420]/10 to-transparent rounded-full blur-3xl" />
-          <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-[#00c420]/10 to-transparent rounded-full blur-3xl" />
+          <motion.div 
+            animate={{ 
+              rotate: [0, 360],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{ 
+              rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+              scale: { duration: 10, repeat: Infinity, ease: "easeInOut" }
+            }}
+            className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-[#00c420]/10 to-transparent rounded-full blur-3xl"
+          />
+          
+          <motion.div 
+            animate={{ 
+              rotate: [360, 0],
+              scale: [1.1, 1, 1.1]
+            }}
+            transition={{ 
+              rotate: { duration: 25, repeat: Infinity, ease: "linear" },
+              scale: { duration: 15, repeat: Infinity, ease: "easeInOut" }
+            }}
+            className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-[#00c420]/10 to-transparent rounded-full blur-3xl"
+          />
 
-          {/* Floating Icons - ONLY in hero section */}
+          {/* Floating Icons */}
           {floatingIcons.map((item, index) => (
-            <div
+            <motion.div
               key={index}
-              className="absolute animate-float"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ 
+                opacity: [0, 1, 0.8, 0],
+                scale: [0, 1, 1.2, 0],
+                y: [0, -30, -50, 0],
+                x: [0, Math.sin(index) * 20, Math.cos(index) * 20, 0]
+              }}
+              transition={{
+                duration: 6,
+                delay: item.delay * 0.5,
+                repeat: Infinity,
+                repeatDelay: 2,
+                ease: "easeInOut"
+              }}
+              className="absolute"
               style={{
                 left: `${item.x}%`,
                 top: `${item.y}%`,
-                animationDelay: `${item.delay * 2}s`,
-                animationDuration: "6s",
               }}
             >
               {item.icon}
-            </div>
+            </motion.div>
           ))}
         </div>
 
         <div className="max-w-7xl mx-auto relative z-10">
-          <div
-            className={`text-center transition-all duration-1000 ${
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
-            }`}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-center"
           >
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-gradient-to-r from-[#00c420]/20 to-[#00c420]/20 backdrop-blur-xl border border-[#00c420]/30 mb-6 sm:mb-8 hover:scale-105 transition-transform">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-gradient-to-r from-[#00c420]/20 to-[#00c420]/20 backdrop-blur-xl border border-[#00c420]/30 mb-6 sm:mb-8"
+            >
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-[#00c420]" />
               <span className="text-xs sm:text-sm font-semibold text-white">
-                @neuctra/authix • Production Ready
+                All-in-One Auth & Data Platform
               </span>
-            </div>
+            </motion.div>
 
             {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-4 sm:mb-6 leading-tight">
-              Authentication
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-4 sm:mb-6 leading-tight"
+            >
+              Build Apps
               <br />
-              <span className="bg-gradient-to-r from-[#00c420] to-[#00c420] bg-clip-text text-transparent">
-                Made Simple
+              <span className="bg-gradient-to-r from-[#00c420] via-[#00ff40] to-[#00c420] bg-clip-text text-transparent">
+                Without Servers
               </span>
-            </h1>
+            </motion.h1>
 
-            <p className="text-base sm:text-lg md:text-xl text-gray-400 max-w-4xl mx-auto mb-8 sm:mb-12 leading-relaxed px-4">
-              Pre-built React components + powerful SDK + complete user
-              management.
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-base sm:text-lg md:text-xl text-gray-400 max-w-4xl mx-auto mb-8 sm:mb-12 leading-relaxed px-4"
+            >
+              Authentication + Data Storage + User Management in one platform.
               <br className="hidden md:block" />
-              <span className="text-[#00c420] font-semibold">
-                Everything you need
-              </span>{" "}
-              to add authentication in minutes.
-            </p>
+              Create unlimited apps, store JSON data, and deploy
+              <span className="text-[#00c420] font-semibold"> serverless applications </span>
+              with our SDK.
+            </motion.p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mb-12 sm:mb-16 px-4">
-              <a
-                href="/docs/installation"
-                className="group relative w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-[#00c420] to-[#00c420] rounded-xl font-bold text-base sm:text-lg shadow-2xl shadow-[#00c420]/30 hover:shadow-[#00c420]/50 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2 sm:gap-3"
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mb-12 sm:mb-16 px-4"
+            >
+              <motion.a
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                href="/signup"
+                className="group relative w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-[#00c420] to-[#00c420] rounded-xl font-bold text-base sm:text-lg shadow-2xl shadow-[#00c420]/30 hover:shadow-[#00c420]/50 transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3"
               >
                 <Terminal className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="truncate">Get Started</span>
+                <span className="truncate">Create Free Account</span>
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 sm:group-hover:translate-x-2 transition-transform" />
-              </a>
+              </motion.a>
 
-              <a
-                href="#components"
+              <motion.a
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                href="#workflow"
                 className="group w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-white/5 backdrop-blur-xl rounded-xl font-semibold text-base sm:text-lg border border-white/10 hover:bg-white/10 hover:border-[#00c420]/50 transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3"
               >
                 <Play className="w-4 h-4 sm:w-5 sm:h-5" />
-                View Components
-              </a>
-            </div>
+                How It Works
+              </motion.a>
+            </motion.div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 max-w-5xl mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 max-w-5xl mx-auto px-4"
+            >
               {stats.map((stat, index) => (
-                <div
+                <motion.div
                   key={index}
-                  className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10 hover:border-[#00c420]/50 transition-all duration-300 hover:scale-105"
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10 hover:border-[#00c420]/50 transition-all duration-300"
                 >
                   <div className="text-[#00c420] mb-2 flex justify-center opacity-60 group-hover:opacity-100 transition-opacity">
                     {stat.icon}
@@ -404,7 +510,63 @@ setSdkConfig({
                   <div className="text-gray-400 text-xs sm:text-sm font-medium">
                     {stat.label}
                   </div>
-                </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* Workflow Section */}
+      <section id="workflow" className="relative py-16 md:py-24 lg:py-32 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12 sm:mb-16"
+          >
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-6">
+              How
+              <br />
+              <span className="bg-gradient-to-r from-[#00c420] to-[#00c420] bg-clip-text text-transparent">
+                Neuctra Authix Works
+              </span>
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto px-4">
+              Complete platform to build and deploy serverless applications
+            </p>
+          </motion.div>
+
+          <div className="relative">
+            {/* Connecting Line */}
+            <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#00c420]/20 to-transparent" />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+              {workflowSteps.map((step, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="relative"
+                >
+                  <div className="bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-[#00c420]/50 transition-all duration-300 h-full">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00c420] to-[#00c420] flex items-center justify-center text-lg font-bold">
+                        {step.step}
+                      </div>
+                      <div className="p-2 bg-[#00c420]/20 rounded-lg">
+                        <div className="text-[#00c420]">{step.icon}</div>
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">{step.title}</h3>
+                    <p className="text-gray-400 text-sm">{step.description}</p>
+                  </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -413,28 +575,35 @@ setSdkConfig({
 
       {/* Features Showcase */}
       <section className="relative py-16 md:py-24 lg:py-32 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="text-center mb-12 sm:mb-16">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12 sm:mb-16"
+          >
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-6">
-              Everything You Need,
+              One Platform,
               <br />
               <span className="bg-gradient-to-r from-[#00c420] to-[#00c420] bg-clip-text text-transparent">
-                Nothing You Don't
+                Multiple Solutions
               </span>
             </h2>
-            <p className="text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto px-4">
-              Focus on building your app. We'll handle authentication, security,
-              and user management.
-            </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {features.map((feature, i) => (
-              <div
+              <motion.div
                 key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                viewport={{ once: true }}
+                whileHover={{ scale: 1.02 }}
                 className={`group relative bg-gradient-to-br ${
                   feature.color
-                } backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-white/10 hover:border-white/20 transition-all duration-500 hover:scale-[1.02] ${
+                } backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-white/10 hover:border-white/20 transition-all duration-500 ${
                   activeFeature === i ? "ring-2 ring-primary" : ""
                 }`}
               >
@@ -454,66 +623,42 @@ setSdkConfig({
                     {feature.stats}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Component Features */}
-      <section
-        id="components"
-        className="relative py-16 md:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent via-[#00c420]/5 to-transparent"
-      >
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="text-center mb-12 sm:mb-16">
+      {/* Platform Features */}
+      <section className="relative py-16 md:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent via-[#00c420]/5 to-transparent">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12 sm:mb-16"
+          >
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-6">
-              Powerful React Components
+              Complete
               <br />
               <span className="bg-gradient-to-r from-[#00c420] to-[#00c420] bg-clip-text text-transparent">
-                Ready to Use
+                Platform Features
               </span>
             </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            {componentFeatures.map((component, i) => (
-              <div
-                key={i}
-                className="bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-[#00c420]/50 transition-all duration-300 hover:scale-105"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-[#00c420]/20 rounded-lg">
-                    <div className="text-[#00c420]">{component.icon}</div>
-                  </div>
-                  <h3 className="text-xl font-bold text-white">
-                    {component.name}
-                  </h3>
-                </div>
-                <p className="text-gray-400 mb-4 text-sm leading-relaxed">
-                  {component.description}
-                </p>
-                <div className="space-y-2">
-                  {component.benefits.map((benefit, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-2 text-xs text-[#00c420]"
-                    >
-                      <CheckCircle2 className="w-3 h-3" />
-                      {benefit}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          </motion.div>
 
           {/* SDK Features Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
-            {sdkFeatures.map((feature, i) => (
-              <div
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12">
+            {platformFeatures.map((feature, i) => (
+              <motion.div
                 key={i}
-                className="bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10 hover:border-[#00c420]/50 transition-all duration-300 hover:scale-105"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                viewport={{ once: true }}
+                whileHover={{ scale: 1.05, y: -5 }}
+                className={`bg-gradient-to-br ${feature.color} backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10 hover:border-[#00c420]/50 transition-all duration-300`}
               >
                 <div className="text-[#00c420] mb-3 sm:mb-4">
                   {feature.icon}
@@ -523,31 +668,41 @@ setSdkConfig({
                 </h3>
                 <ul className="space-y-1 sm:space-y-2">
                   {feature.items.map((item, idx) => (
-                    <li
+                    <motion.li
                       key={idx}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: idx * 0.05 }}
+                      viewport={{ once: true }}
                       className="flex items-center gap-2 text-gray-400 text-xs sm:text-sm"
                     >
                       <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-[#00c420] flex-shrink-0" />
                       {item}
-                    </li>
+                    </motion.li>
                   ))}
                 </ul>
-              </div>
+              </motion.div>
             ))}
           </div>
 
           {/* Code Examples */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {codeExamples.map((example, i) => (
-              <div
+              <motion.div
                 key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                viewport={{ once: true }}
+                whileHover={{ y: -5 }}
                 className="bg-gradient-to-br from-gray-900 to-black rounded-xl sm:rounded-2xl border border-white/10 overflow-hidden hover:border-[#00c420]/50 transition-all duration-300"
               >
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 bg-white/5 border-b border-white/10">
+                <div className="flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-white/5 border-b border-white/10">
+                  <div className="text-[#00c420]">{example.icon}</div>
                   <span className="font-bold text-[#00c420] text-sm sm:text-base">
                     {example.title}
                   </span>
-                  <span className="text-xs text-gray-500 uppercase">
+                  <span className="text-xs text-gray-500 uppercase ml-auto">
                     {example.language}
                   </span>
                 </div>
@@ -556,7 +711,7 @@ setSdkConfig({
                     {example.code}
                   </code>
                 </pre>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -564,22 +719,33 @@ setSdkConfig({
 
       {/* Testimonials */}
       <section className="relative py-16 md:py-24 lg:py-32 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="text-center mb-12 sm:mb-16">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12 sm:mb-16"
+          >
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-6">
-              Loved by
+              Trusted by
               <br />
               <span className="bg-gradient-to-r from-[#00c420] to-[#00c420] bg-clip-text text-transparent">
-                Developers
+                Developers Worldwide
               </span>
             </h2>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {testimonials.map((t, i) => (
-              <div
+              <motion.div
                 key={i}
-                className="group bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-white/10 hover:border-[#00c420]/50 transition-all duration-500 hover:scale-105"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                viewport={{ once: true }}
+                whileHover={{ scale: 1.05, y: -5 }}
+                className="group bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-white/10 hover:border-[#00c420]/50 transition-all duration-500"
               >
                 <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
                   <img
@@ -606,7 +772,7 @@ setSdkConfig({
                     />
                   ))}
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -614,80 +780,68 @@ setSdkConfig({
 
       {/* Final CTA */}
       <section className="relative py-16 md:py-24 lg:py-32 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto relative z-10">
-          <div className="relative bg-gradient-to-br from-[#00c420]/20 via-[#00c420]/20 to-[#00c420]/20 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-8 sm:p-12 md:p-16 border border-white/20 overflow-hidden">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="relative bg-gradient-to-br from-[#00c420]/20 via-[#00c420]/20 to-[#00c420]/20 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-8 sm:p-12 md:p-16 border border-white/20 overflow-hidden"
+          >
             <div className="absolute inset-0 bg-gradient-to-br from-[#00c420]/10 to-transparent" />
-            <div className="relative z-10 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="relative z-10 text-center"
+            >
               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-6">
-                Start Building Today
+                Start Building Serverless Apps
               </h2>
               <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-8 sm:mb-10 max-w-3xl mx-auto px-4">
-                Join thousands of developers using{" "}
-                <span className="text-[#00c420] font-bold">
-                  @neuctra/authix-react
-                </span>{" "}
-                to power their authentication.
+                Authentication + Data Storage + User Management
+                <br />
+                <span className="text-[#00c420] font-bold">All in one platform</span>
               </p>
 
               <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-                <Link
-                  to="/docs/installation"
-                  className="group w-full sm:w-auto px-8 py-4 sm:px-10 sm:py-5 bg-white text-black rounded-xl font-bold text-base sm:text-lg shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3"
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  Get Started Free
-                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 sm:group-hover:translate-x-2 transition-transform" />
-                </Link>
+                  <Link
+                    to="/signup"
+                    className="group w-full sm:w-auto px-8 py-4 sm:px-10 sm:py-5 bg-white text-black rounded-xl font-bold text-base sm:text-lg shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3"
+                  >
+                    Create Free Account
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 sm:group-hover:translate-x-2 transition-transform" />
+                  </Link>
+                </motion.div>
 
-                <Link
-                  to="https://github.com/neuctra/authix"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group w-full sm:w-auto px-8 py-4 sm:px-10 sm:py-5 bg-white/5 backdrop-blur-xl rounded-xl font-semibold text-base sm:text-lg border border-white/20 hover:bg-white/10 transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3"
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <Github className="w-4 h-4 sm:w-5 sm:h-5" />
-                  View on GitHub
-                </Link>
+                  <Link
+                    to="https://github.com/neuctra/authix"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group w-full sm:w-auto px-8 py-4 sm:px-10 sm:py-5 bg-white/5 backdrop-blur-xl rounded-xl font-semibold text-base sm:text-lg border border-white/20 hover:bg-white/10 transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3"
+                  >
+                    <Github className="w-4 h-4 sm:w-5 sm:h-5" />
+                    View SDK on GitHub
+                  </Link>
+                </motion.div>
               </div>
 
               <p className="text-gray-400 text-xs sm:text-sm">
-                Free forever • No credit card required • 5 minutes to integrate
+                Free forever • Unlimited apps • No server setup • 5-minute integration
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
-
-      {/* Add custom CSS for floating animation */}
-      <style jsx>{`
-        @keyframes float {
-          0% {
-            transform: translateY(0px) rotate(0deg) scale(1);
-            filter: brightness(1);
-          }
-          25% {
-            transform: translateY(-12px) rotate(3deg) scale(1.05);
-            filter: brightness(1.1);
-          }
-          50% {
-            transform: translateY(-20px) rotate(-2deg) scale(1.1);
-            filter: brightness(1.15);
-          }
-          75% {
-            transform: translateY(-10px) rotate(2deg) scale(1.05);
-            filter: brightness(1.05);
-          }
-          100% {
-            transform: translateY(0px) rotate(0deg) scale(1);
-            filter: brightness(1);
-          }
-        }
-
-        .animate-float {
-          animation: float 3.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-          transform-origin: center;
-          will-change: transform, filter;
-        }
-      `}</style>
     </div>
   );
 };
