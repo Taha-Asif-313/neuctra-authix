@@ -167,7 +167,7 @@ function AuthixWorkflow() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12 items-end relative z-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 items-end relative z-10">
         <WorkflowStep
           id="step-1"
           stairIndex={0}
@@ -231,9 +231,9 @@ export default function NeuctraAuthixWorkflowSection() {
   return (
     <section
       id="workflow"
-      className="relative py-16 md:py-24 lg:py-32 px-4 sm:px-6 lg:px-8"
+      className="relative py-14"
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

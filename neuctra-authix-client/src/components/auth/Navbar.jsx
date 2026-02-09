@@ -1,5 +1,5 @@
 // components/Navigation.jsx
-import { Menu, X } from "lucide-react";
+import { Menu, User, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -33,30 +33,32 @@ const Navbar = () => {
             : "bg-transparent py-3"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-12 sm:h-14">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center">
-                <img
-                  src="/logo.png"
-                  alt="Neuctra Authix"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <span className="text-white font-bold text-lg sm:text-xl tracking-tight whitespace-nowrap">
-                Neuctra <span className="text-[#00c420]">Authix</span>
-              </span>
-            </Link>
+        <div className="max-w-7xl mx-auto py-1 px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-3 items-center gap-4">
+            {/* Left: Logo */}
+            <div className="flex items-center gap-2 col-start-1">
+              <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center">
+                  <img
+                    src="/logo.png"
+                    alt="Neuctra Authix"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <span className="text-white font-bold text-sm tracking-tight whitespace-nowrap">
+                  Neuctra <span className="text-[#00c420]">Authix</span>
+                </span>
+              </Link>
+            </div>
 
             {/* Center Navigation - Desktop */}
-            <div className="hidden lg:flex items-center justify-center flex-1 max-w-2xl mx-8">
+            <div className="hidden lg:flex items-center justify-center col-start-2">
               <div className="flex items-center gap-8">
-                {["Features", "Pricing", "About", "Docs"].map((item) => (
+                {["Home","Features", "Pricing", "About", "Docs"].map((item) => (
                   <Link
                     key={item}
                     to={`/${item.toLowerCase()}`}
-                    className="text-gray-300 hover:text-[#00c420] text-sm font-medium transition-all duration-300 hover:scale-105 whitespace-nowrap"
+                    className="text-gray-300 hover:text-primary text-sm font-medium transition-all whitespace-nowrap"
                   >
                     {item}
                   </Link>
@@ -65,7 +67,7 @@ const Navbar = () => {
             </div>
 
             {/* Right Buttons */}
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center justify-end gap-2 sm:gap-3 col-start-3">
               {/* Desktop Buttons */}
               <div className="hidden md:flex items-center gap-3">
                 {isAuthenticated && admin ? (
@@ -93,8 +95,9 @@ const Navbar = () => {
                     </Link>
                     <Link
                       to="/signup"
-                      className="px-5 py-2 bg-gradient-to-r from-[#00c420] to-green-500 text-white rounded-lg hover:shadow-lg hover:shadow-[#00c420]/20 transform hover:scale-105 transition-all duration-300 text-sm font-medium whitespace-nowrap"
+                      className="px-5 py-2 flex items-center gap-2 bg-gradient-to-r from-[#00c420] to-green-500 text-white rounded-md hover:shadow-lg hover:shadow-[#00c420]/20 transform transition-all text-[13px] font-medium"
                     >
+                      <User size={14} />
                       Get Started
                     </Link>
                   </>

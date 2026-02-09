@@ -104,7 +104,8 @@ const CodeBlock = ({
             <div className="flex items-center gap-2 px-4 py-3">
               {getLanguageIcon(currentLanguage)}
               <span className="text-sm font-medium text-white">
-                {currentLanguage.toUpperCase()}
+                {currentLanguage.charAt(0).toUpperCase() +
+                  currentLanguage.slice(1)}
               </span>
             </div>
           )}
@@ -114,7 +115,7 @@ const CodeBlock = ({
         <div className="flex items-center gap-2 px-4 py-3">
           <button
             onClick={copyToClipboard}
-            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200"
+            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md bg-zinc-800 hover:bg-zinc-700 text-gray-300 hover:text-white transition-all duration-200"
           >
             {copied ? (
               <>
@@ -162,7 +163,6 @@ const CodeBlock = ({
         >
           {currentCode?.trim?.() || ""}
         </SyntaxHighlighter>
-
       </div>
 
       {/* Hover border animation */}
