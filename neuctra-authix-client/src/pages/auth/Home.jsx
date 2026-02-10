@@ -7,7 +7,7 @@ import NeuctraAuthixCTASection from "../../components/landingpage/NeuctraAuthixC
 
 const Home = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-gray-900 text-white overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-black to-primary/10 text-white overflow-hidden">
       {/* Hero Section */}
       <NeuctraAuthixHeroSection />
 
