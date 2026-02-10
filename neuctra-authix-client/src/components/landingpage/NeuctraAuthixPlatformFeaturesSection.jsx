@@ -95,8 +95,8 @@ export default function NeuctraAuthixPlatformFeaturesSection() {
                   <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition duration-500 blur-xl bg-[#00c420]/10" />
 
                   {/* Icon */}
-                  <div className="relative z-10 w-11 h-11 rounded-xl bg-[#00c420]/15 flex items-center justify-center mb-5">
-                    <feature.icon className="w-6 h-6 text-[#00c420]" />
+                  <div className="relative z-10 w-11 h-11 rounded-xl bg-primary flex items-center justify-center mb-5">
+                    <feature.icon className="w-6 h-6" />
                   </div>
 
                   {/* Title */}

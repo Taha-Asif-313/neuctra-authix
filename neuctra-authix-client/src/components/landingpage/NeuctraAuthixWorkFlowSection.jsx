@@ -21,24 +21,22 @@ function WorkflowStep({
   const STAIR_HEIGHT = 28;
   const stepRef = useRef(null);
 
-  // Staggered animation variants
   const stepVariants = {
-    hidden: { opacity: 0, y: 40, scale: 0.9 },
-    visible: {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    visible: (i) => ({
       opacity: 1,
       y: 0,
       scale: 1,
       transition: {
-        duration: 0.6,
-        delay: delay,
+        duration: 0.45,
+        delay: i * 0.05, // smaller, snappier delay
         ease: "easeOut",
-        y: { type: "spring", stiffness: 100, damping: 15 },
       },
-    },
+    }),
     hover: {
-      y: -12,
-      scale: 1.05,
-      transition: { duration: 0.3 },
+      y: -6,
+      scale: 1.03,
+      transition: { duration: 0.2 },
     },
   };
 
@@ -59,7 +57,7 @@ function WorkflowStep({
       {/* Card */}
       <div
         id={id}
-        className="relative bg-black rounded-2xl p-6 border border-white/10 hover:border-[#00c420]/50 transition-all duration-300 h-full shadow-lg shadow-black/20 group"
+        className="relative bg-black rounded-2xl p-6 border border-white/10 hover:border-primary cursor-pointer transition-all duration-300 h-full shadow-lg shadow-black/20 group"
       >
         {/* Animated Step Number */}
         <motion.div
@@ -160,7 +158,7 @@ function AuthixWorkflow() {
             key={i}
             initial={{ width: 0 }}
             animate={{ width: isInView ? "100%" : 0 }}
-            transition={{ delay: 0.8, duration: 0.8 }}
+            transition={{ delay: 0.1, duration: 0.8 }}
             className="absolute h-0.5 bg-gradient-to-r from-transparent via-[#00c420] to-transparent"
             style={{ top: `${20 + i * 15}%`, left: "10%", right: "10%" }}
           />
@@ -229,10 +227,7 @@ function AuthixWorkflow() {
 
 export default function NeuctraAuthixWorkflowSection() {
   return (
-    <section
-      id="workflow"
-      className="relative py-14"
-    >
+    <section id="workflow" className="relative py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
         <motion.div

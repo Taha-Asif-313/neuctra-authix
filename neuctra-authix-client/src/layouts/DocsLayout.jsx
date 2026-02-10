@@ -2,10 +2,18 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import { Search, BookOpen } from "lucide-react";
 import Sidebar from "../components/docs/Sidebar";
+import MetaData from "../components/utils/MetaData";
 
 const DocsLayout = () => {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-black text-gray-200">
+      {/* Meta for SEO */}
+      <MetaData
+        title="Neuctra Authix Docs - Complete Authentication & Data Storage Guide"
+        description="Official documentation for Neuctra Authix. Learn how to integrate authentication, serverless data storage, and user management into your React or Express applications."
+        keywords="Neuctra Authix, authentication, serverless data storage, user management, React SDK, Express SDK, auth docs"
+      />
+
       {/* Sidebar (self-handled for mobile) */}
       <Sidebar />
 
@@ -38,7 +46,8 @@ const DocsLayout = () => {
 
         {/* Footer (optional for mobile UX) */}
         <footer className="mt-auto md:hidden text-center text-xs text-gray-500 py-5 border-t border-zinc-800 bg-zinc-950/80">
-          © {new Date().getFullYear()} Neuctra Authix Docs — All rights reserved.
+          © {new Date().getFullYear()} Neuctra Authix Docs — All rights
+          reserved.
         </footer>
       </main>
     </div>

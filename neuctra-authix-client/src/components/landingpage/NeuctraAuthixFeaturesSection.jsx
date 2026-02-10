@@ -46,7 +46,7 @@ export default function NeuctraAuthixFeaturesSection() {
       {/* Ambient background */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(0,196,32,0.15),transparent_20%)]" />
 
-      <div className="relative max-w-6xl mx-auto px-6">
+      <div className="relative max-w-7xl mx-auto px-6">
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -78,33 +78,40 @@ export default function NeuctraAuthixFeaturesSection() {
                 key={i}
                 initial={{ opacity: 0, x: -30 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
+                transition={{ duration: 0.6, delay: i * 0.15 }}
                 viewport={{ once: true }}
-                className="relative flex items-start gap-6 sm:gap-10"
+                className="relative flex items-start gap-6 sm:gap-10 w-full"
               >
-                {/* Icon */}
-                <div className="relative">
-                  <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-primary">
-                    <Icon className="h-6 w-6 sm:h-7 sm:w-7" />
+                {/* Number */}
+                <div className="flex-shrink-0 relative z-10">
+                  <div className="h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center rounded-full bg-primary font-bold text-lg sm:text-xl">
+                    {i + 1}
                   </div>
-
-                  {/* Pulse glow */}
-                  <span className="absolute inset-0 rounded-full bg-[#00c420]/30 blur-xl opacity-40" />
+                  <span className="absolute inset-0 rounded-full bg-[#00c420]/20 blur-xl opacity-40" />
                 </div>
 
-                {/* Content */}
-                <div className="max-w-2xl">
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3">
-                    {feature.title}
-                  </h3>
+                {/* Icon + Content */}
+                <div className="flex-1 flex items-start justify-between gap-4">
+                  {/* Content */}
+                  <div>
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-200 text-sm leading-relaxed">
+                      {feature.description}
+                    </p>
+                    <div className="inline-flex items-center gap-2 text-[#00c420] font-semibold text-sm">
+                      <TrendingUp className="w-4 h-4" />
+                      {feature.stat}
+                    </div>
+                  </div>
 
-                  <p className="text-gray-400 text-base sm:text-lg leading-relaxed mb-3">
-                    {feature.description}
-                  </p>
-
-                  <div className="inline-flex items-center gap-2 text-[#00c420] font-semibold text-sm">
-                    <TrendingUp className="w-4 h-4" />
-                    {feature.stat}
+                  {/* Icon */}
+                  <div className="relative flex-shrink-0">
+                    <div className="h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center rounded-full bg-white/5">
+                      <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-[#00c420]" />
+                    </div>
+                    <span className="absolute inset-0 rounded-full bg-[#00c420]/20 blur-xl opacity-50" />
                   </div>
                 </div>
               </motion.div>

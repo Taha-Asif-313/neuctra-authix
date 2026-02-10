@@ -116,30 +116,37 @@ export default function NeuctraAuthixHeroSection() {
             with our SDK.
           </motion.p>
 
-          {/* CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mb-12 sm:mb-16 px-4"
-          >
-            <motion.a
-              href="/signup"
-              className="group relative w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-[#00c420] to-[#00c420] rounded-xl font-bold shadow-2xl shadow-[#00c420]/30 flex items-center gap-3"
-            >
-              <User className="w-5 h-5" />
-              Create Free Account
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </motion.a>
+        {/* CTA */}
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.8, delay: 0.5 }}
+  className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mb-12 sm:mb-16 px-4"
+>
+  {/* Primary CTA */}
+  <motion.a
+    href="/signup"
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    className="group relative w-full sm:w-auto px-8 py-4 bg-primary rounded-2xl font-bold flex items-center gap-3 justify-center transition-all duration-300"
+  >
+    <User className="w-5 h-5" />
+    Create Free Account
+    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+  </motion.a>
 
-            <motion.a
-              href="/docs"
-              className="group w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-white/5 rounded-xl font-semibold border border-white/10 hover:border-white flex items-center gap-3"
-            >
-              <CircleQuestionMark className="w-5 h-5" />
-              How It Works
-            </motion.a>
-          </motion.div>
+  {/* Secondary CTA */}
+  <motion.a
+    href="/docs"
+    whileHover={{ scale: 1.03 }}
+    whileTap={{ scale: 0.97 }}
+    className="group w-full sm:w-auto px-8 py-4 bg-white/10 backdrop-blur-md rounded-2xl font-semibold text-white border border-white/20 flex items-center gap-3 justify-center hover:bg-white/20 transition-all duration-300"
+  >
+    <CircleQuestionMark className="w-5 h-5" />
+    How It Works
+  </motion.a>
+</motion.div>
+
 
           {/* Stats */}
           <motion.div
