@@ -109,9 +109,9 @@ const Features = () => {
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
         >
-          <div className="inline-flex items-center justify-center gap-2 px-4 py-2 mb-6 rounded-full bg-[#00c420]/10 border border-[#00c420]/30 text-[#00c420] text-xs sm:text-sm font-semibold">
+          <div className="inline-flex items-center justify-center gap-2 px-4 py-2 mb-6 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold">
             <Sparkles className="w-4 h-4" />
-            Powering the Next Generation of Authentication
+            Powering the Authentication
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">

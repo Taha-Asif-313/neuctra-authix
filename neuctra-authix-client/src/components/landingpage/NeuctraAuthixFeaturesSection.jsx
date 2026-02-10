@@ -100,7 +100,7 @@ export default function NeuctraAuthixFeaturesSection() {
                     <p className="text-gray-200 text-sm leading-relaxed">
                       {feature.description}
                     </p>
-                    <div className="inline-flex items-center gap-2 text-[#00c420] font-semibold text-sm">
+                    <div className="inline-flex items-center gap-2 text-[#00c420] font-semibold text-xs mt-2">
                       <TrendingUp className="w-4 h-4" />
                       {feature.stat}
                     </div>

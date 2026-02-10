@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
 export default function NeuctraAuthixTestimonialsSection() {
-    
   const testimonials = [
     {
       name: "Alex Morgan",
@@ -37,8 +36,9 @@ export default function NeuctraAuthixTestimonialsSection() {
       company: "ScaleUp Technologies",
     },
   ];
+
   return (
-    <section className="relative py-14">
+    <section className="relative py-10 sm:py-14 lg:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Heading */}
         <motion.div
@@ -46,9 +46,9 @@ export default function NeuctraAuthixTestimonialsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mb-12 sm:mb-16"
+          className="text-center mb-8 sm:mb-12 lg:mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-black mb-4 sm:mb-6">
             Trusted by
             <br />
             <span className="bg-gradient-to-r from-[#00c420] to-[#00c420] bg-clip-text text-transparent">
@@ -58,7 +58,7 @@ export default function NeuctraAuthixTestimonialsSection() {
         </motion.div>
 
         {/* Testimonials Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {testimonials.map((t, i) => (
             <motion.div
               key={i}
@@ -66,19 +66,23 @@ export default function NeuctraAuthixTestimonialsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: i * 0.1 }}
               viewport={{ once: true }}
-              whileHover={{ scale: 1.05, y: -5 }}
-              className="group bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-white/10 hover:border-[#00c420]/50 transition-all duration-500"
+              whileHover={{ scale: 1.04, y: -4 }}
+              className="group bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border border-white/10 hover:border-[#00c420]/50 transition-all duration-500"
             >
               {/* User */}
               <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <img
                   src={t.avatar}
                   alt={t.name}
-                  className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl object-cover border-2 border-[#00c420]/30"
+                  className="w-11 h-11 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-xl sm:rounded-2xl object-cover border-2 border-[#00c420]/30"
                 />
                 <div>
-                  <h4 className="font-bold text-base sm:text-lg">{t.name}</h4>
-                  <p className="text-gray-400 text-xs sm:text-sm">{t.role}</p>
+                  <h4 className="font-bold text-sm sm:text-base lg:text-lg">
+                    {t.name}
+                  </h4>
+                  <p className="text-gray-400 text-xs sm:text-sm">
+                    {t.role}
+                  </p>
                   <p className="text-[#00c420] text-xs font-semibold mt-1">
                     {t.company}
                   </p>

@@ -9,11 +9,11 @@ const plans = [
     icon: <Zap className="w-6 h-6 text-[#00c420]" />,
     price: "$0",
     period: "/month",
-    description: "For small projects and personal apps.",
+    description: "For experiments, demos, and personal projects.",
     features: [
       "Up to 100 active users",
-      "Basic authentication",
-      "Email login support",
+      "Email & password authentication",
+      "Basic user management",
       "Community support",
     ],
     buttonText: "Get Started",
@@ -21,18 +21,40 @@ const plans = [
     highlight: false,
     popular: false,
   },
+
+  {
+    name: "Growth",
+    icon: <Sparkles className="w-6 h-6 text-green-400" />,
+    price: "$9",
+    period: "/month",
+    description: "Perfect for indie developers and early-stage startups.",
+    features: [
+      "Up to 10,000 active users",
+      "Email + OAuth (Google, GitHub, etc.)",
+      "Custom app branding",
+      "JWT & session management",
+      "Basic analytics & logs",
+      "Email support",
+    ],
+    buttonText: "Upgrade to Growth",
+    buttonLink: "/register",
+    highlight: false,
+    popular: false,
+  },
+
   {
     name: "Pro",
     icon: <Star className="w-6 h-6 text-yellow-400" />,
     price: "$29",
     period: "/month",
-    description: "Ideal for startups and SaaS apps.",
+    description: "Built for scaling SaaS products and teams.",
     features: [
       "Unlimited users",
-      "OAuth & social logins",
-      "Custom branding",
-      "Priority email support",
-      "Advanced analytics",
+      "All OAuth & social providers",
+      "Advanced security controls (encryption, GDPR & SOC2)",
+      "Custom domains & branding",
+      "Advanced analytics, logs & monitoring",
+      "Priority support & faster SLAs",
       "99.5% uptime SLA",
     ],
     buttonText: "Start Free Trial",
@@ -40,19 +62,21 @@ const plans = [
     highlight: true,
     popular: true,
   },
+
   {
     name: "Enterprise",
     icon: <Building2 className="w-6 h-6 text-blue-400" />,
     price: "Custom",
     period: "",
-    description: "For large organizations & enterprise-grade apps.",
+    description: "Enterprise-grade authentication at massive scale.",
     features: [
-      "Dedicated infrastructure",
-      "Advanced SSO & RBAC",
-      "99.9% uptime SLA",
+      "Dedicated infrastructure & isolated apps",
+      "SSO, SAML, RBAC & advanced permissions",
+      "Advanced audit logs & compliance reporting",
+      "Custom SLAs (99.9% uptime)",
       "Dedicated account manager",
-      "Custom contracts",
-      "24/7 phone support",
+      "24/7 phone & Slack support",
+      "Custom contracts & enterprise integrations",
     ],
     buttonText: "Contact Sales",
     buttonLink: "/contact",
@@ -60,6 +84,9 @@ const plans = [
     popular: false,
   },
 ];
+
+
+
 
 const Pricing = () => {
   const containerVariants = {
