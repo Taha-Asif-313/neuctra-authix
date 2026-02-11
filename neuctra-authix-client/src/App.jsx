@@ -47,6 +47,7 @@ import ReactSetupDocs from "./pages/docs/react-ui-components/ReactSetupDocs";
 import Installation from "./pages/docs/installation";
 import ScrollToTop from "./components/ScrollToTop";
 import About from "./pages/public/About";
+import AppDataManagement from "./pages/docs/sdk/AppDataManagement";
 
 const ProtectedRoute = ({ Component }) => {
   const { isAuthenticated, isVerified, loading } = useAuth();
@@ -160,6 +161,7 @@ function AppContent() {
             path="auth-and-user-management"
             element={<AuthUserManagement />}
           />
+          <Route path="app-data-management" element={<AppDataManagement />} />
           <Route path="user-data-management" element={<UserDataManagement />} />
           <Route path="react-setup-docs" element={<ReactSetupDocs />} />
           <Route

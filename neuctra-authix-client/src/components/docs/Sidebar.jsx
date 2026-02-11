@@ -47,8 +47,12 @@ const Sidebar = () => {
           path: "/docs/auth-and-user-management",
         },
         {
-          title: "User Data & Features",
+          title: "User Data Management",
           path: "/docs/user-data-management",
+        },
+                {
+          title: "App Data Management",
+          path: "/docs/app-data-management",
         },
       ],
     },
