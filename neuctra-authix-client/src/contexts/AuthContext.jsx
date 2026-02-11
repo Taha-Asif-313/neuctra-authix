@@ -138,7 +138,7 @@ export const AuthProvider = ({ children }) => {
     >
       {/* Show loader while session is being checked */}
       {loading ? (
-        <div className="h-screen w-full bg-black" >
+        <div className="h-screen flex items-center justify-center w-full bg-black" >
           <CustomLoader text="Checking session..." />
         </div>
       ) : (

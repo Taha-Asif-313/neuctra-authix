@@ -15,7 +15,7 @@ import {
   LogIn,
   User,
   Database,
-  Mail
+  AlertTriangle
 } from "lucide-react";
 
 const AuthixSdkInstallation = () => {
@@ -37,154 +37,169 @@ const AuthixSdkInstallation = () => {
     }
   ];
 
+  const envExample = `# .env
+VITE_AUTHIX_API_KEY=your_api_key_here
+VITE_AUTHIX_APP_ID=your_app_id_here`;
+
   const setupCode = `import { NeuctraAuthix } from "@neuctra/authix";
 
-// Initialize with your app credentials
-const authix = new NeuctraAuthix({
-  baseUrl: "https://authix.neuctra.com/api",  // Authix API URL
-  apiKey: "your_api_key_here",                // Get from Authix dashboard
-  appId: "your_app_id_here"                   // Get from Authix dashboard
-});
+export const authix = new NeuctraAuthix({
+  baseUrl: "https://server.authix.neuctra.com/api",
+  apiKey: import.meta.env.VITE_AUTHIX_API_KEY,
+  appId: import.meta.env.VITE_AUTHIX_APP_ID,
+});`;
 
-// Now you're ready to use all Authix features!`;
+  const quickStartCode = `import { authix } from "./authixInit";
 
-  const quickStartCode = `// Quick Start Example
-import { NeuctraAuthix } from "@neuctra/authix";
+// Signup
+export const signup = async (name, email, password) => {
+  return await authix.signupUser({
+    name,
+    email,
+    password,
+  });
+};
 
-const authix = new NeuctraAuthix({
-  baseUrl: "https://authix.neuctra.com/api",
-  apiKey: "your_api_key",
-  appId: "your_app_id"
-});
-
-// Sign up a new user
-async function createUser() {
-  try {
-    const user = await authix.signup({
-      name: "Alice Johnson",
-      email: "alice@example.com",
-      password: "securePassword123"
-    });
-    console.log("User created:", user);
-  } catch (error) {
-    console.error("Error:", error.message);
-  }
-}
-
-createUser();`;
+// Login
+export const login = async (email, password) => {
+  return await authix.loginUser({
+    email,
+    password,
+  });
+};`;
 
   return (
-    <div className="space-y-6 sm:space-y-8 text-gray-300">
-      {/* Header Section */}
+    <div className="space-y-8 text-gray-300">
+
+      {/* Header */}
       <div className="space-y-4">
-        <h1 className="flex items-center gap-2 sm:gap-3 text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
-          <Settings className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-blue-400 flex-shrink-0" />
+        <h1 className="flex items-center gap-3 text-3xl lg:text-4xl font-bold text-white">
+          <Settings className="w-8 h-8 text-blue-400" />
           Installation & Setup
         </h1>
+        <p className="text-gray-400 max-w-3xl">
+          Follow these steps to install and configure <strong>Neuctra Authix</strong> securely in your application.
+          Setup takes less than 5 minutes.
+        </p>
       </div>
 
-      {/* Before You Start Section */}
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl sm:rounded-2xl p-4 sm:p-6">
-        <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-3 sm:mb-4 text-lg sm:text-xl">
-          <Wrench className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+      {/* Step 0 */}
+      <section className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-6">
+        <h3 className="flex items-center gap-2 text-blue-400 font-semibold text-lg mb-4">
+          <Wrench className="w-5 h-5" />
           Before You Start
         </h3>
-        <ul className="text-xs sm:text-sm text-gray-300 space-y-2 sm:space-y-3">
-          <li className="flex items-center gap-2 sm:gap-3">
-            <Key className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400 flex-shrink-0" />
-            <span>Get your <strong>API Key</strong> from the Authix dashboard</span>
+
+        <ul className="space-y-3 text-sm text-gray-300">
+          <li className="flex items-center gap-2">
+            <Key className="w-4 h-4 text-blue-400" />
+            Get your <strong>API Key</strong> from the Authix Dashboard
           </li>
-          <li className="flex items-center gap-2 sm:gap-3">
-            <Hash className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400 flex-shrink-0" />
-            <span>Get your <strong>App ID</strong> from the Authix dashboard</span>
+          <li className="flex items-center gap-2">
+            <Hash className="w-4 h-4 text-blue-400" />
+            Get your <strong>App ID</strong> from the Dashboard
           </li>
-          <li className="flex items-center gap-2 sm:gap-3">
-            <Link2 className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400 flex-shrink-0" />
-            <span className="break-all">
-              Use <code className="bg-black/30 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded text-xs">https://authix.neuctra.com/api</code> as your base URL
-            </span>
+          <li className="flex items-center gap-2">
+            <Link2 className="w-4 h-4 text-blue-400" />
+            Base URL: <code className="bg-black/30 px-2 py-1 rounded text-xs">https://server.authix.neuctra.com/api</code>
           </li>
         </ul>
-      </div>
+      </section>
 
-      <div className="space-y-8 sm:space-y-12">
-        {/* Install Package Section */}
-        <section className="space-y-3 sm:space-y-4">
-          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white">
-            <Download className="w-5 h-5 sm:w-6 sm:h-6 text-green-400 flex-shrink-0" />
-            1. Install the Package
-          </h2>
-          <p className="text-sm sm:text-base text-gray-400">
-            Choose your preferred package manager to install Authix SDK:
-          </p>
-          <CodeBlock tabs={installTabs} />
-        </section>
+      {/* Step 1 */}
+      <section className="space-y-4">
+        <h2 className="flex items-center gap-3 text-2xl font-semibold text-white">
+          <Download className="w-6 h-6 text-green-400" />
+          Step 1: Install the SDK
+        </h2>
 
-        {/* SDK Configuration Section */}
-        <section className="space-y-3 sm:space-y-4">
-          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white">
-            <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400 flex-shrink-0" />
-            2. SDK Configuration
-          </h2>
-          <p className="text-sm sm:text-base text-gray-400">
-            Initialize the SDK with your app credentials. You only need to do this once in your app.
-          </p>
-          <CodeBlock code={setupCode} language="typescript" />
-        </section>
+        <CodeBlock tabs={installTabs} />
+      </section>
 
-        {/* Quick Start Section */}
-        <section className="space-y-3 sm:space-y-4">
-          <h2 className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-semibold text-white">
-            <Rocket className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400 flex-shrink-0" />
-            3. Quick Start Example
-          </h2>
-          <p className="text-sm sm:text-base text-gray-400">
-            Here's a complete example to get you started immediately:
-          </p>
-          <CodeBlock code={quickStartCode} language="typescript" />
-        </section>
+      {/* Step 2 */}
+      <section className="space-y-4">
+        <h2 className="flex items-center gap-3 text-2xl font-semibold text-white">
+          <Shield className="w-6 h-6 text-purple-400" />
+          Step 2: Add Environment Variables (Recommended)
+        </h2>
 
-        {/* You're All Set Section */}
-        <section className="bg-green-500/10 border border-green-500/20 rounded-xl sm:rounded-2xl p-4 sm:p-6">
-          <h3 className="flex items-center gap-2 text-green-400 font-semibold mb-3 sm:mb-4 text-lg sm:text-xl">
-            <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-            You're All Set!
-          </h3>
-          <p className="text-xs sm:text-sm text-gray-300 mb-3 sm:mb-4">
-            You've successfully installed and configured Authix. Now you can:
-          </p>
-          <ul className="text-xs sm:text-sm text-gray-300 space-y-2 sm:space-y-3">
-            <li className="flex items-center gap-2">
-              <UserPlus className="w-3 h-3 sm:w-4 sm:h-4 text-green-400 flex-shrink-0" />
-              <span>
-                Create user accounts with <code className="bg-black/30 px-1 py-0.5 rounded text-xs">authix.signup()</code>
-              </span>
-            </li>
-            <li className="flex items-center gap-2">
-              <LogIn className="w-3 h-3 sm:w-4 sm:h-4 text-green-400 flex-shrink-0" />
-              <span>
-                Authenticate users with <code className="bg-black/30 px-1 py-0.5 rounded text-xs">authix.login()</code>
-              </span>
-            </li>
-            <li className="flex items-center gap-2">
-              <User className="w-3 h-3 sm:w-4 sm:h-4 text-green-400 flex-shrink-0" />
-              <span>
-                Manage user profiles with <code className="bg-black/30 px-1 py-0.5 rounded text-xs">authix.updateUser()</code>
-              </span>
-            </li>
-            <li className="flex items-center gap-2">
-              <Database className="w-3 h-3 sm:w-4 sm:h-4 text-green-400 flex-shrink-0" />
-              <span>
-                Store custom user data with <code className="bg-black/30 px-1 py-0.5 rounded text-xs">authix.addUserData()</code>
-              </span>
-            </li>
-            <li className="flex items-center gap-2">
-              <Shield className="w-3 h-3 sm:w-4 sm:h-4 text-green-400 flex-shrink-0" />
-              <span>Implement security features like password reset and email verification</span>
-            </li>
-          </ul>
-        </section>
-      </div>
+        <p className="text-gray-400 text-sm">
+          Never hardcode API keys in your source code. Use environment variables instead.
+        </p>
+
+        <CodeBlock code={envExample} language="bash" />
+      </section>
+
+      {/* Step 3 */}
+      <section className="space-y-4">
+        <h2 className="flex items-center gap-3 text-2xl font-semibold text-white">
+          <Settings className="w-6 h-6 text-orange-400" />
+          Step 3: Initialize Authix
+        </h2>
+
+        <p className="text-gray-400 text-sm">
+          Create a single instance and export it for use across your application.
+        </p>
+
+        <CodeBlock code={setupCode} language="typescript" />
+      </section>
+
+      {/* Step 4 */}
+      <section className="space-y-4">
+        <h2 className="flex items-center gap-3 text-2xl font-semibold text-white">
+          <Rocket className="w-6 h-6 text-red-400" />
+          Step 4: Start Authenticating Users
+        </h2>
+
+        <CodeBlock code={quickStartCode} language="typescript" />
+      </section>
+
+      {/* Production Tips */}
+      <section className="bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-6">
+        <h3 className="flex items-center gap-2 text-yellow-400 font-semibold text-lg mb-4">
+          <AlertTriangle className="w-5 h-5" />
+          Production Tips
+        </h3>
+
+        <ul className="space-y-3 text-sm text-gray-300">
+          <li>• Always validate user input before calling SDK methods</li>
+          <li>• Handle errors using try/catch blocks</li>
+          <li>• Never expose secret keys in public repositories</li>
+          <li>• Store session tokens securely (httpOnly cookies recommended)</li>
+        </ul>
+      </section>
+
+      {/* Final CTA */}
+      <section className="bg-green-500/10 border border-green-500/20 rounded-2xl p-6">
+        <h3 className="flex items-center gap-2 text-green-400 font-semibold text-lg mb-4">
+          <CheckCircle className="w-5 h-5" />
+          You're Ready 🚀
+        </h3>
+
+        <p className="text-sm text-gray-300 mb-4">
+          Authix is now fully installed and configured. You can start building secure authentication flows immediately.
+        </p>
+
+        <ul className="space-y-2 text-sm text-gray-300">
+          <li className="flex items-center gap-2">
+            <UserPlus className="w-4 h-4 text-green-400" />
+            Create users → <code className="bg-black/30 px-1 rounded text-xs">signupUser()</code>
+          </li>
+          <li className="flex items-center gap-2">
+            <LogIn className="w-4 h-4 text-green-400" />
+            Login users → <code className="bg-black/30 px-1 rounded text-xs">loginUser()</code>
+          </li>
+          <li className="flex items-center gap-2">
+            <User className="w-4 h-4 text-green-400" />
+            Update profiles → <code className="bg-black/30 px-1 rounded text-xs">updateUser()</code>
+          </li>
+          <li className="flex items-center gap-2">
+            <Database className="w-4 h-4 text-green-400" />
+            Store user data → <code className="bg-black/30 px-1 rounded text-xs">addUserData()</code>
+          </li>
+        </ul>
+      </section>
+
     </div>
   );
 };

@@ -26,7 +26,7 @@ export default function NeuctraAuthixCTASection() {
               </span>
             </h2>
 
-            <p className="mt-4 sm:mt-6 max-w-2xl mx-auto text-base sm:text-lg text-gray-400 px-2 sm:px-0">
+            <p className="mt-4 sm:mt-6 max-w-2xl mx-auto text-base sm:text-lg text-gray-200 px-2 sm:px-0">
               Neuctra Authix gives you authentication, user data storage, and UI
               components in one clean SDK — ready in minutes.
             </p>
