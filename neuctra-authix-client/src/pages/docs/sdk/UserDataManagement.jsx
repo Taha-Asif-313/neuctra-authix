@@ -1,23 +1,11 @@
-import React from "react";
 import CodeBlock from "../../../components/docs/CodeBlock";
 import {
   Database,
   FileText,
-  BookOpen,
-  Settings,
-  ShoppingCart,
-  BarChart3,
-  Zap,
-  Rocket,
   Shield,
-  Mail,
-  Key,
   CheckCircle,
   AlertCircle,
-  Download,
-  Upload,
   Edit3,
-  Trash2,
   Eye,
   Search,
   Lock,
@@ -25,7 +13,7 @@ import {
 } from "lucide-react";
 
 const UserDataManagement = () => {
-  const introText = `Authix allows you to store, retrieve, update, delete, and search custom user data. Perfect for notes, blog posts, preferences, shopping carts, or any user-specific information.`;
+  const introText = `Neuctra Authix allows you to store, retrieve, update, delete, and search custom user data. Perfect for notes, blog posts, preferences, shopping carts, or any user-specific information.`;
 
   // --- CODE EXAMPLES ---
   const searchUserDataCode = `// Search user data by category or query
@@ -162,7 +150,7 @@ console.log("Data deleted successfully");`;
             <CodeBlock code={deleteUserDataCode} language="typescript" />
           </div>
         </section>
-        
+
         {/* Best Practices */}
         <section className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl sm:rounded-2xl p-4 sm:p-6">
           <h2 className="flex items-center gap-2 text-xl sm:text-2xl font-semibold text-white mb-3 sm:mb-4">

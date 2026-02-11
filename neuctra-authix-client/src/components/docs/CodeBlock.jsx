@@ -92,7 +92,7 @@ const CodeBlock = ({
                   className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                     activeTab === index
                       ? "text-[#00c420] "
-                      : "text-gray-400 hover:text-gray-300 hover:bg-gray-800/40"
+                      : "text-gray-400 hover:text-gray-300 hover:bg-zinc-800/60"
                   }`}
                 >
                   <FileCode size={14} />

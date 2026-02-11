@@ -1,5 +1,3 @@
-// src/pages/docs/Introduction.jsx
-import React from "react";
 import CodeBlock from "../../../components/docs/CodeBlock";
 import {
   Rocket,
@@ -25,10 +23,11 @@ const AuthixSdkIntroduction = () => {
         </h1>
 
         <p className="text-base sm:text-lg text-gray-400 leading-relaxed max-w-4xl">
-          <strong className="text-white">Neuctra Authix</strong> is a serverless authentication
-          and user management platform designed to eliminate backend complexity.
-          It provides secure login flows, structured JSON user data storage, and
-          multi-application control — all powered by a scalable cloud API.
+          <strong className="text-white">Neuctra Authix</strong> is a serverless
+          authentication and user management platform designed to eliminate
+          backend complexity. It provides secure login flows, structured JSON
+          user data storage, and multi-application control — all powered by a
+          scalable cloud API.
         </p>
       </div>
 
@@ -44,7 +43,8 @@ const AuthixSdkIntroduction = () => {
             </h3>
           </div>
           <p className="text-xs sm:text-sm text-gray-400">
-            JWT-based login, signup, password reset, email verification, and OTP security.
+            JWT-based login, signup, password reset, email verification, and OTP
+            security.
           </p>
         </div>
 
@@ -72,7 +72,8 @@ const AuthixSdkIntroduction = () => {
             </h3>
           </div>
           <p className="text-xs sm:text-sm text-gray-400">
-            Store custom JSON data per user — notes, preferences, blogs, or app data.
+            Store custom JSON data per user — notes, preferences, blogs, or app
+            data.
           </p>
         </div>
       </div>
@@ -87,7 +88,7 @@ const AuthixSdkIntroduction = () => {
         <ul className="space-y-3 sm:space-y-4 text-gray-400">
           <li>
             <strong className="text-white">Setup:</strong> Install and configure
-            Authix in your application.
+            Neuctra Authix in your application.
           </li>
           <li>
             <strong className="text-white">Authentication:</strong> Implement
@@ -102,8 +103,8 @@ const AuthixSdkIntroduction = () => {
             email verification, password reset, and OTP protection.
           </li>
           <li>
-            <strong className="text-white">User Data:</strong> Store and retrieve
-            structured user-specific data securely.
+            <strong className="text-white">User Data:</strong> Store and
+            retrieve structured user-specific data securely.
           </li>
         </ul>
       </div>
@@ -141,18 +142,15 @@ const AuthixSdkIntroduction = () => {
           Install SDK
         </h3>
 
-        <CodeBlock
-          language="bash"
-          code={`npm install @neuctra/authix`}
-        />
+        <CodeBlock language="bash" code={`npm install @neuctra/authix`} />
       </div>
 
       {/* CTA */}
       <div className="bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded-xl sm:rounded-2xl p-4 sm:p-6">
         <p className="text-gray-300 flex items-center gap-2 text-sm sm:text-base">
           <Rocket className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 flex-shrink-0" />
-          You're ready to integrate Authix. Continue to the installation guide
-          and create your first authenticated user.
+          You're ready to integrate Neuctra Authix. Continue to the installation
+          guide and create your first authenticated user.
         </p>
       </div>
     </div>

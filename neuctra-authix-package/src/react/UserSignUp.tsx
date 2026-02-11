@@ -18,7 +18,6 @@ interface SignupFormProps {
   logoLinkUrl?: string;
   title?: string;
   subtitle?: string;
-  footerText?: string;
   primaryColor?: string;
   gradient?: string;
   darkMode?: boolean;
@@ -46,7 +45,6 @@ export const ReactUserSignUp: React.FC<SignupFormProps> = ({
   logoLinkUrl,
   title = "Create Your Account",
   subtitle = "Join our platform today",
-  footerText = "Secure authentication powered by Neuctra Authix",
   primaryColor = "#00C214",
   gradient = "linear-gradient(135deg, #22c55e, #00C214)",
   darkMode = true,

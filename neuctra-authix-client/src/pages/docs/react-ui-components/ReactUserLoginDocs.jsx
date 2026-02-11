@@ -1,16 +1,13 @@
-import React from "react";
 import CodeBlock from "../../../components/docs/CodeBlock";
 import {
   KeyRound,
   Mail,
-  Lock,
   Eye,
   Shield,
   Smartphone,
   Settings,
   Palette,
   CheckCircle,
-  AlertCircle,
   Zap,
   User,
 } from "lucide-react";
@@ -41,7 +38,6 @@ function CustomLoginPage() {
       logoLinkUrl="/"
       title="Welcome Back"
       subtitle="Sign in to continue"
-      footerText="Secure authentication powered by Your Company"
 
       // Styling
       primaryColor="#00C214"
@@ -88,12 +84,6 @@ function CustomLoginPage() {
       type: "string",
       default: '"Welcome back! Please enter your details"',
       description: "Subheading text",
-    },
-    {
-      name: "footerText",
-      type: "string",
-      default: '"Secure authentication powered by Neuctra Authix"',
-      description: "Footer branding text",
     },
     {
       name: "primaryColor",
@@ -176,9 +166,9 @@ function CustomLoginPage() {
         </h1>
 
         <p className="text-lg text-gray-400 max-w-3xl">
-          A production-ready authentication component powered by Neuctra
-          Authix. Includes secure login, OTP-based password reset, cookie
-          session handling, and full UI customization.
+          A production-ready authentication component powered by Neuctra Authix.
+          Includes secure login, OTP-based password reset, cookie session
+          handling, and full UI customization.
         </p>
       </div>
 
@@ -191,13 +181,9 @@ function CustomLoginPage() {
           >
             <div className="flex items-center gap-3 mb-2 text-green-400">
               {feature.icon}
-              <h3 className="font-semibold text-white">
-                {feature.title}
-              </h3>
+              <h3 className="font-semibold text-white">{feature.title}</h3>
             </div>
-            <p className="text-sm text-gray-400">
-              {feature.description}
-            </p>
+            <p className="text-sm text-gray-400">{feature.description}</p>
           </div>
         ))}
       </div>
@@ -231,18 +217,12 @@ function CustomLoginPage() {
             <tbody>
               {propsTable.map((prop, index) => (
                 <tr key={index} className="border-b border-white/5">
-                  <td className="p-4 font-mono text-blue-400">
-                    {prop.name}
-                  </td>
-                  <td className="p-4 font-mono text-green-400">
-                    {prop.type}
-                  </td>
+                  <td className="p-4 font-mono text-blue-400">{prop.name}</td>
+                  <td className="p-4 font-mono text-green-400">{prop.type}</td>
                   <td className="p-4 font-mono text-yellow-400">
                     {prop.default}
                   </td>
-                  <td className="p-4 text-gray-300">
-                    {prop.description}
-                  </td>
+                  <td className="p-4 text-gray-300">{prop.description}</td>
                 </tr>
               ))}
             </tbody>

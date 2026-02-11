@@ -26,13 +26,12 @@ const Sidebar = () => {
   const [expandedSections, setExpandedSections] = useState({});
   const location = useLocation();
 
-  // Enhanced docs data structure
   const categories = [
     {
       category: "Getting Started",
       icon: Sparkles,
       items: [
-        { title: "Introduction", path: "/docs", badge: "New" },
+        { title: "Introduction", path: "/docs" },
         { title: "Installation", path: "/docs/installation", badge: "Updated" },
       ],
     },
@@ -46,23 +45,21 @@ const Sidebar = () => {
           title: "Auth & User Management",
           path: "/docs/auth-and-user-management",
         },
-        {
-          title: "User Data Management",
-          path: "/docs/user-data-management",
-        },
-                {
-          title: "App Data Management",
-          path: "/docs/app-data-management",
-        },
+        { title: "User Data Management", path: "/docs/user-data-management" },
+        { title: "App Data Management", path: "/docs/app-data-management" },
       ],
     },
     {
-      category: "React Ui Components",
+      category: "React UI Components",
       icon: Atom,
       items: [
         { title: "React Setup", path: "/docs/react-setup-docs" },
         { title: "User Login", path: "/docs/react-user-login-docs" },
         { title: "User Signup", path: "/docs/react-user-signup-docs" },
+        {
+          title: "User Email Verification",
+          path: "/docs/react-user-verify-docs",
+        },
         { title: "User Profile", path: "/docs/react-user-profile-docs" },
         { title: "User Button", path: "/docs/react-user-button-docs" },
         {
@@ -79,15 +76,14 @@ const Sidebar = () => {
       category: "Help & Support",
       icon: HelpCircle,
       items: [
-        { title: "Common Errors", path: "/docs/errors" },
-        { title: "Troubleshooting", path: "/docs/troubleshooting" },
-        { title: "Best Practices", path: "/docs/best-practices" },
-        { title: "Support Center", path: "/docs/support" },
+        {
+          title: "Support Center",
+          path: "mailto:neuctraauthix@gmail.com", // opens email client
+        },
       ],
     },
   ];
 
-  // Initialize expanded sections
   useEffect(() => {
     const initialExpanded = {};
     categories.forEach((section) => {
@@ -96,45 +92,54 @@ const Sidebar = () => {
     setExpandedSections(initialExpanded);
   }, []);
 
-  // Filter categories based on search
   const filteredCategories = categories.map((section) => ({
     ...section,
     items: section.items.filter(
       (item) =>
         item.title.toLowerCase().includes(query.toLowerCase()) ||
-        item.path.toLowerCase().includes(query.toLowerCase())
+        item.path.toLowerCase().includes(query.toLowerCase()),
     ),
   }));
 
   const toggleSection = (category) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [category]: !prev[category],
-    }));
+    setExpandedSections((prev) => {
+      const isCurrentlyOpen = prev[category];
+
+      // Close all sections first
+      const newState = {};
+
+      categories.forEach((section) => {
+        newState[section.category] = false;
+      });
+
+      // Open clicked one (unless it was already open)
+      newState[category] = !isCurrentlyOpen;
+
+      return newState;
+    });
   };
 
-  const isSectionActive = (items) => {
-    return items.some((item) => location.pathname === item.path);
-  };
+  const isSectionActive = (items) =>
+    items.some((item) => location.pathname === item.path);
 
   return (
     <>
       {/* Mobile top bar */}
-      <div className="lg:hidden flex items-center justify-between p-4 bg-gradient-to-r from-zinc-950 to-black border-b border-gray-800 backdrop-blur-sm">
+      <div className="lg:hidden flex items-center justify-between p-4 bg-zinc-950 border-b border-zinc-800 backdrop-blur-sm">
         <div className="flex items-center gap-3">
-          <Link to={"/"}>
+          <Link to="/">
             <img src="/logo.png" width={40} height={40} alt="logo" />
           </Link>
           <div>
-            <h2 className="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            <h2 className="text-lg font-bold text-white">
               Neuctra Authix Docs
             </h2>
-            <p className="text-xs text-gray-400">v2.1.0</p>
+            <p className="text-xs text-zinc-400">v1.2</p>
           </div>
         </div>
         <button
           onClick={() => setIsOpen(true)}
-          className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-300 hover:text-white"
+          className="p-2 hover:bg-zinc-800 rounded-lg transition-colors text-zinc-300 hover:text-white"
         >
           <Menu size={24} />
         </button>
@@ -142,27 +147,28 @@ const Sidebar = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 h-screen w-80 border-r border-gray-800 bg-gradient-to-b from-zinc-950 to-black backdrop-blur-sm transform transition-transform duration-300 z-50
-          ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+        className={`fixed lg:sticky top-0 left-0 h-screen w-72 border-r border-zinc-800 bg-zinc-950 backdrop-blur-sm transform transition-transform duration-300 z-50 ${
+          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="pt-6 px-4">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <Link to={"/"}>
+                <Link to="/">
                   <img src="/logo.png" width={40} height={40} alt="logo" />
                 </Link>
                 <div>
-                  <h2 className="text-md font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                  <h2 className="text-md font-bold text-white">
                     Neuctra Authix Docs
                   </h2>
-                  <p className="text-sm text-gray-400">v2.1.0</p>
+                  <p className="text-sm text-zinc-400">v2.1.0</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="lg:hidden p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-400 hover:text-white"
+                className="lg:hidden p-2 hover:bg-zinc-800 rounded-lg transition-colors text-zinc-400 hover:text-white"
               >
                 <X size={20} />
               </button>
@@ -172,47 +178,15 @@ const Sidebar = () => {
             <div className="relative">
               <Search
                 size={18}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"
               />
               <input
                 type="text"
                 placeholder="Search documentation..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 text-sm rounded-xl bg-gray-800/50 border border-gray-700 focus:ring-2 focus:ring-[#00c420] focus:border-[#00c420] outline-none transition-all"
+                className="w-full pl-10 pr-4 py-3 text-sm rounded-xl bg-zinc-800/50 border border-zinc-700 focus:ring-2 focus:ring-[#00c420] focus:border-[#00c420] outline-none transition-all"
               />
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="p-4 border-b border-gray-800">
-            <div className="grid grid-cols-2 gap-2">
-              <NavLink
-                to="/"
-                className="flex items-center gap-2 p-3 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors text-sm group"
-              >
-                <Home
-                  size={16}
-                  className="text-gray-400 group-hover:text-white"
-                />
-                <span className="text-gray-300 group-hover:text-white">
-                  Home
-                </span>
-              </NavLink>
-              <a
-                href="https://github.com/neuctra"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 p-3 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors text-sm group"
-              >
-                <Github
-                  size={16}
-                  className="text-gray-400 group-hover:text-white"
-                />
-                <span className="text-gray-300 group-hover:text-white">
-                  GitHub
-                </span>
-              </a>
             </div>
           </div>
 
@@ -229,27 +203,19 @@ const Sidebar = () => {
                   <div key={category} className="space-y-2">
                     <button
                       onClick={() => toggleSection(category)}
-                      className={`flex items-center justify-between w-full p-3 rounded-xl transition-all duration-200 group ${
+                      className={`flex items-center justify-between w-full p-3 rounded-md transition-all duration-200 group ${
                         isActive
-                          ? "bg-[#00c420]/10 border border-[#00c420]/20"
-                          : "hover:bg-gray-800/50"
+                          ? "bg-[#00c420]/20 text-white"
+                          : "hover:bg-zinc-900/50"
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <Icon
                           size={18}
-                          className={`${
-                            isActive
-                              ? "text-[#00c420]"
-                              : "text-gray-400 group-hover:text-gray-300"
-                          }`}
+                          className={`${isActive ? "text-white" : "text-zinc-400 group-hover:text-white"}`}
                         />
                         <span
-                          className={`font-semibold text-sm ${
-                            isActive
-                              ? "text-[#00c420]"
-                              : "text-gray-300 group-hover:text-white"
-                          }`}
+                          className={`font-semibold text-sm ${isActive ? "text-white" : "text-zinc-300 group-hover:text-white"}`}
                         >
                           {category}
                         </span>
@@ -257,16 +223,12 @@ const Sidebar = () => {
                       {isExpanded ? (
                         <ChevronDown
                           size={16}
-                          className={`transition-transform ${
-                            isActive ? "text-[#00c420]" : "text-gray-400"
-                          }`}
+                          className={`transition-transform ${isActive ? "text-white" : "text-zinc-400"}`}
                         />
                       ) : (
                         <ChevronRight
                           size={16}
-                          className={`transition-transform ${
-                            isActive ? "text-[#00c420]" : "text-gray-400"
-                          }`}
+                          className={`transition-transform ${isActive ? "text-white" : "text-zinc-400"}`}
                         />
                       )}
                     </button>
@@ -282,12 +244,13 @@ const Sidebar = () => {
                         <NavLink
                           key={item.path}
                           to={item.path}
+                          end={item.path === "/docs"}
                           onClick={() => setIsOpen(false)}
                           className={({ isActive }) =>
-                            `flex items-center justify-between group relative pl-3 pr-2 py-2 rounded-lg transition-all duration-200 ${
+                            `flex items-center justify-between group relative pl-3 pr-2 py-2 rounded-md transition-all duration-200 ${
                               isActive
-                                ? " text-[#00c420] "
-                                : "hover:bg-gray-800/30 text-gray-400 hover:text-gray-300"
+                                ? "text-[#00c420]"
+                                : "hover:bg-zinc-900/50 text-zinc-400 hover:text-zinc-200"
                             }`
                           }
                         >
@@ -302,7 +265,7 @@ const Sidebar = () => {
                                     className={`px-2 py-0.5 text-xs rounded-full ${
                                       item.badge === "New"
                                         ? "bg-green-500/20 text-green-400"
-                                        : "bg-primary/10 text-primary"
+                                        : "bg-[#00c420]/10 text-[#00c420]"
                                     }`}
                                   >
                                     {item.badge}

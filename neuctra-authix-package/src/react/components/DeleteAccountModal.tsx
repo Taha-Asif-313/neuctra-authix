@@ -33,7 +33,6 @@ interface DeleteAccountModalProps {
   onSuccess: (msg: string) => void;
   onError: (msg: string) => void;
   userId: string;
-  token: string;
   colors: ThemeColors;
 }
 
@@ -43,7 +42,6 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
   onSuccess,
   onError,
   userId,
-  token,
   colors,
 }) => {
   const authix = useAuthix();

@@ -1,4 +1,3 @@
-import React from "react";
 import CodeBlock from "../../components/docs/CodeBlock";
 import {
   Shield,
@@ -10,11 +9,8 @@ import {
   CheckCircle,
   Sparkles,
   Key,
-  Cpu,
-  Smartphone,
-  Server,
   BookOpen,
-  FileText
+  FileText,
 } from "lucide-react";
 
 const Introduction = () => {
@@ -23,38 +19,38 @@ const Introduction = () => {
       icon: <Shield className="w-5 h-5" />,
       title: "Enterprise-Grade Security",
       description:
-        "Secure JWT authentication, encrypted sessions, and protected API communication."
+        "Secure JWT authentication, encrypted sessions, and protected API communication.",
     },
     {
       icon: <Zap className="w-5 h-5" />,
       title: "Serverless Architecture",
       description:
-        "No backend required. Authix handles authentication and structured data storage for you."
+        "No backend required. Authix handles authentication and structured data storage for you.",
     },
     {
       icon: <Code className="w-5 h-5" />,
       title: "Developer Friendly SDK",
       description:
-        "Simple initialization, flexible API access, and seamless framework compatibility."
+        "Simple initialization, flexible API access, and seamless framework compatibility.",
     },
     {
       icon: <Users className="w-5 h-5" />,
       title: "User Lifecycle Management",
       description:
-        "Handle signup, login, sessions, roles, and profile updates effortlessly."
+        "Handle signup, login, sessions, roles, and profile updates effortlessly.",
     },
     {
       icon: <Lock className="w-5 h-5" />,
       title: "Multi-App Control",
       description:
-        "Manage multiple applications with isolated data stores from one dashboard."
+        "Manage multiple applications with isolated data stores from one dashboard.",
     },
     {
       icon: <Globe className="w-5 h-5" />,
       title: "Framework Agnostic",
       description:
-        "Works with React, Next.js, Vue, and any modern JavaScript framework."
-    }
+        "Works with React, Next.js, Vue, and any modern JavaScript framework.",
+    },
   ];
 
   const installationCode = `npm install @neuctra/authix
@@ -107,8 +103,8 @@ export const authix = new NeuctraAuthix({
 
         <div className="bg-white/5 border border-white/10 rounded-xl p-6">
           <p className="text-gray-400 mb-4">
-            Neuctra Authix replaces traditional backend authentication systems by
-            securely managing users, sessions, JWT tokens, and structured
+            Neuctra Authix replaces traditional backend authentication systems
+            by securely managing users, sessions, JWT tokens, and structured
             application data through a scalable cloud API. Developers can
             integrate Authix in minutes and focus entirely on building product
             features instead of infrastructure.
@@ -185,7 +181,7 @@ export const authix = new NeuctraAuthix({
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-white flex items-center gap-2">
             <Key className="w-5 h-5 text-[#00c420]" />
-            Create Authix Instance
+            Create Neuctra Authix Instance
           </h3>
 
           <CodeBlock code={quickStartCode} language="javascript" />
@@ -198,7 +194,7 @@ export const authix = new NeuctraAuthix({
               <div>
                 <strong className="">baseUrl</strong>
                 <p className="text-gray-400 mt-1">
-                  Authix API endpoint (use official production URL)
+                  Neuctra Authix API endpoint (use official production URL)
                 </p>
               </div>
               <div>

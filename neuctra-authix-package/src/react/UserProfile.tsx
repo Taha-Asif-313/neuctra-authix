@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { UserInfo } from "../api/login.js";
 import {
   Edit3,
   Save,
@@ -26,8 +25,20 @@ import ChangePasswordModal from "./components/ChangePasswordModal.js";
 import { EmailVerificationModal } from "./components/EmailVerificationModal.js";
 import { useAuthix } from "./Provider/AuthixProvider.js";
 
+interface UserInfo {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  avatarUrl?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  token?: string; // optional for API auth
+  [key: string]: any;
+}
+
 interface UserProfileProps {
-  token: string;
   user?: UserInfo | null;
   darkMode?: boolean;
   homeUrl?: string;
@@ -39,8 +50,6 @@ interface UserProfileProps {
 }
 
 export const ReactUserProfile: React.FC<UserProfileProps> = ({
-  token,
-  user: propUser = null,
   darkMode = true,
   homeUrl,
   onLogout,
@@ -49,7 +58,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
 }) => {
   const authix = useAuthix();
   const [screenWidth, setScreenWidth] = useState<number | null>(null);
-  const [user, setUser] = useState<UserInfo | null>(propUser);
+  const [user, setUser] = useState<UserInfo | null>();
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -194,13 +203,6 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
         // Update user state and localStorage
         const updatedUser = { ...user, isVerified: true };
         setUser(updatedUser);
-
-        // Only save token if available in user/session
-        const token = user?.token ?? ""; // adjust if token comes elsewhere
-        localStorage.setItem(
-          "userInfo",
-          JSON.stringify({ ...updatedUser, token }),
-        );
 
         // 🔹 Call parent handler if provided
         if (typeof onVerify === "function") {
@@ -366,7 +368,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
     };
 
     initUser();
-  }, [propUser]);
+  }, [user]);
 
   // Set email in verification form when user is available
   useEffect(() => {
@@ -1340,7 +1342,6 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
 
       <DeleteAccountModal
         userId={user.id}
-        token={token}
         isOpen={showDeleteAccount}
         onClose={() => setShowDeleteAccount(false)}
         onSuccess={(msg) => showNotification("success", msg)}

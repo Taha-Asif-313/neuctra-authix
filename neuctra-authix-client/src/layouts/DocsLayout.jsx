@@ -40,7 +40,7 @@ const DocsLayout = () => {
         </header>
 
         {/* Scrollable Content */}
-        <section className="flex-1 px-4 sm:px-6 md:px-8 lg:px-12 py-6 overflow-y-auto prose prose-invert max-w-none">
+        <section className="flex-1 px-4 sm:px-6 md:px-8 py-6 overflow-y-auto prose prose-invert max-w-none">
           <Outlet />
         </section>
 

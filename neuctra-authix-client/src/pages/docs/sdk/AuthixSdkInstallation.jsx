@@ -1,5 +1,3 @@
-// src/pages/docs/Installation.jsx
-import React from "react";
 import CodeBlock from "../../../components/docs/CodeBlock";
 import {
   Settings,
@@ -15,7 +13,7 @@ import {
   LogIn,
   User,
   Database,
-  AlertTriangle
+  AlertTriangle,
 } from "lucide-react";
 
 const AuthixSdkInstallation = () => {
@@ -23,30 +21,30 @@ const AuthixSdkInstallation = () => {
     {
       name: "NPM",
       code: "npm install @neuctra/authix",
-      language: "bash"
+      language: "bash",
     },
     {
       name: "Yarn",
       code: "yarn add @neuctra/authix",
-      language: "bash"
+      language: "bash",
     },
     {
       name: "PNPM",
       code: "pnpm add @neuctra/authix",
-      language: "bash"
-    }
+      language: "bash",
+    },
   ];
 
   const envExample = `# .env
-VITE_AUTHIX_API_KEY=your_api_key_here
-VITE_AUTHIX_APP_ID=your_app_id_here`;
+VITE_NEUCTRA_AUTHIX_API_KEY=your_api_key_here
+VITE_NEUCTRA_AUTHIX_APP_ID=your_app_id_here`;
 
   const setupCode = `import { NeuctraAuthix } from "@neuctra/authix";
 
 export const authix = new NeuctraAuthix({
   baseUrl: "https://server.authix.neuctra.com/api",
-  apiKey: import.meta.env.VITE_AUTHIX_API_KEY,
-  appId: import.meta.env.VITE_AUTHIX_APP_ID,
+  apiKey: import.meta.env.VITE_NEUCTRA_AUTHIX_API_KEY,
+  appId: import.meta.env.VITE_NEUCTRA_AUTHIX_APP_ID,
 });`;
 
   const quickStartCode = `import { authix } from "./authixInit";
@@ -70,7 +68,6 @@ export const login = async (email, password) => {
 
   return (
     <div className="space-y-8 text-gray-300">
-
       {/* Header */}
       <div className="space-y-4">
         <h1 className="flex items-center gap-3 text-3xl lg:text-4xl font-bold text-white">
@@ -78,8 +75,9 @@ export const login = async (email, password) => {
           Installation & Setup
         </h1>
         <p className="text-gray-400 max-w-3xl">
-          Follow these steps to install and configure <strong>Neuctra Authix</strong> securely in your application.
-          Setup takes less than 5 minutes.
+          Follow these steps to install and configure{" "}
+          <strong>Neuctra Authix</strong> securely in your application. Setup
+          takes less than 5 minutes.
         </p>
       </div>
 
@@ -93,15 +91,18 @@ export const login = async (email, password) => {
         <ul className="space-y-3 text-sm text-gray-300">
           <li className="flex items-center gap-2">
             <Key className="w-4 h-4 text-blue-400" />
-            Get your <strong>API Key</strong> from the Authix Dashboard
+            Get your <strong>API Key</strong> from the Neuctra Authix Dashboard
           </li>
           <li className="flex items-center gap-2">
             <Hash className="w-4 h-4 text-blue-400" />
-            Get your <strong>App ID</strong> from the Dashboard
+            Get your <strong>App ID</strong> from the Neuctra Authix Dashboard
           </li>
           <li className="flex items-center gap-2">
             <Link2 className="w-4 h-4 text-blue-400" />
-            Base URL: <code className="bg-black/30 px-2 py-1 rounded text-xs">https://server.authix.neuctra.com/api</code>
+            Base URL:{" "}
+            <code className="bg-black/30 px-2 py-1 rounded text-xs">
+              https://server.authix.neuctra.com/api
+            </code>
           </li>
         </ul>
       </section>
@@ -124,7 +125,8 @@ export const login = async (email, password) => {
         </h2>
 
         <p className="text-gray-400 text-sm">
-          Never hardcode API keys in your source code. Use environment variables instead.
+          Never hardcode API keys in your source code. Use environment variables
+          instead.
         </p>
 
         <CodeBlock code={envExample} language="bash" />
@@ -134,11 +136,12 @@ export const login = async (email, password) => {
       <section className="space-y-4">
         <h2 className="flex items-center gap-3 text-2xl font-semibold text-white">
           <Settings className="w-6 h-6 text-orange-400" />
-          Step 3: Initialize Authix
+          Step 3: Initialize Neuctra Authix
         </h2>
 
         <p className="text-gray-400 text-sm">
-          Create a single instance and export it for use across your application.
+          Create a single instance and export it for use across your
+          application.
         </p>
 
         <CodeBlock code={setupCode} language="typescript" />
@@ -165,7 +168,9 @@ export const login = async (email, password) => {
           <li>• Always validate user input before calling SDK methods</li>
           <li>• Handle errors using try/catch blocks</li>
           <li>• Never expose secret keys in public repositories</li>
-          <li>• Store session tokens securely (httpOnly cookies recommended)</li>
+          <li>
+            • Store session tokens securely (httpOnly cookies recommended)
+          </li>
         </ul>
       </section>
 
@@ -177,29 +182,41 @@ export const login = async (email, password) => {
         </h3>
 
         <p className="text-sm text-gray-300 mb-4">
-          Authix is now fully installed and configured. You can start building secure authentication flows immediately.
+          Neuctra Authix is now fully installed and configured. You can start
+          building secure authentication flows immediately.
         </p>
 
         <ul className="space-y-2 text-sm text-gray-300">
           <li className="flex items-center gap-2">
             <UserPlus className="w-4 h-4 text-green-400" />
-            Create users → <code className="bg-black/30 px-1 rounded text-xs">signupUser()</code>
+            Create users →{" "}
+            <code className="bg-black/30 px-1 rounded text-xs">
+              signupUser()
+            </code>
           </li>
           <li className="flex items-center gap-2">
             <LogIn className="w-4 h-4 text-green-400" />
-            Login users → <code className="bg-black/30 px-1 rounded text-xs">loginUser()</code>
+            Login users →{" "}
+            <code className="bg-black/30 px-1 rounded text-xs">
+              loginUser()
+            </code>
           </li>
           <li className="flex items-center gap-2">
             <User className="w-4 h-4 text-green-400" />
-            Update profiles → <code className="bg-black/30 px-1 rounded text-xs">updateUser()</code>
+            Update profiles →{" "}
+            <code className="bg-black/30 px-1 rounded text-xs">
+              updateUser()
+            </code>
           </li>
           <li className="flex items-center gap-2">
             <Database className="w-4 h-4 text-green-400" />
-            Store user data → <code className="bg-black/30 px-1 rounded text-xs">addUserData()</code>
+            Store user data →{" "}
+            <code className="bg-black/30 px-1 rounded text-xs">
+              addUserData()
+            </code>
           </li>
         </ul>
       </section>
-
     </div>
   );
 };

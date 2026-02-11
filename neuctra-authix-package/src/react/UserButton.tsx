@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  Info,
   LogOut,
   Mail,
   User,

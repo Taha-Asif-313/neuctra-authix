@@ -1,4 +1,3 @@
-import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,7 +5,6 @@ import {
   Navigate,
   Outlet,
 } from "react-router-dom";
-import { ThemeProvider } from "./contexts/ThemeContext";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { AppProvider } from "./contexts/AppContext";
@@ -25,7 +23,6 @@ import SupportPage from "./pages/dashboard/SupportPage";
 import DocsLayout from "./layouts/DocsLayout";
 import Introduction from "./pages/docs/Introduction";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import VerifyEmailPage from "./pages/auth/VerifyEmailPage";
 import ChangePassword from "./pages/dashboard/ChangePassword";
 import Pricing from "./pages/public/Pricing";
@@ -48,6 +45,7 @@ import Installation from "./pages/docs/installation";
 import ScrollToTop from "./components/ScrollToTop";
 import About from "./pages/public/About";
 import AppDataManagement from "./pages/docs/sdk/AppDataManagement";
+import ReactEmailVerificationDocs from "./pages/docs/react-ui-components/ReactEmailVerificationDocs";
 
 const ProtectedRoute = ({ Component }) => {
   const { isAuthenticated, isVerified, loading } = useAuth();
@@ -173,6 +171,10 @@ function AppContent() {
             element={<ReactUserSignUpDocs />}
           />
           <Route
+            path="react-user-verify-docs"
+            element={<ReactEmailVerificationDocs />}
+          />
+          <Route
             path="react-user-profile-docs"
             element={<ReactUserProfileDocs />}
           />
@@ -204,31 +206,29 @@ function App() {
   return (
     <AuthProvider>
       <AppProvider>
-        <ThemeProvider>
-          <Router>
-            <AppContent />
-          </Router>
+        <Router>
+          <AppContent />
+        </Router>
 
-          <Toaster
-            position="top-right"
-            reverseOrder={false}
-            gutter={8}
-            toastOptions={{
-              className:
-                "rounded-xl text-xs font-medium shadow-md !bg-green-600 !text-white",
-              style: {
-                padding: "10px 14px",
-                backdropFilter: "blur(10px)",
-              },
-              duration: 3000,
-            }}
-            containerStyle={{
-              top: 20,
-              right: 20,
-              fontSize: 13,
-            }}
-          />
-        </ThemeProvider>
+        <Toaster
+          position="top-right"
+          reverseOrder={false}
+          gutter={8}
+          toastOptions={{
+            className:
+              "rounded-xl text-xs font-medium shadow-md !bg-green-600 !text-white",
+            style: {
+              padding: "10px 14px",
+              backdropFilter: "blur(10px)",
+            },
+            duration: 3000,
+          }}
+          containerStyle={{
+            top: 20,
+            right: 20,
+            fontSize: 13,
+          }}
+        />
       </AppProvider>
     </AuthProvider>
   );

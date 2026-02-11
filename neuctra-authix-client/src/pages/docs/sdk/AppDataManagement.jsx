@@ -1,22 +1,16 @@
-import React from "react";
 import CodeBlock from "../../../components/docs/CodeBlock";
 import {
   Database,
   Search,
   Eye,
-  Download,
-  Upload,
   Edit3,
-  Trash2,
-  Rocket,
-  Shield,
   CheckCircle,
   AlertCircle,
   Lock,
 } from "lucide-react";
 
 const AppDataManagement = () => {
-  const introText = `Authix allows your app to store global data for all users. You can add, retrieve, update, delete, and search app-level data such as settings, content, analytics, or any shared information.`;
+  const introText = `Neuctra Authix allows your app to store global data for all users. You can add, retrieve, update, delete, and search app-level data such as settings, content, analytics, or any shared information.`;
 
   // --- CODE EXAMPLES ---
   const getAppDataCode = `// Get all app data or filter by category
@@ -97,7 +91,9 @@ console.log("App data deleted successfully");`;
             <h3 className="text-lg font-semibold text-white">getAppData</h3>
             <CodeBlock code={getAppDataCode} language="typescript" />
 
-            <h3 className="text-lg font-semibold text-white">getSingleAppData</h3>
+            <h3 className="text-lg font-semibold text-white">
+              getSingleAppData
+            </h3>
             <CodeBlock code={getSingleAppDataCode} language="typescript" />
           </div>
         </section>
@@ -110,7 +106,9 @@ console.log("App data deleted successfully");`;
           </h2>
 
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">searchAppDataByKeys</h3>
+            <h3 className="text-lg font-semibold text-white">
+              searchAppDataByKeys
+            </h3>
             <CodeBlock code={searchAppDataByKeysCode} language="typescript" />
           </div>
         </section>
@@ -143,15 +141,25 @@ console.log("App data deleted successfully");`;
           <ul className="space-y-2 sm:space-y-3 text-sm sm:text-base text-gray-300">
             <li className="flex items-start gap-2 sm:gap-3">
               <Lock className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
-              <span>Include a <code className="bg-black/30 px-1 py-0.5 rounded text-xs">category</code> for all app data for easy filtering.</span>
+              <span>
+                Include a{" "}
+                <code className="bg-black/30 px-1 py-0.5 rounded text-xs">
+                  category
+                </code>{" "}
+                for all app data for easy filtering.
+              </span>
             </li>
             <li className="flex items-start gap-2 sm:gap-3">
               <Database className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
-              <span>Use consistent data structures for similar app data items.</span>
+              <span>
+                Use consistent data structures for similar app data items.
+              </span>
             </li>
             <li className="flex items-start gap-2 sm:gap-3">
               <CheckCircle className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
-              <span>Update timestamps when modifying items to track changes.</span>
+              <span>
+                Update timestamps when modifying items to track changes.
+              </span>
             </li>
           </ul>
         </section>

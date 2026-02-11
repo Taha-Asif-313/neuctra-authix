@@ -1,6 +1,3 @@
-// src/pages/docs/setup/ReactSetup.jsx
-
-import React from "react";
 import {
   Download,
   Shield,
@@ -58,9 +55,9 @@ import { NeuctraAuthix } from "@neuctra/authix";
 
 // Initialize using environment variables
 export const authix = new NeuctraAuthix({
-  baseUrl: import.meta.env.VITE_AUTHIX_BASE_URL,
-  apiKey: import.meta.env.VITE_AUTHIX_API_KEY,
-  appId: import.meta.env.VITE_AUTHIX_APP_ID
+  baseUrl: import.meta.env.VITE_NEUCTRA_AUTHIX_BASE_URL,
+  apiKey: import.meta.env.VITE_NEUCTRA_AUTHIX_API_KEY,
+  appId: import.meta.env.VITE_NEUCTRA_AUTHIX_APP_ID
 });`;
 
   const setupSteps = [
@@ -71,7 +68,7 @@ export const authix = new NeuctraAuthix({
     },
     {
       step: "2",
-      title: "Create Authix Instance",
+      title: "Create Neuctra Authix Instance",
       description: "Create neuctraAuthixInit.js and export authix",
     },
     {
@@ -82,7 +79,7 @@ export const authix = new NeuctraAuthix({
     {
       step: "4",
       title: "Start Building",
-      description: "Use Authix features anywhere in your app",
+      description: "Use Neuctra Authix features anywhere in your app",
     },
   ];
 
@@ -96,9 +93,9 @@ export const authix = new NeuctraAuthix({
         </h1>
 
         <p className="text-lg text-gray-400 max-w-4xl">
-          Install Authix, create an instance, and wrap your application with
-          AuthixProvider to enable authentication and user features across your
-          entire app.
+          Install Neuctra Authix, create an instance, and wrap your application
+          with AuthixProvider to enable authentication and user features across
+          your entire app.
         </p>
       </div>
 
@@ -161,12 +158,12 @@ export const authix = new NeuctraAuthix({
       <section className="space-y-6">
         <h2 className="flex items-center gap-2 text-2xl font-semibold text-white">
           <FileText className="w-6 h-6 text-purple-400" />
-          Create Authix Instance
+          Create Neuctra Authix Instance
         </h2>
 
         <p className="text-gray-400">
           Create a single initialization file where you configure and export
-          your Authix instance.
+          your Neuctra Authix instance.
         </p>
 
         <CodeBlock code={createInstanceCode} language="javascript" />
@@ -214,7 +211,7 @@ export const authix = new NeuctraAuthix({
         </h3>
 
         <ul className="text-sm text-gray-300 space-y-2">
-          <li>• Use Authix login & signup methods</li>
+          <li>• Use Neuctra Authix login & signup methods</li>
           <li>• Store and retrieve user data</li>
           <li>• Protect routes with authentication</li>
           <li>• Manage user sessions securely</li>

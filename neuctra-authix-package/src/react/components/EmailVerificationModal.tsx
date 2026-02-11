@@ -1,6 +1,18 @@
-import React from 'react';
-import { X, Mail, KeyRound, Loader2, Send, CheckCircle } from 'lucide-react';
-import { UserInfo } from '../../api/login.js';
+import React from "react";
+import { X, Mail, KeyRound, Loader2, Send, CheckCircle } from "lucide-react";
+
+interface UserInfo {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  avatarUrl?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  token?: string; // optional for API auth
+  [key: string]: any;
+}
 
 interface EmailVerificationModalProps {
   isOpen: boolean;
@@ -11,10 +23,12 @@ interface EmailVerificationModalProps {
     email: string;
     otp: string;
   };
-  setVerifyFormData: React.Dispatch<React.SetStateAction<{
-    email: string;
-    otp: string;
-  }>>;
+  setVerifyFormData: React.Dispatch<
+    React.SetStateAction<{
+      email: string;
+      otp: string;
+    }>
+  >;
   otpSent: boolean;
   verifying: boolean;
   user?: UserInfo | null;
@@ -48,19 +62,19 @@ export const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
 
   const handleClose = () => {
     onClose();
-    setVerifyFormData({ email: user?.email || "", otp: ""});
+    setVerifyFormData({ email: user?.email || "", otp: "" });
   };
 
   return (
-    <div 
-      className="modal-overlay" 
-      style={{ 
-        backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.5)' 
+    <div
+      className="modal-overlay"
+      style={{
+        backgroundColor: darkMode ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.5)",
       }}
     >
-      <div 
+      <div
         className="verify-email-modal"
-        style={{ 
+        style={{
           backgroundColor: colors.surface,
           border: `1px solid ${colors.border}`,
         }}
@@ -81,11 +95,20 @@ export const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
           <div className="form-group">
             <label style={{ color: colors.textSecondary }}>Email</label>
             <div className="input-container">
-              <Mail size={18} style={{ color: colors.textTertiary }} aria-hidden="true" />
+              <Mail
+                size={18}
+                style={{ color: colors.textTertiary }}
+                aria-hidden="true"
+              />
               <input
                 type="email"
                 value={verifyFormData.email}
-                onChange={(e) => setVerifyFormData(prev => ({ ...prev, email: e.target.value }))}
+                onChange={(e) =>
+                  setVerifyFormData((prev) => ({
+                    ...prev,
+                    email: e.target.value,
+                  }))
+                }
                 placeholder="Enter your email"
                 style={{
                   backgroundColor: colors.surfaceLight,
@@ -103,11 +126,20 @@ export const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
             <div className="form-group">
               <label style={{ color: colors.textSecondary }}>OTP</label>
               <div className="input-container">
-                <KeyRound size={18} style={{ color: colors.textTertiary }} aria-hidden="true" />
+                <KeyRound
+                  size={18}
+                  style={{ color: colors.textTertiary }}
+                  aria-hidden="true"
+                />
                 <input
                   type="text"
                   value={verifyFormData.otp}
-                  onChange={(e) => setVerifyFormData(prev => ({ ...prev, otp: e.target.value }))}
+                  onChange={(e) =>
+                    setVerifyFormData((prev) => ({
+                      ...prev,
+                      otp: e.target.value,
+                    }))
+                  }
                   placeholder="Enter OTP"
                   style={{
                     backgroundColor: colors.surfaceLight,
@@ -214,7 +246,7 @@ export const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
         }
 
         .close-btn:hover {
-          background-color: ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'};
+          background-color: ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"};
         }
 
         .verify-form {

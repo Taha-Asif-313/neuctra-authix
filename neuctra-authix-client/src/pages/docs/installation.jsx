@@ -1,13 +1,8 @@
-"use client";
-
-import React from "react";
 import CodeBlock from "../../components/docs/CodeBlock";
 import {
   Download,
   Package,
   Settings,
-  Key,
-  FileText,
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
@@ -125,7 +120,7 @@ print("Signup Response:", signup_res.json())`;
       type: "string",
       required: true,
       description:
-        "Official Authix API endpoint (https://server.authix.neuctra.com/api)",
+        "Official Neuctra Authix API endpoint (https://server.authix.neuctra.com/api)",
     },
     {
       field: "apiKey",
@@ -178,7 +173,7 @@ print("Signup Response:", signup_res.json())`;
         <div className="flex items-center gap-3">
           <Settings className="w-6 h-6 text-[#00c420]" />
           <h2 className="text-2xl font-semibold text-white">
-            Create Authix Instance
+            Create Neuctra Authix Instance
           </h2>
         </div>
 
@@ -198,8 +193,6 @@ print("Signup Response:", signup_res.json())`;
 
         <CodeBlock code={usageExampleCode} language="javascript" />
       </section>
-
- 
 
       {/* Configuration Table */}
       <section className="space-y-6">
@@ -257,7 +250,8 @@ print("Signup Response:", signup_res.json())`;
           </h4>
           <p className="text-gray-400 text-sm">
             You can now integrate login, signup, user data management, and
-            session handling in your application using the Authix instance.
+            session handling in your application using the Neuctra Authix
+            instance.
           </p>
         </div>
       </section>

@@ -1,5 +1,3 @@
-// src/pages/docs/Authentication.jsx
-import React from "react";
 import CodeBlock from "../../../components/docs/CodeBlock";
 import {
   Shield,
@@ -12,14 +10,13 @@ import {
   Trash2,
   Mail,
   CheckCircle,
-  AlertCircle,
 } from "lucide-react";
 
 const AuthUserManagement = () => {
   const setupCode = `import { NeuctraAuthix } from "@neuctra/authix";
 
 const authix = new NeuctraAuthix({
-  baseUrl: "https://authix.neuctra.com/api",
+  baseUrl: "https://server.authix.neuctra.com/api",
   apiKey: "your_api_key_here",
   appId: "your_app_id_here"
 });`;
@@ -104,15 +101,14 @@ if (result.exists) {
 
   return (
     <div className="space-y-8 text-gray-300">
-
       <h1 className="flex items-center gap-3 text-3xl font-bold text-white">
         <Shield className="w-7 h-7 text-blue-400" />
         Authentication & Security
       </h1>
 
       <p className="text-gray-400 max-w-3xl">
-        Authix provides secure, cookie-based authentication with built-in session handling.
-        No manual token storage required.
+        Neuctra Authix provides secure, cookie-based authentication with
+        built-in session handling. No manual token storage required.
       </p>
 
       {/* Setup */}
@@ -144,9 +140,7 @@ if (result.exists) {
 
       {/* Logout */}
       <section>
-        <h2 className="text-2xl font-semibold text-white mb-3">
-          Logout User
-        </h2>
+        <h2 className="text-2xl font-semibold text-white mb-3">Logout User</h2>
         <CodeBlock code={logoutCode} language="typescript" />
       </section>
 
@@ -169,9 +163,7 @@ if (result.exists) {
 
       {/* Update */}
       <section>
-        <h2 className="text-2xl font-semibold text-white mb-3">
-          Update User
-        </h2>
+        <h2 className="text-2xl font-semibold text-white mb-3">Update User</h2>
         <CodeBlock code={updateCode} language="typescript" />
       </section>
 
@@ -226,12 +218,12 @@ if (result.exists) {
           Security Model
         </h3>
         <p className="text-sm text-gray-300">
-          Authix uses secure HTTP-only cookies for authentication.
-          Sessions are automatically handled via <code>withCredentials: true</code>.
-          No manual token management required.
+          Neuctra Authix uses secure HTTP-only cookies for authentication.
+          Sessions are automatically handled via{" "}
+          <code>withCredentials: true</code>. No manual token management
+          required.
         </p>
       </section>
-
     </div>
   );
 };

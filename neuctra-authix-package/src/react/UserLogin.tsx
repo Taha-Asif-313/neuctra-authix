@@ -17,7 +17,6 @@ interface AuthFormProps {
   logoLinkUrl?: string;
   title?: string;
   subtitle?: string;
-  footerText?: string;
   primaryColor?: string;
   gradient?: string;
   darkMode?: boolean;
@@ -31,7 +30,6 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
   logoLinkUrl,
   title = "Sign In to Your Account",
   subtitle = "Welcome back! Please enter your details",
-  footerText = "Secure authentication powered by Neuctra Authix",
   primaryColor = "#00C214",
   gradient = "linear-gradient(135deg, #22c55e, #00C214)",
   darkMode = true,

@@ -1,65 +1,45 @@
 import CodeBlock from "../../../components/docs/CodeBlock";
 import {
-  UserPlus,
-  Palette,
-  Settings,
-  Eye,
-  User,
-  Image,
-  CheckCircle,
-  Smartphone,
-  Zap,
+  Mail,
+  Key,
   Shield,
-  Users,
+  CheckCircle,
+  Zap,
+  Settings,
+  Palette,
+  Verified,
+  User,
 } from "lucide-react";
 
-const ReactUserSignUpDocs = () => {
-  const basicUsageCode = `import { ReactUserSignUp } from "@neuctra/authix";
+const ReactEmailVerificationDocs = () => {
+  const basicUsageCode = `import { ReactEmailVerification } from "@neuctra/authix";
 
-function SignupPage() {
+function VerifyPage({ user }) {
   return (
-    <ReactUserSignUp
-      onSuccess={(user) => {
-        console.log("Signup successful:", user);
-      }}
-      onError={(error) => {
-        console.error("Signup failed:", error);
+    <ReactEmailVerification
+      user={user}
+      onVerify={(updatedUser) => {
+        console.log("Email verified:", updatedUser);
       }}
     />
   );
 }`;
 
-  const fullPropsCode = `import { ReactUserSignUp } from "@neuctra/authix";
+  const fullPropsCode = `import { ReactEmailVerification } from "@neuctra/authix";
 
-function CustomSignupPage() {
+function CustomVerifyPage({ user }) {
   return (
-    <ReactUserSignUp
-      // Branding
-      logoUrl="/logo.png"
-      logoLinkUrl="/"
-      title="Join Our Platform"
-      subtitle="Create your account to get started"
-
-      // Styling
-      primaryColor="#00C214"
-      gradient="linear-gradient(135deg, #22c55e, #00C214)"
+    <ReactEmailVerification
+      user={user}
+      
+      // Theme
       darkMode={true}
+      primaryColor="#00C212"
 
-      // Features
-      showAvatar={true}
-      roles={["user", "admin"]}
-      showRoleSelector={true}
-
-      // Navigation
-      loginUrl="/login"
-
-      onSuccess={(user) => {
-        console.log("User created:", user);
+      // Callback
+      onVerify={(updatedUser) => {
+        console.log("Verified user:", updatedUser);
         window.location.href = "/dashboard";
-      }}
-
-      onError={(error) => {
-        console.error("Signup error:", error);
       }}
     />
   );
@@ -67,40 +47,10 @@ function CustomSignupPage() {
 
   const propsTable = [
     {
-      name: "logoUrl",
-      type: "string",
+      name: "user",
+      type: "UserInfo | null",
       default: "undefined",
-      description: "URL to your logo image",
-    },
-    {
-      name: "logoLinkUrl",
-      type: "string",
-      default: '"/"',
-      description: "URL where logo redirects when clicked",
-    },
-    {
-      name: "title",
-      type: "string",
-      default: '"Create Your Account"',
-      description: "Main heading text",
-    },
-    {
-      name: "subtitle",
-      type: "string",
-      default: '"Join our platform today"',
-      description: "Subtitle below heading",
-    },
-    {
-      name: "primaryColor",
-      type: "string",
-      default: '"#00C214"',
-      description: "Primary brand color",
-    },
-    {
-      name: "gradient",
-      type: "string",
-      default: '"linear-gradient(135deg, #22c55e, #00C214)"',
-      description: "Submit button gradient",
+      description: "User object containing id, name, and email (required)",
     },
     {
       name: "darkMode",
@@ -109,88 +59,65 @@ function CustomSignupPage() {
       description: "Enable dark or light theme",
     },
     {
-      name: "showAvatar",
-      type: "boolean",
-      default: "false",
-      description: "Enable avatar URL field with preview",
-    },
-    {
-      name: "roles",
-      type: "string[]",
-      default: "[]",
-      description: "Available signup roles (e.g. ['user','admin'])",
-    },
-    {
-      name: "showRoleSelector",
-      type: "boolean",
-      default: "false",
-      description: "Enable animated role toggle (requires exactly 2 roles)",
-    },
-    {
-      name: "loginUrl",
+      name: "primaryColor",
       type: "string",
-      default: "undefined",
-      description: "Login redirect URL",
+      default: '"#00C212"',
+      description: "Primary brand color used for buttons & accents",
     },
     {
-      name: "onSuccess",
-      type: "(user: any) => void",
+      name: "onVerify",
+      type: "(updatedUser: UserInfo) => void",
       default: "undefined",
-      description: "Callback on successful signup",
-    },
-    {
-      name: "onError",
-      type: "(error: any) => void",
-      default: "undefined",
-      description: "Callback on signup failure",
+      description: "Callback triggered after successful verification",
     },
   ];
 
   const features = [
     {
-      icon: <User className="w-5 h-5" />,
-      title: "User Registration",
-      description: "Connected to authix.signupUser() backend",
+      icon: <Mail className="w-5 h-5" />,
+      title: "OTP Email Verification",
+      description: "Sends secure verification code to user email",
     },
     {
-      icon: <Users className="w-5 h-5" />,
-      title: "Role Selection",
-      description: "Animated role toggle for multi-role apps",
-    },
-    {
-      icon: <Image className="w-5 h-5" />,
-      title: "Avatar Support",
-      description: "Optional avatar URL with live preview",
-    },
-    {
-      icon: <Eye className="w-5 h-5" />,
-      title: "Password Visibility",
-      description: "Toggle secure password visibility",
+      icon: <Key className="w-5 h-5" />,
+      title: "OTP Validation",
+      description: "Verifies email using authix.verifyEmail()",
     },
     {
       icon: <Shield className="w-5 h-5" />,
-      title: "Form Validation",
-      description: "Real-time validation before submission",
+      title: "Secure Backend Integration",
+      description: "Fully connected to Authix verification APIs",
     },
     {
-      icon: <Smartphone className="w-5 h-5" />,
-      title: "Responsive Design",
-      description: "Optimized for all devices",
+      icon: <User className="w-5 h-5" />,
+      title: "User-Aware Component",
+      description: "Requires user.id and user.email for verification",
+    },
+    {
+      icon: <Palette className="w-5 h-5" />,
+      title: "Custom Branding",
+      description: "Supports custom primary color & dark mode",
+    },
+    {
+      icon: <Verified className="w-5 h-5" />,
+      title: "Auto Success Handling",
+      description: "Triggers onVerify callback after confirmation",
     },
   ];
 
   return (
     <div className="space-y-8 text-gray-300">
+      {/* Header */}
       <div className="space-y-4">
         <h1 className="flex items-center gap-3 text-3xl font-bold text-white">
-          <UserPlus className="w-8 h-8 text-green-400" />
-          ReactUserSignUp Component
+          <Verified className="w-8 h-8 text-green-400" />
+          ReactEmailVerification Component
         </h1>
 
         <p className="text-lg text-gray-400 max-w-3xl">
-          A production-ready signup component powered by Neuctra Authix. Handles
-          real user registration, validation, optional avatar, and role
-          selection — fully connected to your backend.
+          A secure, production-ready email verification component powered by
+          Neuctra Authix. Sends OTP to user email and verifies it instantly
+          using Authix backend APIs.
         </p>
       </div>
 
@@ -261,59 +188,56 @@ function CustomSignupPage() {
         <CodeBlock code={fullPropsCode} language="jsx" />
       </section>
 
-      {/* Role Selector Section */}
+      {/* Verification Flow */}
       <section className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-6">
         <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-3 text-lg">
-          <Users className="w-5 h-5" />
-          Role Selector Feature
+          <Mail className="w-5 h-5" />
+          Email Verification Flow
         </h3>
 
         <ul className="space-y-2 text-sm text-gray-300">
           <li className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-green-400" />
-            Supports exactly 2 roles
+            Step 1: User clicks "Send OTP"
           </li>
           <li className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-green-400" />
-            Animated sliding toggle UI
+            Step 2: Authix sends OTP to user email
           </li>
           <li className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-green-400" />
-            Selected role sent to Authix backend
+            Step 3: User enters OTP
+          </li>
+          <li className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-green-400" />
+            Step 4: Email verified via authix.verifyEmail()
           </li>
         </ul>
-
-        <div className="mt-4">
-          <CodeBlock
-            code={`<ReactUserSignUp roles={["user","admin"]} showRoleSelector={true} />`}
-            language="jsx"
-          />
-        </div>
       </section>
 
-      {/* Ready Section */}
+      {/* Production Ready */}
       <section className="bg-green-500/10 border border-green-500/20 rounded-xl p-6">
         <h3 className="flex items-center gap-2 text-green-400 font-semibold mb-3 text-lg">
           <CheckCircle className="w-5 h-5" />
-          Ready to Use
+          Production Ready
         </h3>
 
         <ul className="space-y-2 text-sm text-gray-300">
           <li className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-green-400" />
-            Registers users securely via authix.signupUser()
+            Secure OTP verification
           </li>
           <li className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-green-400" />
-            Real-time validation before submission
+            Built-in loading & error states
           </li>
           <li className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-green-400" />
-            Optional avatar preview support
+            Fully customizable theme
           </li>
           <li className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-green-400" />
-            Production-ready error & loading states
+            Clean, responsive UI
           </li>
         </ul>
       </section>
@@ -321,4 +245,4 @@ function CustomSignupPage() {
   );
 };
 
-export default ReactUserSignUpDocs;
+export default ReactEmailVerificationDocs;
