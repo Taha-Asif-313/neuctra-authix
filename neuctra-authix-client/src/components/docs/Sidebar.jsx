@@ -163,7 +163,7 @@ const Sidebar = () => {
                   <h2 className="text-md font-bold text-white">
                     Neuctra Authix Docs
                   </h2>
-                  <p className="text-sm text-zinc-400">v2.1.0</p>
+                  <p className="text-sm text-zinc-400">v1.2</p>
                 </div>
               </div>
               <button
