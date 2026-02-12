@@ -60,6 +60,108 @@ export const authix = new NeuctraAuthix({
   appId: import.meta.env.VITE_NEUCTRA_AUTHIX_APP_ID
 });`;
 
+  const authContextCode = `"use client";
+
+import { createContext, useContext, useEffect, useState } from "react";
+import { authix } from "@/app/utils/authixInit"; // adjust path
+
+const AuthContext = createContext(null);
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Initialize user on app load
+  useEffect(() => {
+    const initUser = async () => {
+      try {
+        setLoading(true);
+
+        // 1️⃣ Check session
+        const sessionRes = await authix.checkUserSession();
+
+        if (!sessionRes?.user?.id) {
+          throw new Error("No active session");
+        }
+
+        const userId = sessionRes.user.id;
+
+        // 2️⃣ Fetch full profile
+        const profileRes = await authix.getUserProfile({ userId });
+
+        if (!profileRes?.user) {
+          throw new Error("User profile not found");
+        }
+
+        // 3️⃣ Save user
+        setUser(profileRes.user);
+      } catch (err) {
+        console.warn("Auth init failed:", err);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initUser();
+  }, []);
+
+  // Login handler
+  const login = (userData) => {
+    if (!userData) return;
+    setUser(userData);
+  };
+
+  // Logout handler
+  const logout = async () => {
+    try {
+      await authix.logoutUser();
+    } catch (e) {
+      console.warn("Logout error:", e);
+    }
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoggedIn: !!user,
+        login,
+        logout,
+        loading,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+  return context;
+};`;
+
+  const mainWithAuthProviderCode = `// main.jsx or index.jsx
+
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { AuthixProvider } from "@neuctra/authix";
+import { AuthProvider } from "./context/AuthContext"; // adjust path
+import App from "./App";
+import { authix } from "./neuctraAuthixInit";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <AuthixProvider authix={authix}>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </AuthixProvider>
+);`;
+
   const setupSteps = [
     {
       step: "1",
@@ -200,6 +302,75 @@ export const authix = new NeuctraAuthix({
             <code> AuthixProvider </code>
             so authentication and user data features work throughout your app.
           </p>
+        </div>
+      </section>
+
+      {/* Auth Context Setup */}
+      <section className="space-y-6">
+        <h2 className="flex items-center gap-2 text-2xl font-semibold text-white">
+          <Shield className="w-6 h-6 text-indigo-400" />
+          Create Auth Context (Recommended)
+        </h2>
+
+        <p className="text-gray-400">
+          For production apps, it’s best practice to create a centralized
+          authentication context. This keeps user state, roles, login, and
+          logout logic in one place.
+        </p>
+
+        <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4">
+          <p className="text-sm text-gray-300">
+            💡 If you're using <strong>Next.js App Router</strong>, add
+            <code className="mx-1">"use client"</code> at the top of this file.
+          </p>
+        </div>
+
+        <CodeBlock code={authContextCode} language="javascript" />
+
+        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
+          <h4 className="text-yellow-400 font-semibold mb-2">
+            Why This Is Important
+          </h4>
+          <ul className="text-sm text-gray-300 space-y-1">
+            <li>• Single source of truth for user state</li>
+            <li>• Automatically restores session on refresh</li>
+            <li>• Centralized role management (seller/buyer/admin)</li>
+            <li>
+              • Easy access via <code>useAuth()</code> hook
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      {/* Wrap AuthProvider in Main File */}
+      <section className="space-y-6">
+        <h2 className="flex items-center gap-2 text-2xl font-semibold text-white">
+          <Shield className="w-6 h-6 text-blue-400" />
+          Wrap AuthProvider in Main File
+        </h2>
+
+        <p className="text-gray-400">
+          After creating your <code>AuthProvider</code>, wrap your application
+          with it inside <code>main.jsx</code> or <code>index.jsx</code>.
+        </p>
+
+        <CodeBlock code={mainWithAuthProviderCode} language="jsx" />
+
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+          <h4 className="text-blue-400 font-semibold mb-2">
+            Provider Order Matters
+          </h4>
+          <ul className="text-sm text-gray-300 space-y-1">
+            <li>
+              • <code>AuthixProvider</code> must wrap everything
+            </li>
+            <li>
+              • <code>AuthProvider</code> should be inside it
+            </li>
+            <li>
+              • Your <code>App</code> goes inside both providers
+            </li>
+          </ul>
         </div>
       </section>
 
