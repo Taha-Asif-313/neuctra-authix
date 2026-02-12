@@ -151,7 +151,7 @@ export class NeuctraAuthix {
       if (response && response.success) {
         if (typeof document !== "undefined") {
           const expires = new Date(0).toUTCString(); // Always a past date
-          document.cookie = `a_s_b=; path=/; expires=${expires}; SameSite=Lax`;
+          document.cookie = `a_s_b=; path=/; Max-Age=${expires}; SameSite=Lax`;
           // Optional: add Secure if using HTTPS
           // if (window.location.protocol === "https:") document.cookie += "; Secure";
         }
