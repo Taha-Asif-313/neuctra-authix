@@ -368,7 +368,7 @@ export const ReactUserProfile: React.FC<UserProfileProps> = ({
     };
 
     initUser();
-  }, [user]);
+  }, []);
 
   // Set email in verification form when user is available
   useEffect(() => {
