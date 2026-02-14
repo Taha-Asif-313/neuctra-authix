@@ -134,7 +134,7 @@ export class NeuctraAuthix {
 
   /**
    * Logout a user
-   * @desc Calls the backend logout endpoint, removes frontend cookie if server succeeds, and returns success
+   * @desc Calls backend logout, clears cookie safely, reloads page (Next.js safe)
    */
   async logoutUser(): Promise<{ success: boolean }> {
     try {
@@ -142,26 +142,32 @@ export class NeuctraAuthix {
       const response = await this.request(
         "POST",
         "/users/logout",
-        {}, // no body needed
         {},
-        true, // include credentials (cookies)
+        {},
+        true, // include credentials
       );
 
-      // 2️⃣ Only remove frontend cookie if backend confirms success
-      if (response && response.success) {
-        if (typeof document !== "undefined") {
-          const expires = new Date(0).toUTCString(); // Always a past date
-          document.cookie = `a_s_b=; path=/; Max-Age=${expires}; SameSite=Lax`;
-          // Optional: add Secure if using HTTPS
-          // if (window.location.protocol === "https:") document.cookie += "; Secure";
+      if (response?.success) {
+        // 2️⃣ Only run on client (hydration safe)
+        if (typeof window !== "undefined") {
+          // Clear frontend cookie (if exists)
+          document.cookie = "a_s_b=; path=/; Max-Age=0; SameSite=Lax";
+
+          // Optional: Secure flag for HTTPS
+          if (window.location.protocol === "https:") {
+            document.cookie = "a_s_b=; path=/; Max-Age=0; SameSite=Lax; Secure";
+          }
+
+          // 3️⃣ Force full reload (best for auth reset)
+          window.location.reload();
         }
+
         return { success: true };
       }
 
-      // If server did not return success
       return { success: false };
     } catch (err: any) {
-      throw new Error(err.message || "Logout failed due to an unknown error");
+      throw new Error(err?.message || "Logout failed due to an unknown error");
     }
   }
 
