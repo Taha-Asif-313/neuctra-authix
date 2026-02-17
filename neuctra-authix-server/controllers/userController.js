@@ -226,7 +226,7 @@ export const loginUser = async (req, res) => {
       httpOnly: true, // JS cannot access the cookie
       secure: isProduction, // true in prod (HTTPS), false in dev
       sameSite: isProduction ? "none" : "lax", // none for prod cross-origin, lax for dev/local
-      maxAge: 1 * 60 * 60 * 1000, // ✅ 1 hour in milliseconds
+      maxAge: 24 * 60 * 60 * 1000, // ✅ 1 day in milliseconds
       path: "/", // cookie valid for entire site
     });
 

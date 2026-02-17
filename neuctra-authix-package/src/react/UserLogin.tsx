@@ -89,20 +89,24 @@ export const ReactUserLogin: React.FC<AuthFormProps> = ({
         throw new Error(response.message || "Login failed");
       }
 
-      // ✅ Set frontend cookie using document.cookie (safe for Next.js)
+      // ✅ Set frontend cookie
       if (typeof document !== "undefined") {
         const cookieName = "a_s_b";
         const cookieValue = "true";
         const expires = new Date();
-        expires.setTime(expires.getTime() + 1 * 60 * 60 * 1000); // 1 hour expiry
+        expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000); // 1 day
 
         document.cookie = `${cookieName}=${cookieValue}; path=/; expires=${expires.toUTCString()}; SameSite=Lax`;
-        // Optional: Add Secure if on HTTPS
-        // if (window.location.protocol === "https:") document.cookie += "; Secure";
       }
 
       setMessage({ type: "success", text: `Welcome ${user.name}` });
+
       onSuccess?.(user);
+
+      // ✅ Reload page safely
+      if (typeof window !== "undefined") {
+        window.location.reload();
+      }
     } catch (err: any) {
       const errorMsg = err.message || "Login failed";
       setMessage({ type: "error", text: errorMsg });
