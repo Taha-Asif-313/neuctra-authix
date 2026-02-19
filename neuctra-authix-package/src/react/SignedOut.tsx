@@ -1,38 +1,65 @@
 "use client";
 
 import React, { ReactNode, useEffect, useState } from "react";
+import { useAuthix } from "./Provider/AuthixProvider.js";
 
 interface ReactSignedOutProps {
   children: ReactNode;
   fallback?: ReactNode | (() => ReactNode);
 }
 
+type AuthState = "loading" | "authenticated" | "unauthenticated";
+
 export const ReactSignedOut: React.FC<ReactSignedOutProps> = ({
   children,
   fallback = null,
 }) => {
-  const [mounted, setMounted] = useState(false);
-  const [signedOut, setSignedOut] = useState<boolean | null>(null);
+  const authix = useAuthix();
+  const [authState, setAuthState] = useState<AuthState>("loading");
 
   useEffect(() => {
-    setMounted(true);
+    const validate = async () => {
+      const cookies = document.cookie.split(";").map((c) => c.trim());
+      const authFlag = cookies.find((c) => c.startsWith("a_s_b="));
+      const hasCookie = authFlag?.split("=")[1] === "true";
 
-    // Read JS-accessible cookie
-    const cookies = document.cookie.split(";").map((c) => c.trim());
+      // 🔹 No cookie → definitely signed out
+      if (!hasCookie) {
+        setAuthState("unauthenticated");
+        return;
+      }
 
-    const authFlag = cookies.find((c) => c.startsWith("a_s_b="));
+      try {
+        const res = await authix.checkUserSession();
 
-    // signed out if flag is missing or not "true"
-    setSignedOut(authFlag?.split("=")[1] !== "true");
-  }, []);
+        if (res?.user?.id) {
+          setAuthState("authenticated");
+        } else {
+          document.cookie =
+            "a_s_b=false; path=/; max-age=0; SameSite=Lax";
+          setAuthState("unauthenticated");
+        }
+      } catch (err) {
+        console.error("Session validation failed:", err);
 
-  if (!mounted) return null; // prevent hydration mismatch
+        document.cookie =
+          "a_s_b=false; path=/; max-age=0; SameSite=Lax";
+        setAuthState("unauthenticated");
+      }
+    };
+
+    validate();
+  }, [authix]);
 
   const renderNode = (node?: ReactNode | (() => ReactNode)) =>
     typeof node === "function" ? (node as () => ReactNode)() : node;
 
-  if (signedOut === null) return renderNode(fallback) ?? null;
-  if (!signedOut) return renderNode(fallback);
+  if (authState === "loading") return null;
 
+  // If authenticated → show fallback (usually null or redirect)
+  if (authState === "authenticated")
+    return renderNode(fallback) ?? null;
+
+  // If unauthenticated → show children
   return <>{children}</>;
 };
