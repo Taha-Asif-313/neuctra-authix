@@ -19,7 +19,6 @@ import LogoutModal from "./LogoutModal";
 const navItems = [
   { name: "Overview", path: "/dashboard", icon: LayoutDashboard },
   { name: "Applications", path: "/dashboard/apps", icon: Grid3X3 },
-  { name: "Reports", path: "/dashboard/admin-report", icon: BarChart3 },
   {
     name: "Settings",
     icon: Settings,

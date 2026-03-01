@@ -11,25 +11,14 @@ import {
   Calendar,
   Trash2,
   Save,
-  Copy,
   Edit,
   ShieldCheck,
   Hash,
   Box,
   Users,
   Camera,
-  Upload,
-  Download,
-  Eye,
-  EyeOff,
-  CheckCircle,
   XCircle,
   RefreshCw,
-  X,
-  Link,
-  Image,
-  Loader,
-  Lock,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DeleteAdminModal from "../../components/dashboard/ProfilePage/DeleteAdminModal";
@@ -59,10 +48,7 @@ const ProfilePage = () => {
         const { data } = await axios.get(
           `${import.meta.env.VITE_SERVER_URL}/api/admin/profile`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "x-api-key": admin?.apiKey,
-            },
+            withCredentials: true,
           },
         );
 
@@ -89,7 +75,7 @@ const ProfilePage = () => {
       const { data } = await axios.put(
         `${import.meta.env.VITE_SERVER_URL}/api/admin/edit/${admin.id}`,
         formData,
-        { headers: { Authorization: `Bearer ${token}` } },
+        { withCredentials: true },
       );
       if (data.success) {
         toast.success("Profile updated successfully");
@@ -98,10 +84,7 @@ const ProfilePage = () => {
         const profileResponse = await axios.get(
           `${import.meta.env.VITE_SERVER_URL}/api/admin/profile`,
           {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-              "x-api-key": admin?.apiKey,
-            },
+            withCredentials: true,
           },
         );
         if (profileResponse.data.success) updateProfile(data.data);
@@ -123,7 +106,7 @@ const ProfilePage = () => {
       const { data } = await axios.put(
         `${import.meta.env.VITE_SERVER_URL}/api/admin/edit/${admin.id}`,
         updateData,
-        { headers: { Authorization: `Bearer ${token}` } },
+        { withCredentials: true },
       );
 
       if (data.success) {
@@ -142,10 +125,7 @@ const ProfilePage = () => {
     // Reload original data
     axios
       .get(`${import.meta.env.VITE_SERVER_URL}/api/admin/profile`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "x-api-key": admin?.apiKey,
-        },
+        withCredentials: true,
       })
       .then(({ data }) => {
         if (data.success) setFormData(data.data);

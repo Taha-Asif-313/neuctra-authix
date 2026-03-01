@@ -36,8 +36,8 @@ const DashboardPage = () => {
   const [categories, setCategories] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
-console.log(token);
-console.log(admin);
+  console.log(token);
+  console.log(admin);
 
   // Calculate active filters count
   useEffect(() => {
@@ -54,9 +54,7 @@ console.log(admin);
         const res = await axios.get(
           `${import.meta.env.VITE_SERVER_URL}/api/apps/allapps`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            withCredentials: true,
           },
         );
 

@@ -10,6 +10,8 @@ import {
   MoreVertical,
   Copy,
   Search,
+  Eye,
+  Database,
 } from "lucide-react";
 import AddNewUser from "../../components/dashboard/AddNewUser";
 import EditApp from "../../components/dashboard/EditApp";
@@ -21,6 +23,7 @@ import DeleteUserModal from "../../components/dashboard/DeleteUserModal";
 import InputField from "../../components/utils/InputField";
 import CustomLoader from "../../components/utils/CustomLoader";
 import SetupGuides from "../../components/guide/SetupGuides";
+import AppDataModal from "../../components/dashboard/modals/AppDataModal";
 
 const AppDetail = () => {
   const { id } = useParams();
@@ -28,6 +31,7 @@ const AppDetail = () => {
   const token = localStorage.getItem("token");
   const [searchQuery, setSearchQuery] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [appDataModalOpen, setAppDataModalOpen] = useState(false);
   const [deleteAppModalOpen, setDeleteAppModalOpen] = useState(false);
   const [editAppModalOpen, setEditAppModalOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -49,7 +53,7 @@ const AppDetail = () => {
       try {
         const { data } = await axios.get(
           `${import.meta.env.VITE_SERVER_URL}/api/apps/${id}`,
-          { headers: { Authorization: `Bearer ${token}` } },
+          { withCredentials: true },
         );
 
         if (data.success) {
@@ -192,20 +196,31 @@ const AppDetail = () => {
             {dropdownOpen && (
               <div
                 className="
-        absolute right-0 mt-2 
-        w-44 
-        bg-zinc-900 border border-zinc-800 
-        rounded-xl shadow-xl 
-        overflow-hidden z-50 
-        animate-fadeIn
-      "
+      absolute right-0 mt-2 
+      w-44 
+      bg-zinc-900 border border-zinc-800 
+      rounded-xl shadow-xl 
+      overflow-hidden z-50 
+      animate-fadeIn
+    "
               >
+                <button
+                  onClick={() => {
+                    setAppDataModalOpen(true);
+                    setDropdownOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2 px-4 py-3 text-sm text-purple-400 hover:bg-zinc-800 transition"
+                >
+                  <Database className="w-4 h-4" /> View Data
+                </button>
+
                 <button
                   onClick={() => setEditAppModalOpen(true)}
                   className="w-full flex items-center gap-2 px-4 py-3 text-sm text-blue-400 hover:bg-zinc-800 transition"
                 >
                   <Edit className="w-4 h-4" /> Edit
                 </button>
+
                 <button
                   onClick={() => setDeleteAppModalOpen(true)}
                   className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-zinc-800 transition"
@@ -296,6 +311,14 @@ const AppDetail = () => {
           </div>
         )}
       </div>
+
+      {appDataModalOpen && (
+        <AppDataModal
+          isOpen={appDataModalOpen}
+          onClose={() => setAppDataModalOpen(false)}
+          app={app}
+        />
+      )}
 
       {/* Add User Modal */}
       {addModalOpen && (

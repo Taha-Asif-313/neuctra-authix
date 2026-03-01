@@ -88,7 +88,7 @@ const EditApp = ({ appData, appId, onClose, onSave }) => {
           techStack: formData.techStack,
         },
         {
-          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
         },
       );
 

@@ -15,10 +15,7 @@ const DeleteAppModal = ({ app, onCancel, onConfirm }) => {
       const { data } = await axios.delete(
         `${import.meta.env.VITE_SERVER_URL}/api/apps/delete/${app.id}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "x-api-key": admin.apiKey,
-          },
+        withCredentials: true,
         }
       );
 

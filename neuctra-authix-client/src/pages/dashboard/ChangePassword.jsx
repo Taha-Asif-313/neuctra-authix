@@ -57,7 +57,7 @@ const ChangePassword = () => {
           newPassword: formData.newPassword,
         },
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        withCredentials: true,
         }
       );
 

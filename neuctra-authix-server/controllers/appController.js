@@ -289,6 +289,81 @@ export const deleteApp = async (req, res) => {
   }
 };
 
+
+/* =====================================================
+   ✏️ UPDATE WHOLE APP DATA (Store JSON in appData Array)
+   @route   PUT /api/apps/edit/:id
+   @access  Private (Admin only)
+   ===================================================== */
+export const updateAppData = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // 🔎 Check ownership
+    const app = await prisma.app.findFirst({
+      where: { id, adminId: req.admin.id },
+    });
+
+    if (!app) {
+      return res.status(404).json({
+        success: false,
+        message: "App not found",
+      });
+    }
+
+    let bodyData = req.body;
+
+    // ✅ Check if body is valid JSON
+    if (!bodyData || typeof bodyData !== "object") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid JSON data",
+      });
+    }
+
+    // 🧠 Ensure it's stored as array
+    let updatedAppData = [];
+
+    // If existing data exists, preserve it
+    if (Array.isArray(app.appData)) {
+      updatedAppData = [...app.appData];
+    }
+
+    // Push new body data into array
+    updatedAppData.push({
+      ...bodyData,
+      updatedAt: new Date(),
+    });
+
+    // 🔄 Update app
+    const updatedApp = await prisma.app.update({
+      where: { id },
+      data: {
+        appData: updatedAppData,
+      },
+      select: {
+        id: true,
+        applicationName: true,
+        appData: true,
+        updatedAt: true,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "App data updated successfully",
+      data: updatedApp,
+    });
+  } catch (err) {
+    console.error("UpdateApp Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+};
+
 /* =====================================================
    🔄 TOGGLE APP STATUS
    @route   PATCH /api/apps/status/:id

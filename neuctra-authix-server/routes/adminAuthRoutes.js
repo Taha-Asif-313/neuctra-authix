@@ -8,8 +8,6 @@ import {
   generateNewApiKey,
   revokeApiKey,
   getApiKey,
-  generateAdminReport,
-  getAdminReport,
   sendVerifyOTP,
   verifyEmail,
   forgotPassword,
@@ -85,15 +83,5 @@ router.post("/api-key/revoke", authMiddleware, revokeApiKey);
 
 // 🔹 Get the current active API key for the admin (protected)
 router.get("/api-key", authMiddleware, getApiKey);
-
-/* ===================================================
-   📊 REPORTS
-   =================================================== */
-
-// 🔹 Download a detailed admin report (e.g., CSV or PDF) (protected)
-router.get("/download-report", authMiddleware, generateAdminReport);
-
-// 🔹 View admin report in JSON format (protected)
-router.get("/report", authMiddleware, getAdminReport);
 
 export default router;

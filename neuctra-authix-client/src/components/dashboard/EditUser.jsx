@@ -41,9 +41,7 @@ const EditUser = ({ userData, userId, appId, onClose, onSave }) => {
         const res = await axios.get(
           `${import.meta.env.VITE_SERVER_URL}/api/apps/${appId}/status`,
           {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
+          withCredentials: true,
           },
         );
 
@@ -109,7 +107,7 @@ const EditUser = ({ userData, userId, appId, onClose, onSave }) => {
         `${import.meta.env.VITE_SERVER_URL}/api/users/update/${idToUpdate}`,
         { ...formData, appId },
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        withCredentials: true,
         },
       );
 

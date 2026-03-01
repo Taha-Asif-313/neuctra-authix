@@ -16,10 +16,7 @@ const DeleteUserModal = ({ user, appId, onClose, onConfirm }) => {
         `${import.meta.env.VITE_SERVER_URL}/api/users/delete/${user.id}`,
         {
           data: { appId }, // 👈 send appId in request body
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "x-api-key": admin.apiKey,
-          },
+          withCredentials: true,
         }
       );
 

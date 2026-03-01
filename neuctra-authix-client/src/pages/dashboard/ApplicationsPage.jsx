@@ -119,9 +119,7 @@ const ApplicationsPage = () => {
         const res = await axios.get(
           `${import.meta.env.VITE_SERVER_URL}/api/apps/allapps`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+           withCredentials: true,
           },
         );
 

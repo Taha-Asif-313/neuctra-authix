@@ -40,9 +40,7 @@ const AddNewUser = ({ onClose, onSave, appId }) => {
         const res = await axios.get(
           `${import.meta.env.VITE_SERVER_URL}/api/apps/${appId}/status`,
           {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
+           withCredentials: true,
           }
         );
         console.log(res.data.data);
@@ -87,7 +85,7 @@ const AddNewUser = ({ onClose, onSave, appId }) => {
         `${import.meta.env.VITE_SERVER_URL}/api/users/signup`,
         { ...formData, appId },
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          withCredentials: true,
         }
       );
 

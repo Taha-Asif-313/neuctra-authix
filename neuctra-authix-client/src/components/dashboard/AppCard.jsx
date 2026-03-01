@@ -49,10 +49,7 @@ const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
         `${import.meta.env.VITE_SERVER_URL}/api/apps/status/${appState.id}`,
         {},
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "x-api-key": admin?.apiKey || "",
-          },
+          withCredentials: true,
         },
       );
 
@@ -80,7 +77,7 @@ const AppCard = ({ app, getCategoryColor, onActiveToggle, onDelete }) => {
       const { data } = await axios.get(
         `${import.meta.env.VITE_SERVER_URL}/api/apps/${appState.id}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
         },
       );
 

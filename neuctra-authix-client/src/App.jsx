@@ -17,7 +17,6 @@ import DashboardPage from "./pages/dashboard/DashboardPage";
 import AppDetail from "./pages/dashboard/AppDetail";
 import ProfilePage from "./pages/dashboard/ProfilePage";
 import ApiKeysPage from "./pages/dashboard/ApiKeysPage";
-import AdminReportPage from "./pages/dashboard/AdminReportPage";
 import ApplicationsPage from "./pages/dashboard/ApplicationsPage";
 import SupportPage from "./pages/dashboard/SupportPage";
 import DocsLayout from "./layouts/DocsLayout";
@@ -138,7 +137,6 @@ function AppContent() {
           <Route path="profile" element={<ProfilePage />} />
           <Route path="change-password" element={<ChangePassword />} />
           <Route path="apikeys" element={<ApiKeysPage />} />
-          <Route path="admin-report" element={<AdminReportPage />} />
           <Route path="apps" element={<ApplicationsPage />} />
           <Route path="support" element={<SupportPage />} />
         </Route>
