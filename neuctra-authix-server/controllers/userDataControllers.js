@@ -478,7 +478,7 @@ export const addUserData = async (req, res) => {
     /* 🔥 FREE PLAN LIMIT CHECK (1000 TOTAL USER DOCS) */
     /* ---------------------------------------------------------------------- */
 
-    if (req.admin.subscribePackage === "free") {
+    if (req.admin.subscriptionPackage === "free") {
       const allUsers = await prisma.user.findMany({
         where: {
           appId: user.appId,

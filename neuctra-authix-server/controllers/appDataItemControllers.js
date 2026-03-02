@@ -44,7 +44,7 @@ export const addAppDataItem = async (req, res) => {
     // 🔥 FREE PLAN LIMIT CHECK
     const currentCount = app.appData?.length || 0;
 
-    if (req.admin.subscribePackage === "free" && currentCount >= 500) {
+    if (req.admin.subscriptionPackage === "free" && currentCount >= 500) {
       return res.status(403).json({
         success: false,
         message:
