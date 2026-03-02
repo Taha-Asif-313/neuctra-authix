@@ -43,10 +43,7 @@ const DeleteAdminModal = ({ adminUser, appId, onClose, onConfirm }) => {
         `${import.meta.env.VITE_SERVER_URL}/api/admin/${adminUser.id}`,
         {
           data: { appId },
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "x-api-key": admin.apiKey,
-          },
+      withCredentials:true
         }
       );
 

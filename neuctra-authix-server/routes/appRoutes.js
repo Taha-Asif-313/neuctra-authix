@@ -7,7 +7,7 @@ import {
   deleteApp,
   toggleAppStatus,
   getAppStatus,
-  updateAppData,
+  clearAppData,
 } from "../controllers/appController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 
@@ -48,6 +48,6 @@ router.get("/:id/status", getAppStatus);
 router.patch("/status/:id", toggleAppStatus);
 
 // 🔹 Update app data (e.g., name, category, description, platform)
-router.patch("/data/:id", updateAppData);
+router.patch("/data/clear/:id", clearAppData);
 
 export default router;

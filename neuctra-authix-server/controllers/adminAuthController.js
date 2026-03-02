@@ -99,6 +99,7 @@ export const signupAdmin = async (req, res) => {
           avatarUrl: admin.avatarUrl || null,
           apiKey: admin.apiKey,
           isActive: admin.isActive,
+          package: admin.subscriptionPackage,
           isVerified: admin.isVerified, // 👈 included
           createdAt: admin.createdAt,
           apps: admin.apps,
@@ -173,7 +174,7 @@ export const loginAdmin = async (req, res) => {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? "none" : "lax",
-      maxAge: 60 * 60 * 1000, // 1 hour
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
       path: "/",
     });
 
@@ -187,6 +188,7 @@ export const loginAdmin = async (req, res) => {
         email: admin.email,
         phone: admin.phone,
         address: admin.address,
+        package: admin.subscriptionPackage,
         avatarUrl: admin.avatarUrl,
         apiKey: admin.apiKey,
         isActive: admin.isActive,
@@ -268,6 +270,7 @@ export const getAdminSession = async (req, res) => {
         address: admin.address,
         avatarUrl: admin.avatarUrl,
         apiKey: admin.apiKey,
+        package: admin.subscriptionPackage,
         isActive: admin.isActive,
         isVerified: admin.isVerified,
         createdAt: admin.createdAt,
@@ -900,6 +903,134 @@ export const getApiKey = async (req, res) => {
     });
   } catch (err) {
     console.error("GetApiKey Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+};
+
+/**
+ * @desc    Get single user data by userId
+ * @route   GET /api/admin/users/:userId
+ * @access  Private (Admin only)
+ */
+export const getUserDataById = async (req, res) => {
+  try {
+    const adminId = req.admin?.id; // from auth middleware
+    if (!adminId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: Admin access required",
+      });
+    }
+
+    const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    // 🔍 Find user
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        data: true,
+        adminId: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // 🚫 Ensure user belongs to this admin
+    if (user.adminId !== adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "You do not have permission to view this user",
+      });
+    }
+
+    // ✅ Return only the user data
+    return res.status(200).json({
+      success: true,
+      message: "User data fetched successfully",
+      data: user.data, // only user data, no wrapper
+    });
+  } catch (err) {
+    console.error("GetUserDataById Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+};
+
+/**
+ * @desc    Clear user data by userId
+ * @route   PUT /api/admin/users/:userId/clear-data
+ * @access  Private (Admin only)
+ */
+export const clearUserDataById = async (req, res) => {
+  try {
+    const adminId = req.admin?.id; // from auth middleware
+    if (!adminId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: Admin access required",
+      });
+    }
+
+    const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    // 🔍 Find user
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, data: true, adminId: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // 🚫 Ensure user belongs to this admin
+    if (user.adminId !== adminId) {
+      return res.status(403).json({
+        success: false,
+        message: "You do not have permission to modify this user",
+      });
+    }
+
+    // ✅ Clear user data
+    await prisma.user.update({
+      where: { id: userId },
+      data: { data: [] }, // or null if you want
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "User data cleared successfully",
+    });
+  } catch (err) {
+    console.error("ClearUserDataById Error:", err);
     return res.status(500).json({
       success: false,
       message: "Internal server error",

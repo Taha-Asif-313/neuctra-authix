@@ -54,7 +54,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
           newPassword: formData.newPassword,
         },
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+         withCredentials:true
         },
       );
 
@@ -78,8 +78,8 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-zinc-900 rounded-2xl border border-zinc-700 max-w-md w-full">
+    <div className="fixed inset-0 bg-black/70 h-screen backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-zinc-950 rounded-2xl border border-zinc-900 max-w-md w-full">
         <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
           <h3 className="text-xl font-semibold text-white flex items-center gap-2">
             <Lock size={20} /> Change Password

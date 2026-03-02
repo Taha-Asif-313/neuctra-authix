@@ -62,8 +62,8 @@ const ApiKeysPage = () => {
       const { data } = await axios.get(
         `${import.meta.env.VITE_SERVER_URL}/api/admin/api-key`,
         {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+          withCredentials: true,
+        },
       );
       if (data.success) setApiKey(data.data.apiKey);
       else toast.error(data.message);
@@ -85,7 +85,7 @@ const ApiKeysPage = () => {
       const { data } = await axios.post(
         `${import.meta.env.VITE_SERVER_URL}/api/admin/api-key/generate`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { withCredentials: true },
       );
       if (data.success) {
         setApiKey(data.data.apiKey || data.apiKey);
@@ -105,7 +105,7 @@ const ApiKeysPage = () => {
       const { data } = await axios.post(
         `${import.meta.env.VITE_SERVER_URL}/api/admin/api-key/revoke`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { withCredentials: true },
       );
       if (data.success) {
         setApiKey(null);
@@ -133,56 +133,64 @@ const ApiKeysPage = () => {
     );
 
   return (
-    <div className="space-y-8 w-full">
+    <div className="space-y-8 w-full mx-auto px-4 sm:px-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Key size={22} className="text-primary" />
-          <h2 className="text-xl sm:text-2xl font-bold text-white">
-            API Keys Management
+          <Key size={24} className="text-primary" />
+          <h2 className="text-2xl sm:text-3xl font-bold text-white">
+            API Keys
           </h2>
         </div>
+
+        <p className="text-gray-400 text-sm sm:text-base">
+          Manage your application API keys securely and efficiently
+        </p>
       </div>
 
-      {/* Card */}
-      <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-800 space-y-4">
+      {/* API Key Card */}
+      <div className="p-6 rounded-xl bg-zinc-950 border border-zinc-800 shadow-md space-y-4">
         {apiKey ? (
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3  rounded-lg">
-            {/* API Key (truncate on large, wrap on small) */}
-            <p className="text-white text-xs sm:text-sm truncate sm:w-4/5 break-all">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* API Key (truncate on large screens, wrap on small) */}
+            <p className="text-white text-sm sm:text-base break-all truncate sm:w-4/5">
               {apiKey}
             </p>
 
             {/* Actions */}
-            <div className="flex flex-wrap sm:flex-nowrap gap-2">
+            <div className="flex flex-wrap sm:flex-nowrap gap-3">
               <button
                 onClick={handleCopy}
-                className="p-2 rounded-lg bg-zinc-700/10 hover:bg-zinc-600 text-gray-300"
+                className="flex items-center justify-center p-2 rounded-lg bg-zinc-700/20 hover:bg-zinc-600 transition text-gray-300"
               >
-                <Copy size={16} />
+                <Copy size={18} />
               </button>
+
               <button
                 onClick={() => setModal({ open: true, type: "generate" })}
-                className="p-2 rounded-lg bg-blue-600/10 hover:bg-blue-600 hover:text-white text-blue-600"
+                className="flex items-center justify-center p-2 rounded-lg bg-blue-600/20 hover:bg-blue-600 hover:text-white text-blue-600 transition"
               >
-                <RefreshCw size={16} />
+                <RefreshCw size={18} />
               </button>
+
               <button
                 onClick={() => setModal({ open: true, type: "revoke" })}
-                className="p-2 rounded-lg bg-red-600/10 hover:bg-red-600 hover:text-white text-red-600"
+                className="flex items-center justify-center p-2 rounded-lg bg-red-600/20 hover:bg-red-600 hover:text-white text-red-600 transition"
               >
-                <ShieldOff size={16} />
+                <ShieldOff size={18} />
               </button>
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center text-center py-6">
-            <p className="text-gray-400 mb-4">No active API key found</p>
+          <div className="flex flex-col items-center justify-center text-center py-10 gap-4">
+            <p className="text-gray-400 text-sm sm:text-base">
+              No active API key found
+            </p>
             <button
               onClick={() => setModal({ open: true, type: "generate" })}
-              className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/80 flex items-center gap-2 text-sm sm:text-base"
+              className="flex items-center gap-2 px-5 py-2 rounded-lg bg-primary text-white text-sm sm:text-base hover:bg-primary/80 transition shadow-md"
             >
-              <RefreshCw size={16} /> Generate New Key
+              <RefreshCw size={18} /> Generate New Key
             </button>
           </div>
         )}

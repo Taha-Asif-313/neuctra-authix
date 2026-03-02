@@ -15,6 +15,8 @@ import {
   resetPassword,
   getAdminSession,
   logoutAdmin,
+  getUserDataById,
+  clearUserDataById,
 } from "../controllers/adminAuthController.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -83,5 +85,9 @@ router.post("/api-key/revoke", authMiddleware, revokeApiKey);
 
 // 🔹 Get the current active API key for the admin (protected)
 router.get("/api-key", authMiddleware, getApiKey);
+
+
+router.get("/user/data/:userId", authMiddleware, getUserDataById);
+router.patch("/user/data/clear/:userId", authMiddleware, clearUserDataById )
 
 export default router;

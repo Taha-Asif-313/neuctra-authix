@@ -289,13 +289,12 @@ export const deleteApp = async (req, res) => {
   }
 };
 
-
 /* =====================================================
    ✏️ UPDATE WHOLE APP DATA (Store JSON in appData Array)
    @route   PUT /api/apps/edit/:id
    @access  Private (Admin only)
    ===================================================== */
-export const updateAppData = async (req, res) => {
+export const clearAppData = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -311,35 +310,11 @@ export const updateAppData = async (req, res) => {
       });
     }
 
-    let bodyData = req.body;
-
-    // ✅ Check if body is valid JSON
-    if (!bodyData || typeof bodyData !== "object") {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid JSON data",
-      });
-    }
-
-    // 🧠 Ensure it's stored as array
-    let updatedAppData = [];
-
-    // If existing data exists, preserve it
-    if (Array.isArray(app.appData)) {
-      updatedAppData = [...app.appData];
-    }
-
-    // Push new body data into array
-    updatedAppData.push({
-      ...bodyData,
-      updatedAt: new Date(),
-    });
-
-    // 🔄 Update app
+    // 🗑 Clear all appData
     const updatedApp = await prisma.app.update({
       where: { id },
       data: {
-        appData: updatedAppData,
+        appData: [], // 🔥 clear everything
       },
       select: {
         id: true,
@@ -351,11 +326,12 @@ export const updateAppData = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "App data updated successfully",
+      message: "All app data cleared successfully",
       data: updatedApp,
     });
+
   } catch (err) {
-    console.error("UpdateApp Error:", err);
+    console.error("ClearAppData Error:", err);
     return res.status(500).json({
       success: false,
       message: "Internal server error",

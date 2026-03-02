@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Edit, Trash2, User, Eye } from "lucide-react";
+import { Edit, Trash2, User, Eye, Database } from "lucide-react";
 
-const UserRow = ({ user, appId, onDelete, onEdit, onView }) => {
+const UserRow = ({ user, onDelete, onEdit, onViewData }) => {
   return (
     <>
       <tr className="hover:bg-zinc-950/80 transition">
@@ -35,10 +35,10 @@ const UserRow = ({ user, appId, onDelete, onEdit, onView }) => {
           <div className="flex justify-end">
             {/* View Details */}
             <button
-              onClick={() => onView(user)}
+              onClick={() => onViewData(user)}
               className="p-2 rounded-lg text-green-400 hover:bg-zinc-900"
             >
-              <Eye className="w-4 h-4" />
+              <Database className="w-4 h-4" />
             </button>
 
             {/* Edit User */}

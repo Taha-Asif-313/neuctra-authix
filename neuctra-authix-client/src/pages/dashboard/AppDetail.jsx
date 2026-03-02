@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
@@ -12,6 +12,9 @@ import {
   Search,
   Eye,
   Database,
+  User,
+  Book,
+  BookOpen,
 } from "lucide-react";
 import AddNewUser from "../../components/dashboard/AddNewUser";
 import EditApp from "../../components/dashboard/EditApp";
@@ -24,6 +27,7 @@ import InputField from "../../components/utils/InputField";
 import CustomLoader from "../../components/utils/CustomLoader";
 import SetupGuides from "../../components/guide/SetupGuides";
 import AppDataModal from "../../components/dashboard/modals/AppDataModal";
+import UserDataModal from "../../components/dashboard/modals/UserDataModal";
 
 const AppDetail = () => {
   const { id } = useParams();
@@ -32,6 +36,8 @@ const AppDetail = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [appDataModalOpen, setAppDataModalOpen] = useState(false);
+  const [selectedUserData, setSelectedUserData] = useState(null);
+  const [isUserDataOpen, setIsUserDataOpen] = useState(false);
   const [deleteAppModalOpen, setDeleteAppModalOpen] = useState(false);
   const [editAppModalOpen, setEditAppModalOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -233,39 +239,42 @@ const AppDetail = () => {
         </div>
       </div>
 
-      {/* Users */}
-      <div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 mt-6 gap-4">
-          <h2 className="text-xl sm:text-2xl font-semibold text-white">
+      {/* Users Section */}
+      <div className="mt-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <h2 className="text-xl sm:text-2xl font-semibold text-white truncate">
             {showGuide ? "App Setup Guide" : "Manage Users"}
           </h2>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+            {/* Toggle Guide/Users */}
             <button
               onClick={() => setShowGuide((prev) => !prev)}
-              className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition
-        bg-zinc-800 hover:bg-zinc-700 text-white"
+              className="flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition bg-zinc-800 hover:bg-zinc-700 text-white w-full sm:w-auto"
             >
+              <BookOpen size={14} />
               {showGuide ? "Show Users" : "Show Setup Guide"}
             </button>
 
             {!showGuide && (
               <>
-                {/* 🔍 Search */}
-                <div className="w-64">
+                {/* Search */}
+                <div className="w-full sm:w-64">
                   <InputField
                     name="search"
                     placeholder="Search by ID or Email..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     prefixIcon={Search}
-                    className="bg-zinc-900 border-zinc-800"
+                    className="bg-zinc-900 h-9 border border-zinc-800 w-full"
                   />
                 </div>
 
+                {/* Add User Button */}
                 <button
                   onClick={() => setAddModalOpen(true)}
-                  className="flex items-center gap-2 bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md text-sm font-medium shadow-md"
+                  className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/80 text-white px-4 py-1.5 rounded-md text-sm font-medium shadow-md w-full sm:w-auto"
                 >
                   <UserPlus className="w-4 h-4" />
                   Add User
@@ -274,10 +283,12 @@ const AppDetail = () => {
             )}
           </div>
         </div>
+
+        {/* Content */}
         {showGuide ? (
           <SetupGuides app={app} />
         ) : (
-          <div>
+          <div className="w-full">
             {filteredUsers.length === 0 ? (
               <p className="py-16 text-center text-sm text-gray-400">
                 No matching users found.
@@ -295,6 +306,7 @@ const AppDetail = () => {
                       <th className="px-4 sm:px-6 py-3 text-right">Actions</th>
                     </tr>
                   </thead>
+
                   <tbody className="divide-y divide-zinc-800">
                     {filteredUsers.map((user) => (
                       <UserRow
@@ -302,6 +314,10 @@ const AppDetail = () => {
                         user={user}
                         onEdit={(u) => setEditUser(u)}
                         onDelete={(u) => setDeleteUser(u)}
+                        onViewData={(u) => {
+                          setSelectedUserData(u);
+                          setIsUserDataOpen(true);
+                        }}
                       />
                     ))}
                   </tbody>
@@ -317,6 +333,18 @@ const AppDetail = () => {
           isOpen={appDataModalOpen}
           onClose={() => setAppDataModalOpen(false)}
           app={app}
+        />
+      )}
+
+      {isUserDataOpen && selectedUserData && (
+        <UserDataModal
+          isOpen={isUserDataOpen}
+          onClose={() => {
+            setIsUserDataOpen(false);
+            setSelectedUserData(null);
+          }}
+          user={selectedUserData}
+          appId={app.id} // optional if needed in modal
         />
       )}
 
