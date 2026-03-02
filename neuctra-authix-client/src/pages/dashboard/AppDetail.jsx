@@ -15,6 +15,7 @@ import {
   User,
   Book,
   BookOpen,
+  Badge,
 } from "lucide-react";
 import AddNewUser from "../../components/dashboard/AddNewUser";
 import EditApp from "../../components/dashboard/EditApp";
@@ -32,7 +33,6 @@ import UserDataModal from "../../components/dashboard/modals/UserDataModal";
 const AppDetail = () => {
   const { id } = useParams();
   const { admin } = useAuth();
-  const token = localStorage.getItem("token");
   const [searchQuery, setSearchQuery] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [appDataModalOpen, setAppDataModalOpen] = useState(false);
@@ -51,7 +51,7 @@ const AppDetail = () => {
   const [showGuide, setShowGuide] = useState(false);
 
   const navigate = useNavigate();
-  console.log(users);
+  console.log(app);
 
   // fetch app + users
   useEffect(() => {
@@ -74,7 +74,7 @@ const AppDetail = () => {
     };
 
     fetchApp();
-  }, [id, token]);
+  }, [id]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -136,50 +136,61 @@ const AppDetail = () => {
   return (
     <div className="max-w-7xl mx-auto space-y-4">
       {/* App Info */}
-      <div className="bg-zinc-900/60 rounded-2xl p-6 shadow-2xl">
-        <div className="relative flex flex-col-reverse sm:flex-row sm:justify-between sm:items-start gap-6">
-          {/* Left: App Details */}
-          <div className="space-y-4">
-            <div className="flex max-sm:flex-col max-sm:items-start items-center gap-4">
-              <span className="h-14 w-14 flex items-center justify-center rounded-2xl bg-primary text-white font-bold text-lg shadow-md">
+      <div className="bg-gradient-to-br from-zinc-950 to-zinc-900 border border-zinc-900 rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-2xl">
+        <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-8">
+          {/* ================= LEFT SIDE ================= */}
+          <div className="flex-1 space-y-5 sm:space-y-6">
+            {/* App Name + Icon */}
+            <div className="flex items-start gap-3 sm:gap-4">
+              {/* Icon */}
+              <div className="h-12 w-12 sm:h-16 sm:w-16 flex items-center justify-center rounded-xl sm:rounded-2xl bg-primary text-white text-lg sm:text-xl font-bold shadow-lg">
                 {app.applicationName?.charAt(0)}
-              </span>
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-white">
+              </div>
+
+              <div className="flex-1 min-w-0">
+                {/* App Name */}
+                <h1 className="text-xl sm:text-3xl font-semibold text-white tracking-tight break-words">
                   {app.applicationName}
                 </h1>
+
                 {/* App ID */}
-                <div className="flex items-center gap-2 mt-1">
-                  <p className="text-xs max-sm:hidden text-gray-400">App ID:</p>
-                  <span className="text-xs text-gray-200 truncate max-w-[200px]">
-                    {app.id}
-                  </span>
+                <div className="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs text-gray-400 mt-1">
+                  <span className="whitespace-nowrap">App ID:</span>
+
+                  <span className="text-gray-300 break-all">{app.id}</span>
+
                   <button
                     onClick={() => handleCopy(app.id)}
-                    className="p-1 rounded-md hover:bg-zinc-800 text-gray-300"
+                    className="p-1 rounded-md hover:bg-zinc-700 transition"
                   >
-                    <Copy size={14} />
+                    <Copy size={12} className="sm:w-3.5 sm:h-3.5" />
                   </button>
                 </div>
               </div>
             </div>
 
-            <p className="text-sm text-gray-300 leading-relaxed">
-              {app.description}
-            </p>
+            {/* Description */}
+            {app.description && (
+              <p className="text-sm text-gray-300 leading-relaxed">
+                {app.description}
+              </p>
+            )}
 
-            <div className="flex gap-3 flex-wrap text-xs sm:text-sm text-gray-300">
-              <span className="px-3 py-1 bg-zinc-800/80 rounded-full">
+            {/* Tags */}
+            <div className="flex flex-wrap gap-2 sm:gap-3">
+              <span className="px-3 py-1 bg-zinc-800 border border-zinc-700 rounded-full text-[11px] sm:text-xs text-gray-300">
                 {app.category}
               </span>
-              <span className="px-3 py-1 bg-zinc-800/80 rounded-full">
+
+              <span className="px-3 py-1 bg-zinc-800 border border-zinc-700 rounded-full text-[11px] sm:text-xs text-gray-300">
                 {app.platform}
               </span>
+
               <span
-                className={`px-3 py-1 rounded-full font-medium ${
+                className={`px-3 py-1 rounded-full text-[11px] sm:text-xs font-medium border ${
                   app.isActive
-                    ? "bg-green-500/10 text-green-400"
-                    : "bg-red-600/20 text-red-400"
+                    ? "bg-green-500/10 text-green-400 border-green-500/20"
+                    : "bg-red-500/10 text-red-400 border-red-500/20"
                 }`}
               >
                 {app.isActive ? "Active" : "Inactive"}
@@ -187,54 +198,122 @@ const AppDetail = () => {
             </div>
           </div>
 
-          {/* Right: Actions */}
-          <div
-            className="relative max-sm:absolute top-0 right-0 self-start sm:self-auto"
-            ref={dropdownRef}
-          >
-            <button
-              onClick={() => setDropdownOpen((prev) => !prev)}
-              className="p-2 rounded-xl hover:bg-zinc-800 text-gray-300"
-            >
-              <MoreVertical className="w-5 h-5" />
-            </button>
+          {/* ================= RIGHT SIDE ================= */}
+          <div className="w-full xl:w-auto flex flex-col gap-5">
+            {/* Free Plan Stats */}
+            {admin.package === "free" && (
+              <div className="bg-zinc-900/80 border border-zinc-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 w-full xl:w-[380px] shadow-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="px-3 py-1 text-[10px] sm:text-xs font-semibold rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/30">
+                    FREE PLAN
+                  </span>
 
-            {dropdownOpen && (
-              <div
-                className="
-      absolute right-0 mt-2 
-      w-44 
-      bg-zinc-900 border border-zinc-800 
-      rounded-xl shadow-xl 
-      overflow-hidden z-50 
-      animate-fadeIn
-    "
-              >
-                <button
-                  onClick={() => {
-                    setAppDataModalOpen(true);
-                    setDropdownOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2 px-4 py-3 text-sm text-purple-400 hover:bg-zinc-800 transition"
-                >
-                  <Database className="w-4 h-4" /> View Data
-                </button>
+                  <button className="text-[11px] sm:text-xs text-primary font-medium hover:underline">
+                    Upgrade
+                  </button>
+                </div>
 
-                <button
-                  onClick={() => setEditAppModalOpen(true)}
-                  className="w-full flex items-center gap-2 px-4 py-3 text-sm text-blue-400 hover:bg-zinc-800 transition"
-                >
-                  <Edit className="w-4 h-4" /> Edit
-                </button>
+                <div className="space-y-4">
+                  {/* App Docs */}
+                  <div>
+                    <div className="flex justify-between text-[11px] sm:text-xs text-gray-400 mb-1">
+                      <span>App Documents</span>
+                      <span>{app.appData?.length || 0} / 500</span>
+                    </div>
 
-                <button
-                  onClick={() => setDeleteAppModalOpen(true)}
-                  className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-zinc-800 transition"
-                >
-                  <Trash2 className="w-4 h-4" /> Delete
-                </button>
+                    <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-yellow-400 transition-all duration-500"
+                        style={{
+                          width: `${Math.min(
+                            ((app.appData?.length || 0) / 500) * 100,
+                            100,
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* User Docs */}
+                  <div>
+                    <div className="flex justify-between text-[11px] sm:text-xs text-gray-400 mb-1">
+                      <span>Users Documents</span>
+                      <span>
+                        {app.users.reduce((total, user) => {
+                          const userDocCount = Array.isArray(user.data)
+                            ? user.data.length
+                            : 0;
+                          return total + userDocCount;
+                        }, 0)}{" "}
+                        / 1000
+                      </span>
+                    </div>
+
+                    <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary transition-all duration-500"
+                        style={{
+                          width: `${Math.min(
+                            (app.users.reduce((total, user) => {
+                              const userDocCount = Array.isArray(user.data)
+                                ? user.data.length
+                                : 0;
+                              return total + userDocCount;
+                            }, 0) /
+                              1000) *
+                              100,
+                            100,
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
+
+            {/* Action Dropdown */}
+            <div className="flex justify-end">
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setDropdownOpen((prev) => !prev)}
+                  className="p-2 sm:p-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition shadow-md"
+                >
+                  <MoreVertical className="w-4 h-4 sm:w-5 sm:h-5 text-gray-300" />
+                </button>
+
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 sm:w-52 bg-zinc-900 border border-zinc-800 rounded-xl sm:rounded-2xl shadow-xl overflow-hidden z-50">
+                    <button
+                      onClick={() => {
+                        setAppDataModalOpen(true);
+                        setDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-purple-400 hover:bg-zinc-800 transition"
+                    >
+                      <Database className="w-4 h-4 sm:w-5 sm:h-5" />
+                      View Data
+                    </button>
+
+                    <button
+                      onClick={() => setEditAppModalOpen(true)}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-blue-400 hover:bg-zinc-800 transition"
+                    >
+                      <Edit className="w-4 h-4 sm:w-5 sm:h-5" />
+                      Edit App
+                    </button>
+
+                    <button
+                      onClick={() => setDeleteAppModalOpen(true)}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-zinc-800 transition"
+                    >
+                      <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                      Delete App
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>

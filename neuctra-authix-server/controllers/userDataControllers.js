@@ -452,6 +452,12 @@ export const addUserData = async (req, res) => {
         id,
         adminId: req.admin.id,
       },
+      select: {
+        id: true,
+        data: true,
+        appId: true,
+        isVerified: true,
+      },
     });
 
     if (!user) {
@@ -466,6 +472,36 @@ export const addUserData = async (req, res) => {
         success: false,
         message: "Please verify the account from profile",
       });
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* 🔥 FREE PLAN LIMIT CHECK (1000 TOTAL USER DOCS) */
+    /* ---------------------------------------------------------------------- */
+
+    if (req.admin.subscribePackage === "free") {
+      const allUsers = await prisma.user.findMany({
+        where: {
+          appId: user.appId,
+          adminId: req.admin.id,
+        },
+        select: { data: true },
+      });
+
+      const totalUserDocs = allUsers.reduce((total, u) => {
+        const count = Array.isArray(u.data) ? u.data.length : 0;
+        return total + count;
+      }, 0);
+
+      if (totalUserDocs >= 1000) {
+        return res.status(403).json({
+          success: false,
+          limitReached: true,
+          message:
+            "Free plan limit reached (1000 user documents). Please upgrade your plan.",
+          current: totalUserDocs,
+          max: 1000,
+        });
+      }
     }
 
     /* ---------------------------------------------------------------------- */

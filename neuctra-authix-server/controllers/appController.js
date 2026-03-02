@@ -1,5 +1,4 @@
 import prisma from "../prisma.js";
-import crypto from "crypto";
 import { generateId } from "../utils/crypto.js";
 
 /* =====================================================
@@ -20,10 +19,10 @@ export const createApp = async (req, res) => {
       });
     }
 
-    // 🔐 Check if admin is verified
+    // 🔐 Check if admin exists and is verified
     const admin = await prisma.adminUser.findUnique({
       where: { id: req.admin.id },
-      select: { isVerified: true },
+      select: { subscriptionPackage: true, isVerified: true },
     });
 
     if (!admin) {
@@ -41,7 +40,23 @@ export const createApp = async (req, res) => {
       });
     }
 
-    // 🔑 Generate a unique app secret (used for SDK/API auth)
+    // 🚫 Limit apps for free package
+    if (admin.subscriptionPackage === "free") {
+      const appCount = await prisma.app.count({
+        where: { adminId: req.admin.id },
+      });
+
+      if (appCount >= 5) {
+        return res.status(403).json({
+          success: false,
+          message:
+            "You have reached the maximum number of apps allowed for Free subscription. Please upgrade your package to create more apps.",
+          code: "MAX_APPS_REACHED",
+        });
+      }
+    }
+
+    // 🔑 Generate a unique app secret
     const appSecret = generateId();
 
     // 📁 Create the new app record
@@ -165,6 +180,7 @@ export const getAppById = async (req, res) => {
         isActive: true,
         updatedAt: true,
         createdAt: true,
+        appData: true,
         users: true,
       },
     });
@@ -329,7 +345,6 @@ export const clearAppData = async (req, res) => {
       message: "All app data cleared successfully",
       data: updatedApp,
     });
-
   } catch (err) {
     console.error("ClearAppData Error:", err);
     return res.status(500).json({

@@ -19,6 +19,7 @@ import TextareaField from "../utils/TextareaField";
 
 const AddNewApp = ({ onClose, onSave }) => {
   const { admin } = useAuth();
+  const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -58,6 +59,7 @@ const AddNewApp = ({ onClose, onSave }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null); // clear previous errors
 
     try {
       const res = await axios.post(
@@ -70,10 +72,7 @@ const AddNewApp = ({ onClose, onSave }) => {
           techStack: formData.techStack, // optional
         },
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "x-api-key": admin.apiKey,
-          },
+          withCredentials: true,
         },
       );
 
@@ -82,11 +81,16 @@ const AddNewApp = ({ onClose, onSave }) => {
         onSave(res.data.data); // refresh local state
         onClose();
       } else {
-        toast.error(res.data.message || "Failed to create app");
+        setError(res.data.message || "Failed to create app");
       }
     } catch (err) {
       console.error("Create App Error:", err);
-      toast.error(err.response?.data?.message || "Something went wrong");
+
+      if (err.response?.data?.code === "MAX_APPS_REACHED") {
+        setError(err.response.data.message);
+      } else {
+        setError(err.response?.data?.message || "Something went wrong");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -116,6 +120,12 @@ const AddNewApp = ({ onClose, onSave }) => {
 
         <form onSubmit={handleSubmit}>
           <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+            {/* Inline error */}
+            {error && (
+              <div className="px-4 sm:px-6 mb-4 py-2 bg-red-600/10 text-red-600 text-xs rounded-md">
+                {error}
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               {/* Application Name */}
               <InputField
@@ -155,7 +165,7 @@ const AddNewApp = ({ onClose, onSave }) => {
             />
 
             {/* Platform */}
-            <div className="space-y-2">
+            <div>
               <label className="text-[13px] font-semibold text-gray-200">
                 Platform <span className="text-red-500">*</span>
               </label>

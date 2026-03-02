@@ -39,9 +39,9 @@ const SelectField = ({
   };
 
   return (
-    <div className="w-full space-y-2" ref={ref}>
+    <div className="w-full space-y-1" ref={ref}>
       {label && (
-        <label className="text-zinc-300 font-medium text-[13px] flex items-center gap-2">
+        <label className="text-white font-medium text-xs flex items-center gap-2">
           {Icon && <Icon size={18} className="text-primary/80" />}
           {label}
           {required && <span className="text-rose-500">*</span>}

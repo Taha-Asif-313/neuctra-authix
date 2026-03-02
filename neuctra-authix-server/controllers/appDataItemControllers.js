@@ -14,7 +14,6 @@ export const addAppDataItem = async (req, res) => {
     const { appId, dataCategory } = req.params;
     const body = req.body;
 
-    // accept both { item } or direct object
     const item = body.item || body;
 
     if (!appId || !dataCategory || !item || typeof item !== "object") {
@@ -25,8 +24,14 @@ export const addAppDataItem = async (req, res) => {
     }
 
     const app = await prisma.app.findFirst({
-      where: { id: appId, adminId: req.admin.id, isActive: true },
-      select: { appData: true },
+      where: {
+        id: appId,
+        adminId: req.admin.id,
+        isActive: true,
+      },
+      select: {
+        appData: true,
+      },
     });
 
     if (!app) {
@@ -36,8 +41,22 @@ export const addAppDataItem = async (req, res) => {
       });
     }
 
+    // 🔥 FREE PLAN LIMIT CHECK
+    const currentCount = app.appData?.length || 0;
+
+    if (req.admin.subscribePackage === "free" && currentCount >= 500) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Free plan limit reached (500 app documents). Please upgrade your plan.",
+        limitReached: true,
+        current: currentCount,
+        max: 500,
+      });
+    }
+
     const newItem = {
-      id: item.id || generateId(), // ✅ single ID source
+      id: item.id || generateId(),
       dataCategory,
       createdAt: new Date().toISOString(),
       ...item,
@@ -56,9 +75,10 @@ export const addAppDataItem = async (req, res) => {
     });
   } catch (err) {
     console.error("AddAppDataItem Error:", err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 
@@ -189,7 +209,10 @@ export const searchAppDataByKeys = async (req, res) => {
     const hasMatch = (obj, key, value) => {
       if (obj == null) return false;
 
-      if (typeof obj === "object" && Object.prototype.hasOwnProperty.call(obj, key)) {
+      if (
+        typeof obj === "object" &&
+        Object.prototype.hasOwnProperty.call(obj, key)
+      ) {
         const target = obj[key];
         if (typeof target === "number") return target === Number(value);
         if (typeof target === "string")
@@ -201,9 +224,12 @@ export const searchAppDataByKeys = async (req, res) => {
       }
 
       if (typeof obj === "object") {
-        return Object.values(obj).some((v) => 
-          typeof v === "object" ? hasMatch(v, key, value) : 
-          typeof v === "string" ? v.toLowerCase().includes(String(value).toLowerCase()) : false
+        return Object.values(obj).some((v) =>
+          typeof v === "object"
+            ? hasMatch(v, key, value)
+            : typeof v === "string"
+              ? v.toLowerCase().includes(String(value).toLowerCase())
+              : false,
         );
       }
 
@@ -216,12 +242,12 @@ export const searchAppDataByKeys = async (req, res) => {
        ===================================================== */
     let filteredData = data;
     const validFilters = Object.entries(filters).filter(
-      ([_, val]) => val !== undefined && val !== null && val !== ""
+      ([_, val]) => val !== undefined && val !== null && val !== "",
     );
 
     if (validFilters.length > 0) {
-      filteredData = filteredData.filter(item =>
-        validFilters.every(([key, val]) => hasMatch(item, key, val))
+      filteredData = filteredData.filter((item) =>
+        validFilters.every(([key, val]) => hasMatch(item, key, val)),
       );
     }
 
@@ -231,8 +257,8 @@ export const searchAppDataByKeys = async (req, res) => {
        ===================================================== */
     if (q) {
       const keyword = String(q).toLowerCase();
-      filteredData = filteredData.filter(item =>
-        JSON.stringify(item).toLowerCase().includes(keyword)
+      filteredData = filteredData.filter((item) =>
+        JSON.stringify(item).toLowerCase().includes(keyword),
       );
     }
 
@@ -241,7 +267,6 @@ export const searchAppDataByKeys = async (req, res) => {
       totalItems: filteredData.length,
       data: filteredData,
     });
-
   } catch (err) {
     console.error("SearchAppDataByKeys Error:", err);
     return res.status(500).json({
@@ -250,7 +275,6 @@ export const searchAppDataByKeys = async (req, res) => {
     });
   }
 };
-
 
 /* =====================================================
    ✏️ UPDATE APP DATA ITEM
