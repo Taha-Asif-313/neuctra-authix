@@ -143,220 +143,228 @@ const ProfilePage = () => {
   
 
   return (
-    <div className="space-y-6 pb-10 pt-4">
-      {/* Modals */}
-      <AvatarUpdateModal
-        isOpen={showAvatarModal}
-        onClose={() => setShowAvatarModal(false)}
-        currentAvatar={formData.avatarUrl}
-        onSave={handleAvatarUpdate}
+<div className="space-y-6 pb-10 pt-4 px-4 sm:px-6 lg:px-8">
+  {/* Modals */}
+  <AvatarUpdateModal
+    isOpen={showAvatarModal}
+    onClose={() => setShowAvatarModal(false)}
+    currentAvatar={formData.avatarUrl}
+    onSave={handleAvatarUpdate}
+  />
+  <ChangePasswordModal
+    isOpen={showPasswordModal}
+    onClose={() => setShowPasswordModal(false)}
+  />
+  {showDeleteModal && (
+    <DeleteAdminModal
+      adminUser={admin}
+      appId={admin.appId}
+      onClose={() => setShowDeleteModal(false)}
+      onConfirm={() => logout()}
+    />
+  )}
+
+  {/* Header */}
+  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 w-full justify-between">
+    {/* Avatar */}
+    <div className="relative group flex-shrink-0">
+      <img
+        src={
+          formData.avatarUrl ||
+          `https://api.dicebear.com/9.x/initials/svg?seed=${admin.name}`
+        }
+        alt="Profile"
+        className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-primary object-cover shadow-lg"
       />
-      <ChangePasswordModal
-        isOpen={showPasswordModal}
-        onClose={() => setShowPasswordModal(false)}
-      />
-      {showDeleteModal && (
-        <DeleteAdminModal
-          adminUser={admin}
-          appId={admin.appId}
-          onClose={() => setShowDeleteModal(false)}
-          onConfirm={() => logout()}
-        />
+      {editMode && (
+        <button
+          onClick={() => setShowAvatarModal(true)}
+          className="absolute bottom-0 right-1 bg-primary/90 p-2 rounded-full cursor-pointer shadow-lg hover:scale-105 transition-transform"
+        >
+          <Camera size={16} className="text-white" />
+        </button>
       )}
+    </div>
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 w-full justify-between">
-        {/* Avatar */}
-        <div className="relative group">
-          <img
-            src={
-              formData.avatarUrl ||
-              `https://api.dicebear.com/9.x/initials/svg?seed=${admin.name}`
-            }
-            alt="Profile"
-            className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-primary object-cover shadow-lg"
-          />
-          {editMode && (
-            <button
-              onClick={() => setShowAvatarModal(true)}
-              className="absolute bottom-0 right-1 bg-primary/90 p-2 rounded-full cursor-pointer shadow-lg hover:scale-105 transition-transform"
-            >
-              <Camera size={16} className="text-white" />
-            </button>
-          )}
-        </div>
+{/* Name & Info */}
+<div className="flex-1 min-w-0">
+  <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1 truncate">{formData.name}</h1>
+  <p className="text-gray-400 mb-1">Administrator</p>
 
-        {/* Name & Info */}
-        <div className="flex-1 min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1 truncate">{formData.name}</h1>
-          <p className="text-gray-400 mb-2">Administrator</p>
+  {/* Plan Badge */}
+  <span
+    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mb-2 ${
+      admin.package === "free" ? "bg-yellow-500/10 text-yellow-500" : "bg-primary/10 text-primary"
+    }`}
+  >
+    {admin.package === "free" ? "Free Plan" : "Premium Plan"}
+  </span>
 
-          <div className="flex flex-wrap gap-3">
-            <span
-              className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                formData.isVerified ? "bg-green-500/10 text-green-500" : "bg-yellow-500/10 text-yellow-500"
-              }`}
-            >
-              {formData.isVerified ? (
-                <>
-                  <ShieldCheck size={14} className="mr-1" /> Verified
-                </>
-              ) : (
-                <>
-                  <XCircle size={14} className="mr-1" /> Not Verified
-                </>
-              )}
-            </span>
+  <div className="flex flex-wrap gap-3">
+    {/* Verification Badge */}
+    <span
+      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+        formData.isVerified ? "bg-green-500/10 text-green-500" : "bg-yellow-500/10 text-yellow-500"
+      }`}
+    >
+      {formData.isVerified ? (
+        <>
+          <ShieldCheck size={14} className="mr-1" /> Verified
+        </>
+      ) : (
+        <>
+          <XCircle size={14} className="mr-1" /> Not Verified
+        </>
+      )}
+    </span>
 
-            {!formData.isVerified && (
-              <button
-                onClick={() => navigate("/verify-email")}
-                className="px-3 py-1 bg-primary hover:bg-primary/90 text-white rounded-md text-sm"
-              >
-                Verify Email
-              </button>
-            )}
+    {/* Verify Email Button */}
+    {!formData.isVerified && (
+      <button
+        onClick={() => navigate("/verify-email")}
+        className="px-3 py-1 bg-primary hover:bg-primary/90 text-white rounded-md text-sm"
+      >
+        Verify Email
+      </button>
+    )}
 
-            <span className="inline-flex items-center px-3 py-1 bg-blue-500/5 text-blue-500 rounded-full text-sm">
-              <Calendar size={14} className="mr-1" /> Joined {new Date(formData.createdAt).toLocaleDateString()}
-            </span>
-          </div>
-        </div>
+    {/* Join Date */}
+    <span className="inline-flex items-center px-3 py-1 bg-blue-500/5 text-blue-500 rounded-full text-sm">
+      <Calendar size={14} className="mr-1" /> Joined {new Date(formData.createdAt).toLocaleDateString()}
+    </span>
+  </div>
+</div>
 
-        {/* Header Actions */}
-        <div className="flex flex-row flex-wrap gap-3 text-sm">
+    {/* Header Actions */}
+    <div className="flex flex-row flex-wrap gap-3 mt-4 sm:mt-0">
+      <button
+        onClick={() => setShowPasswordModal(true)}
+        className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-white font-medium transition-colors"
+      >
+        <Key size={14} /> Change Password
+      </button>
+
+      {editMode ? (
+        <>
           <button
-            onClick={() => setShowPasswordModal(true)}
+            onClick={handleCancelEdit}
+            className="flex items-center gap-2 px-4 py-2 text-zinc-300 hover:text-white transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white font-medium transition-colors"
+          >
+            {saving ? (
+              <>
+                <RefreshCw size={14} className="animate-spin" /> Saving...
+              </>
+            ) : (
+              <>
+                <Save size={14} /> Save
+              </>
+            )}
+          </button>
+        </>
+      ) : (
+        <>
+          <button
+            onClick={() => setEditMode(true)}
             className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-white font-medium transition-colors"
           >
-            <Key size={14} /> Change Password
+            <Edit size={14} /> Edit
           </button>
 
-          {editMode ? (
-            <>
-              <button
-                onClick={handleCancelEdit}
-                className="flex items-center gap-2 px-4 py-2 text-zinc-300 hover:text-white transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white font-medium transition-colors"
-              >
-                {saving ? (
-                  <>
-                    <RefreshCw size={14} className="animate-spin" /> Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save size={14} /> Save
-                  </>
-                )}
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => setEditMode(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-white font-medium transition-colors"
-              >
-                <Edit size={14} /> Edit
-              </button>
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-600/30 text-red-500 hover:text-red-300 rounded-lg font-medium transition-colors"
+          >
+            <Trash2 size={14} /> Delete Account
+          </button>
+        </>
+      )}
+    </div>
+  </div>
 
-              <button
-                onClick={() => setShowDeleteModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-600/30 text-red-500 hover:text-red-300 rounded-lg font-medium transition-colors"
-              >
-                <Trash2 size={14} /> Delete Account
-              </button>
-            </>
-          )}
-        </div>
+  {/* Stats Cards */}
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-1 sm:px-3 mt-6">
+    <div className="bg-zinc-900/60 rounded-xl p-5 flex justify-between items-center">
+      <div>
+        <p className="mb-2 text-sm">Total Apps</p>
+        <p className="text-2xl font-bold text-white">{formData?._count?.apps ?? 0} / {maxApps}</p>
       </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 px-3 gap-4">
-        {/* Total Apps */}
-        <div className="bg-zinc-900/60 rounded-xl p-5 flex justify-between items-center">
-          <div>
-            <p className="mb-2 text-sm">Total Apps</p>
-            <p className="text-2xl font-bold text-white">{formData?._count?.apps ?? 0} / {maxApps}</p>
-          </div>
-          <div className="p-3 bg-blue-500/10 rounded-lg">
-            <Box size={20} className="text-blue-500" />
-          </div>
-        </div>
-
-        {/* Managed Users */}
-        <div className="bg-zinc-900/60 rounded-xl p-5 flex justify-between items-center">
-          <div>
-            <p className="mb-2 text-sm">Managed Users</p>
-            <p className="text-2xl font-bold text-white">{formData?._count?.users ?? 0} / {maxUsers}</p>
-          </div>
-          <div className="p-3 bg-primary/10 rounded-lg">
-            <Users size={20} className="text-primary" />
-          </div>
-        </div>
-
-     
-      </div>
-
-      {/* Profile Fields */}
-      <div className="backdrop-blur-sm overflow-hidden rounded-xl p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-          <ProfileField icon={<Hash size={16} />} label="Admin ID" value={formData.id} isCopyable />
-          <ProfileField
-            icon={<User size={16} />}
-            label="Full Name"
-            name="name"
-            value={formData.name}
-            editable={editMode}
-            onChange={handleChange}
-            placeholder="Enter your full name"
-          />
-          <ProfileField
-            icon={<Mail size={16} />}
-            label="Email Address"
-            name="email"
-            value={formData.email}
-            editable={editMode}
-            onChange={handleChange}
-            type="email"
-            placeholder="Enter your email address"
-          />
-          <ProfileField
-            icon={<Phone size={16} />}
-            label="Phone Number"
-            name="phone"
-            value={formData.phone}
-            editable={editMode}
-            onChange={handleChange}
-            type="tel"
-            placeholder="Enter your phone number"
-          />
-          <ProfileField
-            icon={<MapPin size={16} />}
-            label="Address"
-            name="address"
-            value={formData.address}
-            editable={editMode}
-            onChange={handleChange}
-            placeholder="Enter your address"
-            fullWidth
-          />
-          <ProfileField
-            icon={<Key size={16} />}
-            label="API Key"
-            value={formData.apiKey}
-            isCopyable
-            isSecret={!showApiKey}
-            onToggleSecret={() => setShowApiKey(!showApiKey)}
-          />
-        </div>
+      <div className="p-3 bg-blue-500/10 rounded-lg">
+        <Box size={20} className="text-blue-500" />
       </div>
     </div>
+
+    <div className="bg-zinc-900/60 rounded-xl p-5 flex justify-between items-center">
+      <div>
+        <p className="mb-2 text-sm">Managed Users</p>
+        <p className="text-2xl font-bold text-white">{formData?._count?.users ?? 0} / {maxUsers}</p>
+      </div>
+      <div className="p-3 bg-primary/10 rounded-lg">
+        <Users size={20} className="text-primary" />
+      </div>
+    </div>
+  </div>
+
+  {/* Profile Fields */}
+  <div className="backdrop-blur-sm overflow-hidden rounded-xl p-4 mt-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm">
+      <ProfileField icon={<Hash size={16} />} label="Admin ID" value={formData.id} isCopyable />
+      <ProfileField
+        icon={<User size={16} />}
+        label="Full Name"
+        name="name"
+        value={formData.name}
+        editable={editMode}
+        onChange={handleChange}
+        placeholder="Enter your full name"
+      />
+      <ProfileField
+        icon={<Mail size={16} />}
+        label="Email Address"
+        name="email"
+        value={formData.email}
+        editable={editMode}
+        onChange={handleChange}
+        type="email"
+        placeholder="Enter your email address"
+      />
+      <ProfileField
+        icon={<Phone size={16} />}
+        label="Phone Number"
+        name="phone"
+        value={formData.phone}
+        editable={editMode}
+        onChange={handleChange}
+        type="tel"
+        placeholder="Enter your phone number"
+      />
+      <ProfileField
+        icon={<MapPin size={16} />}
+        label="Address"
+        name="address"
+        value={formData.address}
+        editable={editMode}
+        onChange={handleChange}
+        placeholder="Enter your address"
+        fullWidth
+      />
+      <ProfileField
+        icon={<Key size={16} />}
+        label="API Key"
+        value={formData.apiKey}
+        isCopyable
+        isSecret={!showApiKey}
+        onToggleSecret={() => setShowApiKey(!showApiKey)}
+      />
+    </div>
+  </div>
+</div>
   );
 };
 
