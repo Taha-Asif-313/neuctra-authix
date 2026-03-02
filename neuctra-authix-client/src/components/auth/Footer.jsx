@@ -123,10 +123,10 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/cookie-policy"
+                  to="/refund-policy"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  Cookie Policy
+                  Refund Policy
                 </Link>
               </li>
             </ul>

@@ -45,6 +45,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import About from "./pages/public/About";
 import AppDataManagement from "./pages/docs/sdk/AppDataManagement";
 import ReactEmailVerificationDocs from "./pages/docs/react-ui-components/ReactEmailVerificationDocs";
+import RefundPolicy from "./pages/public/RefundPolicy";
 
 const ProtectedRoute = ({ Component }) => {
   const { isAuthenticated, isVerified, loading } = useAuth();
@@ -119,6 +120,7 @@ function AppContent() {
               )
             }
           />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/features" element={<Features />} />
           <Route path="/terms" element={<TermsOfService />} />
