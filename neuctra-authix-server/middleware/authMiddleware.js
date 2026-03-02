@@ -36,6 +36,7 @@ export const authMiddleware = async (req, res, next) => {
           name: true,
           apiKey: true,
           isVerified: true,
+          subscriptionPackage:true,
         },
       });
 
@@ -69,6 +70,7 @@ export const authMiddleware = async (req, res, next) => {
           email: true,
           name: true,
           isVerified: true,
+          subscriptionPackage:true,
         },
       });
 
