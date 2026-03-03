@@ -11,6 +11,7 @@ import {
   Key,
   BookOpen,
   FileText,
+  Workflow,
 } from "lucide-react";
 
 const Introduction = () => {
@@ -31,34 +32,34 @@ const Introduction = () => {
       icon: <Code className="w-5 h-5" />,
       title: "Developer Friendly SDK",
       description:
-        "Simple initialization, flexible API access, and seamless framework compatibility.",
+        "Simple setup, flexible API access, and seamless integration with modern frameworks.",
     },
     {
       icon: <Users className="w-5 h-5" />,
       title: "User Lifecycle Management",
       description:
-        "Handle signup, login, sessions, roles, and profile updates effortlessly.",
+        "Manage signup, login, roles, sessions, and profile updates easily.",
     },
     {
       icon: <Lock className="w-5 h-5" />,
       title: "Multi-App Control",
       description:
-        "Manage multiple applications with isolated data stores from one dashboard.",
+        "Manage multiple apps with isolated data from one dashboard.",
     },
     {
       icon: <Globe className="w-5 h-5" />,
       title: "Framework Agnostic",
       description:
-        "Works with React, Next.js, Vue, and any modern JavaScript framework.",
+        "Works with React, Next.js, Vue, and any JavaScript framework.",
     },
   ];
 
   const installationCode = `npm install @neuctra/authix
 
-# or with yarn
+# or
 yarn add @neuctra/authix
 
-# or with pnpm
+# or
 pnpm add @neuctra/authix`;
 
   const quickStartCode = `// authixInit.js
@@ -71,11 +72,11 @@ export const authix = new NeuctraAuthix({
   appId: "YOUR_NEUCTRA_AUTHIX_APP_ID",
 });
 
-// Now you can import and use authix anywhere in your app
-`;
+// Import authix anywhere in your app and start using it`;
 
   return (
-    <div className="space-y-8 text-gray-300">
+    <div className="space-y-12 text-gray-300">
+
       {/* Header */}
       <div className="space-y-4">
         <div className="flex items-center max-sm:flex-col max-sm:items-start gap-3">
@@ -86,11 +87,10 @@ export const authix = new NeuctraAuthix({
         </div>
 
         <p className="text-lg text-gray-400 leading-relaxed">
-          <strong className="text-white">Neuctra Authix</strong> is a serverless
-          authentication and user management platform that eliminates backend
-          complexity. It provides secure login flows, structured JSON data
-          storage, and multi-application control — all from a centralized
-          dashboard.
+          <strong className="text-white">Neuctra Authix</strong> is a modern
+          serverless authentication and user management platform. It helps you
+          securely manage users, sessions, and application data — without
+          building your own backend.
         </p>
       </div>
 
@@ -102,32 +102,78 @@ export const authix = new NeuctraAuthix({
         </h2>
 
         <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-          <p className="text-gray-400 mb-4">
-            Neuctra Authix replaces traditional backend authentication systems
-            by securely managing users, sessions, JWT tokens, and structured
-            application data through a scalable cloud API. Developers can
-            integrate Authix in minutes and focus entirely on building product
-            features instead of infrastructure.
+          <p className="text-gray-400 mb-6">
+            Instead of creating complex authentication systems from scratch,
+            Authix gives you a secure cloud API to handle login, signup,
+            sessions, roles, and structured JSON storage.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-4 h-4 text-[#00c420]" />
-              <span>JWT-based authentication</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-4 h-4 text-[#00c420]" />
-              <span>Secure session management</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-4 h-4 text-[#00c420]" />
-              <span>Structured JSON data storage</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-4 h-4 text-[#00c420]" />
-              <span>Multi-application dashboard</span>
-            </div>
+            {[
+              "JWT-based authentication",
+              "Secure session management",
+              "Structured JSON data storage",
+              "Multi-application dashboard",
+            ].map((item, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <CheckCircle className="w-4 h-4 text-[#00c420]" />
+                <span>{item}</span>
+              </div>
+            ))}
           </div>
+        </div>
+      </section>
+
+      {/* Workflow Section */}
+      <section className="space-y-6">
+        <h2 className="flex items-center gap-2 text-2xl font-semibold text-white">
+          <Workflow className="w-6 h-6 text-[#00c420]" />
+          How Authix Works (Simple Workflow)
+        </h2>
+
+        <div className="bg-zinc-900/60 border border-white/10 rounded-xl p-6 space-y-6">
+
+          <div className="space-y-2">
+            <h3 className="text-white font-semibold">1️⃣ User Signs Up / Logs In</h3>
+            <p className="text-gray-400 text-sm">
+              The user submits email & password from your frontend app.
+            </p>
+          </div>
+
+          <div className="text-center text-[#00c420] font-mono text-sm">
+            Frontend ➜ Authix API
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-white font-semibold">2️⃣ Authix Verifies User</h3>
+            <p className="text-gray-400 text-sm">
+              Authix securely validates credentials and generates a JWT token.
+            </p>
+          </div>
+
+          <div className="text-center text-[#00c420] font-mono text-sm">
+            Authix API ➜ JWT Token ➜ Frontend
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-white font-semibold">3️⃣ Secure Requests</h3>
+            <p className="text-gray-400 text-sm">
+              Your app sends the JWT token with every protected request.
+            </p>
+          </div>
+
+          <div className="text-center text-[#00c420] font-mono text-sm">
+            Frontend ➜ Authix API (with Token)
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-white font-semibold">4️⃣ Data Access & Management</h3>
+            <p className="text-gray-400 text-sm">
+              Authix verifies the token and allows secure access to user data,
+              roles, or structured JSON storage.
+            </p>
+          </div>
+
         </div>
       </section>
 
@@ -167,48 +213,42 @@ export const authix = new NeuctraAuthix({
           Quick Start
         </h2>
 
-        {/* Installation */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-            <Code className="w-5 h-5 text-[#00c420]" />
-            Installation
+          <h3 className="text-lg font-semibold text-white">
+            1️⃣ Install Package
           </h3>
-
           <CodeBlock code={installationCode} language="bash" />
         </div>
 
-        {/* Configuration */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-            <Key className="w-5 h-5 text-[#00c420]" />
-            Create Neuctra Authix Instance
+          <h3 className="text-lg font-semibold text-white">
+            2️⃣ Initialize Authix
           </h3>
-
           <CodeBlock code={quickStartCode} language="javascript" />
+        </div>
 
-          <div className="bg-zinc-900/60 rounded-lg p-4">
-            <h4 className="font-semibold text-sm mb-2">
-              Configuration Parameters
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-              <div>
-                <strong className="">baseUrl</strong>
-                <p className="text-gray-400 mt-1">
-                  Neuctra Authix API endpoint (use official production URL)
-                </p>
-              </div>
-              <div>
-                <strong className="">apiKey</strong>
-                <p className="text-gray-400 mt-1">
-                  Your Neuctra Authix API key
-                </p>
-              </div>
-              <div>
-                <strong className="">appId</strong>
-                <p className="text-gray-400 mt-1">
-                  Your unique application ID from dashboard
-                </p>
-              </div>
+        <div className="bg-zinc-900/60 rounded-lg p-4">
+          <h4 className="font-semibold text-sm mb-2">
+            Configuration Parameters
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div>
+              <strong>baseUrl</strong>
+              <p className="text-gray-400 mt-1">
+                Official Authix API endpoint
+              </p>
+            </div>
+            <div>
+              <strong>apiKey</strong>
+              <p className="text-gray-400 mt-1">
+                Your secret API key from dashboard
+              </p>
+            </div>
+            <div>
+              <strong>appId</strong>
+              <p className="text-gray-400 mt-1">
+                Unique ID for your application
+              </p>
             </div>
           </div>
         </div>

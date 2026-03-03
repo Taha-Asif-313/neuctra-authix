@@ -15,7 +15,7 @@ export const authMiddleware = async (req, res, next) => {
     /* ===================================================
        1️⃣ Cookie JWT Authentication (Dashboard)
        =================================================== */
-    if (token) {
+    if (token && !apiKey) {
       let decoded;
 
       try {
@@ -62,7 +62,7 @@ export const authMiddleware = async (req, res, next) => {
     /* ===================================================
        2️⃣ API Key Authentication (SDK / App)
        =================================================== */
-    if (apiKey) {
+    if (apiKey && token) {
       const admin = await prisma.adminUser.findFirst({
         where: { apiKey },
         select: {
