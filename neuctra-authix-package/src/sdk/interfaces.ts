@@ -100,6 +100,11 @@ export interface DeleteUserDataParams {
   dataId: string;
 }
 
+export interface SearchAllUsersDataFromAppParams {
+  appId: string;
+  category: string;
+}
+
 /* ============================
    📦 APP DATA
    ============================ */

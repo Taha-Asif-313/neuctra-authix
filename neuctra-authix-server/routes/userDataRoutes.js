@@ -7,6 +7,7 @@ import {
   getSingleUserData,
   getAllUsersData,
   searchAllUsersData,
+  searchAllUsersDataFromApp,
   searchUserData,
   searchUserDataByKeys,
   searchAllUsersDataByKeys,
@@ -33,6 +34,13 @@ router.get(
   "/:appId/data/searchbyref/all",
   authMiddleware,
   searchAllUsersDataByKeys,
+);
+
+// 🔹 Search all users' data by category from a specific app (protected)
+router.get(
+  "/app/:appId/category/:category",
+  authMiddleware,
+  searchAllUsersDataFromApp,
 );
 
 // 🔹 Search all users' data for a specific app (protected)

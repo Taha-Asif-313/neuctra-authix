@@ -126,6 +126,83 @@ export const getSingleUserData = async (req, res) => {
 };
 
 /**
+ * @desc    Search ALL users' data by category from a specific app
+ * @route   GET /api/users/app/:appId/data/category/:category
+ * @access  Private (Admin only)
+ */
+export const searchAllUsersDataFromApp = async (req, res) => {
+  try {
+    const { appId, category } = req.params;
+
+    // ✅ Validate inputs
+    if (!appId || !category) {
+      return res.status(400).json({
+        success: false,
+        message: "appId and category are required",
+      });
+    }
+
+    const normalizedCategory = category.toLowerCase().trim();
+
+    // Fetch all users for this app & admin
+    const users = await prisma.user.findMany({
+      where: {
+        adminId: req.admin.id,
+        appId,
+      },
+      select: {
+        id: true,
+        data: true,
+      },
+    });
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No users found for this app",
+      });
+    }
+
+    // Flatten all user data and attach userId for reference
+    let allData = users.flatMap((user) =>
+      (Array.isArray(user.data) ? user.data : []).map((item) => ({
+        ...item,
+        userId: user.id,
+      })),
+    );
+
+    // 🎯 Filter by category
+    const filteredData = allData.filter(
+      (item) => item?.dataCategory?.toLowerCase?.() === normalizedCategory,
+    );
+
+    if (filteredData.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: `No data found with category: ${category}`,
+        category: normalizedCategory,
+        totalItems: 0,
+        data: [],
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Data found with category: ${category}`,
+      category: normalizedCategory,
+      totalItems: filteredData.length,
+      data: filteredData,
+    });
+  } catch (err) {
+    console.error("SearchAllUsersDataFromApp Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/**
  * @desc    Search ALL users' data for a specific app
  * @route   GET /api/users/app/:appId/data/search
  * @access  Private (Admin only)

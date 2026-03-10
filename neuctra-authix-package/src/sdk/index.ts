@@ -12,6 +12,7 @@ import {
   GetUserDataParams,
   LoginParams,
   NeuctraAuthixConfig,
+  SearchAllUsersDataFromAppParams,
   SignupParams,
   UpdateUserDataParams,
   UpdateUserParams,
@@ -552,6 +553,26 @@ export class NeuctraAuthix {
     return await this.request(
       "DELETE",
       `/users/${userId}/data/${dataId}`,
+      undefined,
+      {},
+      false, // 👈 no credentials
+    );
+  }
+
+  /**
+   * Search all users' data by category from a specific app
+   * @param params requires appId and category
+   */
+  async searchAllUsersDataFromApp(params: SearchAllUsersDataFromAppParams) {
+    const { appId, category } = params;
+
+    if (!appId) throw new Error("searchAllUsersDataFromApp: 'appId' is required");
+    if (!category)
+      throw new Error("searchAllUsersDataFromApp: 'category' is required");
+
+    return await this.request(
+      "GET",
+      `/users/app/${encodeURIComponent(appId)}/category/${encodeURIComponent(category)}`,
       undefined,
       {},
       false, // 👈 no credentials
