@@ -564,15 +564,16 @@ export class NeuctraAuthix {
    * @param params requires appId and category
    */
   async searchAllUsersDataFromApp(params: SearchAllUsersDataFromAppParams) {
-    const { appId, category } = params;
-
-    if (!appId) throw new Error("searchAllUsersDataFromApp: 'appId' is required");
-    if (!category)
+    const { dataCategory } = params;
+    const appId = this.appId;
+    if (!appId)
+      throw new Error("searchAllUsersDataFromApp: 'appId' is required");
+    if (!dataCategory)
       throw new Error("searchAllUsersDataFromApp: 'category' is required");
 
     return await this.request(
       "GET",
-      `/users/app/${encodeURIComponent(appId)}/category/${encodeURIComponent(category)}`,
+      `/users/app/${encodeURIComponent(appId)}/category/${encodeURIComponent(dataCategory)}`,
       undefined,
       {},
       false, // 👈 no credentials
