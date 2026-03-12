@@ -267,21 +267,34 @@ export class NeuctraAuthix {
    * 🔐 Check current authentication session (cookie-based)
    * Automatically detects logged-in / logged-out state
    */
+  /**
+   * 🔐 Check current authentication session (cookie-based)
+   * Also verifies a_s_b cookie exists
+   */
   async checkUserSession(): Promise<CheckSessionResponse> {
-    // On server-side, return false immediately
     if (typeof window === "undefined") {
       return { authenticated: false };
     }
 
     try {
-      // Make a request to check the session (cookie-based)
-      return await this.request<CheckSessionResponse>(
+      const session = await this.request<CheckSessionResponse>(
         "GET",
         "/users/session",
         undefined,
         {},
         true,
       );
+
+      // Check if a_s_b cookie exists
+      const hasCookie = document.cookie
+        .split("; ")
+        .some((cookie) => cookie.startsWith("a_s_b="));
+
+      if (session?.authenticated && hasCookie) {
+        return { authenticated: true };
+      }
+
+      return { authenticated: false };
     } catch {
       return { authenticated: false };
     }
